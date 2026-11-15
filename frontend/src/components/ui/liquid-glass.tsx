@@ -246,12 +246,14 @@ let refractionSupport: boolean | null = null;
  * Can this engine paint an SVG filter inside backdrop-filter? Today only Blink does. Gecko and
  * WebKit accept the url() syntax there but paint something else (nothing, or only the rest of the
  * chain), so they are recognised by CSS features only they have. No user-agent string is read.
+ * The prefixed backdrop-filter is WebKit's on every platform (Safari, and WebKit on Linux or
+ * Windows, where the Apple system fonts are missing); Blink and Gecko do not accept it.
  */
 export function supportsGlassRefraction(): boolean {
   if (refractionSupport !== null) return refractionSupport;
   if (typeof window === "undefined" || typeof CSS === "undefined" || typeof CSS.supports !== "function") return false;
   const gecko = CSS.supports("-moz-appearance", "none");
-  const webkit = CSS.supports("font", "-apple-system-body");
+  const webkit = CSS.supports("font", "-apple-system-body") || CSS.supports("-webkit-backdrop-filter", "blur(1px)");
   refractionSupport = CSS.supports("backdrop-filter", "url(#lg) blur(1px)") && !gecko && !webkit;
   return refractionSupport;
 }

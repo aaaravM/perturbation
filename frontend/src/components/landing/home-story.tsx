@@ -116,7 +116,7 @@ export function HomeStory() {
       <div className="hidden lg:block reduced:hidden" data-story="stage">
         <StageStory active={stage} />
       </div>
-      <div className="lg:hidden reduced:block" data-story="stack">
+      <div className="overflow-x-clip lg:hidden reduced:block" data-story="stack">
         <StackedStory animate={scroll} />
       </div>
       <TwoWaysIn animate={ready && !reduce} />

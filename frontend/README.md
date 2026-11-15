@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planet X Hunter: website
 
-## Getting Started
+The Next.js site for Planet X Hunter. The project overview, data credits and results are in the
+[main README](../README.md).
 
-First, run the development server:
+## Run it
+
+Requires Node.js 20.9 or later and [pnpm](https://pnpm.io).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env.local   # connects the site to the Planet X Hunter API
+pnpm dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without `.env.local`, the five challenge targets, the Sky globe and Discoveries still work from the
+prepared data in `public/`; live fields, star lookups and quick-look spectra say the backend is not
+connected.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Check it
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm lint
+npx tsc --noEmit
+pnpm build
+pnpm test:e2e                                                # Chrome, against the dev server
+E2E_BASE_URL=https://planet-x-hunter.vercel.app pnpm test:e2e  # against the live site
+npx playwright test --config playwright.cross.config.ts      # Safari's engine (desktop, iPhone) and Firefox
+```
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Folder | What lives there |
+|---|---|
+| `src/app/` | One folder per page: `/`, `/sky`, `/explore` (the Lab), `/discoveries`, `/help`, `/how-it-works`, `/about`, `/settings` |
+| `src/components/` | Components by area: `globe/` and `sky/` (the Sky globe), `lab/` (the Lab workbench), `panel/` and `sky-panel/` (object details), `landing/` (home story), `discoveries/`, `help/`, `how-it-works/`, `about/`, `settings/`, `site/` (top bar, footer), `ui/` (shared controls, Liquid Glass, explained words); `cult/`, `skiper/` and `watermelon-ui/` hold adapted third-party components |
+| `src/lib/` | Data access, URL state, settings, formatting |
+| `public/` | Prepared data: challenge-target bundles, star catalogue tiles, sky textures, the Discoveries list and model summaries |
+| `e2e/` | Playwright tests |

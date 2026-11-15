@@ -23,7 +23,7 @@ export interface TileEvent {
   layer: "spherex" | "allwise";
   /** Cube frame from the tile name (SPHEREx only); frame 0 has no suffix. */
   frame: number | null;
-  /** HTTP status from Resource Timing; 0 when the browser could not tell. */
+  /** HTTP status from Resource Timing (or from a check request, see checkTile); 0 when unknown. */
   status: number;
   url: string;
 }
@@ -96,6 +96,33 @@ export function emitCurrentView(session: AladinSession, dragging = false) {
   if (view) subscriber?.onView?.(view, dragging);
 }
 
+/**
+ * Safari's Resource Timing has no responseStatus, so a failing tile would look like a good one.
+ * There, until one tile of a layer and frame is known to load, one tile at a time is requested
+ * again (normally from the HTTP cache) to read its status. A request that fails outright reports
+ * nothing: the watchdog covers that.
+ */
+const tileChecks = new Map<string, "ok" | "busy">();
+/** URLs of those check requests: their own Resource Timing entries are not Aladin's tiles. */
+const checkUrls = new Set<string>();
+
+function checkTile(tile: Omit<TileEvent, "status">) {
+  const key = `${tile.layer}|${tile.frame}`;
+  const state = tileChecks.get(key);
+  if (state === "ok") subscriber?.onTile?.({ ...tile, status: 0 });
+  if (state) return;
+  tileChecks.set(key, "busy");
+  checkUrls.add(tile.url);
+  fetch(tile.url)
+    .then((res) => {
+      res.body?.cancel().catch(() => {});
+      if (res.ok) tileChecks.set(key, "ok");
+      else tileChecks.delete(key);
+      subscriber?.onTile?.({ ...tile, status: res.status });
+    })
+    .catch(() => tileChecks.delete(key));
+}
+
 /** Resource Timing exposes the HTTP status of Aladin's tile fetches (IRSA sends CORS headers). */
 function observeTiles() {
   if (typeof PerformanceObserver === "undefined") return;
@@ -103,17 +130,14 @@ function observeTiles() {
     for (const entry of list.getEntries() as PerformanceResourceTiming[]) {
       const url = entry.name;
       const match = SPHEREX_TILE_RE.exec(url);
-      const status = typeof entry.responseStatus === "number" ? entry.responseStatus : 0;
-      if (match) {
-        subscriber?.onTile?.({
-          layer: "spherex",
-          frame: match[1] === undefined ? 0 : Number(match[1]),
-          status,
-          url,
-        });
-      } else if (url.includes(ALLWISE_PATH) && /\/Npix\d+\./.test(url)) {
-        subscriber?.onTile?.({ layer: "allwise", frame: null, status, url });
-      }
+      const tile: Omit<TileEvent, "status"> | null = match
+        ? { layer: "spherex", frame: match[1] === undefined ? 0 : Number(match[1]), url }
+        : url.includes(ALLWISE_PATH) && /\/Npix\d+\./.test(url)
+          ? { layer: "allwise", frame: null, url }
+          : null;
+      if (!tile) continue;
+      if (typeof entry.responseStatus === "number") subscriber?.onTile?.({ ...tile, status: entry.responseStatus });
+      else if (!checkUrls.delete(url)) checkTile(tile);
     }
   });
   try {

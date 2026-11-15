@@ -420,7 +420,7 @@ export function SkyExperience() {
         Drag, or use the arrow keys, to turn the view. Plus and minus zoom; scrolling or pinching zooms towards a
         spot, and a double click flies in. Click a star for its details, or empty sky to learn about that spot; Enter
         describes the spot at the centre. The side list and the search box reach every star by keyboard. The 3D
-        space button moves the stars out to their real distances.
+        space button moves the stars with a measured parallax out to their real distances.
       </p>
       <p className="sr-only" aria-live="polite">
         {announcement}
@@ -564,8 +564,8 @@ function Intro({ compact = false, mode }: { compact?: boolean; mode: SkyMode }) 
         <p className="text-ui measure text-pretty text-fg-dim">
           {mode === "space" ? (
             <>
-              The same stars at their real distances, measured from their{" "}
-              <Term k="parallax">parallax</Term>. Fly around; click any star.
+              Stars with a measured <Term k="parallax">parallax</Term> sit at their real distances; the rest
+              stay on the faint outer shell. Fly around; click any star.
             </>
           ) : (
             <>
