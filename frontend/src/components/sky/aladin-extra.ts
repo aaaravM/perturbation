@@ -14,6 +14,9 @@ export interface ImageLayer {
   readonly added: boolean;
   setOpacity(opacity: number): void;
   getOpacity(): number;
+  /** Colour map and stretch (3.8.2: grayscale, viridis, magma, rdbu, ...; native keeps the PNG colours). */
+  setColormap?(colormap: string | null, options?: { stretch?: "linear" | "asinh" | "log" | "sqrt" | "pow"; reversed?: boolean }): void;
+  setCuts?(min: number, max: number): void;
 }
 
 export interface ImageOptions {
@@ -44,7 +47,31 @@ export interface ShapeOptions {
   opacity?: number;
 }
 
+export interface CatalogSource {
+  ra: number;
+  dec: number;
+  data?: Record<string, unknown>;
+}
+
+export interface Catalog {
+  addSources(sources: CatalogSource[] | CatalogSource): void;
+  removeAll(): void;
+  show(): void;
+  hide(): void;
+  isShowing?: boolean;
+}
+
+export interface CatalogOptions {
+  name?: string;
+  color?: string;
+  sourceSize?: number;
+  shape?: "circle" | "square" | "plus" | "cross" | "rhomb" | "triangle";
+  onClick?: "showTable" | "showPopup" | null;
+}
+
 export interface AladinStaticExtra {
+  catalog(options: CatalogOptions): Catalog;
+  source(ra: number, dec: number, data?: Record<string, unknown>): CatalogSource;
   image(url: string, options: ImageOptions): ImageLayer;
   graphicOverlay(options: { name?: string; color?: string; lineWidth?: number; lineDash?: number[] }): GraphicOverlay;
   polyline(coords: [number, number][], options?: ShapeOptions): OverlayItem;
@@ -54,7 +81,12 @@ export interface AladinStaticExtra {
 export interface AladinExtra extends Aladin {
   setOverlayImageLayer(layer: HiPS | ImageLayer | string, name?: string): HiPS;
   addOverlay(overlay: GraphicOverlay): void;
-  removeOverlay(overlay: GraphicOverlay): void;
+  removeOverlay(overlay: GraphicOverlay | Catalog): void;
+  addCatalog(catalog: Catalog): void;
+  setCooGrid?(options: { enabled?: boolean; color?: string; opacity?: number; labelSize?: number; showLabels?: boolean }): void;
+  showReticle?(show: boolean): void;
+  world2pix(ra: number, dec: number): [number, number] | null;
+  pix2world(x: number, y: number): [number, number] | null;
 }
 
 export function extra(session: AladinSession): { A: AladinStaticExtra; aladin: AladinExtra } {

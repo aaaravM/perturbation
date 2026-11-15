@@ -24,7 +24,7 @@ const status = () => page.getByTestId("sky-status");
 test("loads real SPHEREx tiles for the default view with no console errors", async () => {
   const response = await page.goto("/explore");
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("heading", { level: 1, name: "Lab: blink SPHEREx images of any patch of sky" })).toBeAttached();
+  await expect(page.getByRole("heading", { level: 1, name: "Lab: a workbench for SPHEREx images of any patch of sky" })).toBeAttached();
   await expect(status()).toHaveAttribute("data-state", "ready", { timeout: 45_000 });
   await pause(page, 2500); // let the first burst of tiles finish
 
@@ -80,16 +80,16 @@ test("the AllWISE W2 overlay loads its tiles", async () => {
   const firstTile = page.waitForResponse((res) => /\/AllWISE\/W2\/Norder\d+\/Dir\d+\/Npix/.test(res.url()), {
     timeout: 30_000,
   });
-  await page.getByTestId("allwise-toggle-desktop").click();
-  await expect(page.getByTestId("allwise-toggle-desktop")).toHaveAttribute("data-state", "checked");
+  await page.getByTestId("layer-toggle-wise").click();
+  await expect(page.getByTestId("layer-toggle-wise")).toHaveAttribute("aria-checked", "true");
   expect((await firstTile).status()).toBe(200);
   await pause(page, 2000);
   expect(log.allwise.length).toBeGreaterThan(0);
   expect(log.allwise.filter((t) => t.status !== 200), "all AllWISE tiles 200").toEqual([]);
-  await page.getByRole("slider", { name: "AllWISE overlay opacity" }).first().focus();
+  await page.getByRole("slider", { name: "Opacity of WISE 2010" }).focus();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByText("55%").first()).toBeVisible();
-  await page.getByTestId("allwise-toggle-desktop").click();
+  await expect(page.getByRole("slider", { name: "Opacity of WISE 2010" })).toHaveAttribute("aria-valuetext", "55 percent");
+  await page.getByTestId("layer-toggle-wise").click();
   await pause(page);
 });
 

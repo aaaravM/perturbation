@@ -36,8 +36,11 @@ export function LightCurveChart({
   lightcurve,
   detector,
   currentMjd,
+  height = 196,
 }: {
   lightcurve: NonNullable<FieldManifest["lightcurve"]>;
+  /** Chart height in pixels. */
+  height?: number;
   /** 1..6: the detector in focus. */
   detector: number;
   currentMjd: number | null;
@@ -67,7 +70,7 @@ export function LightCurveChart({
 
   return (
     <figure className="flex flex-col gap-2" data-testid="lightcurve-chart">
-      <ChartContainer config={{}} className="aspect-auto h-[196px] w-full [&_.recharts-cartesian-axis-tick_text]:fill-fg-faint">
+      <ChartContainer config={{}} style={{ height }} className="aspect-auto w-full [&_.recharts-cartesian-axis-tick_text]:fill-fg-faint">
         <ComposedChart margin={{ top: 8, right: 10, bottom: 18, left: 2 }}>
           <CartesianGrid stroke="var(--hair)" vertical={false} />
           <XAxis

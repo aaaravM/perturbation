@@ -1,0 +1,3 @@
+# Packed star records and colours: never touch their bytes.
+*.bin binary
+*.rgb binary

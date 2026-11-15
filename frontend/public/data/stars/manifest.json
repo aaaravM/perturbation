@@ -1,0 +1,78 @@
+{
+ "version": 1,
+ "epoch_jyear": 2026.0,
+ "tiers": [
+  {
+   "name": "tier1",
+   "vmax": 6.5,
+   "count": 8870,
+   "bin": "tier1.bin",
+   "rgb": "tier1.rgb",
+   "meta": "tier1.meta.json"
+  },
+  {
+   "name": "tier2",
+   "vmax": 8.0,
+   "count": 32524,
+   "bin": "tier2.bin",
+   "rgb": "tier2.rgb",
+   "meta": "tier2.meta.json"
+  },
+  {
+   "name": "tier3",
+   "vmax": 99.0,
+   "count": 76561,
+   "bin": "tier3.bin",
+   "rgb": "tier3.rgb",
+   "meta": "tier3.meta.json"
+  }
+ ],
+ "fields": [
+  "ra",
+  "dec",
+  "vmag",
+  "bv",
+  "plx",
+  "pmra",
+  "pmdec",
+  "teff"
+ ],
+ "collections": "collections.json",
+ "credits": "Stars: ESA Hipparcos (I/311, I/239 via VizieR). The Hipparcos Catalogue (ESA 1997, SP-1200) and Hipparcos, the New Reduction (van Leeuwen 2007, A&A 474, 653), through the VizieR catalogue access tool, CDS, Strasbourg (CfA and IDIA mirrors). Names and designations: d3-celestial by Olaf Frohn (BSD-3-Clause, see LICENSE-d3-celestial.txt), which collects the IAU WGSN star names. Constellations: IAU boundaries (Roman 1987) via astropy. Temperatures: estimated from B-V (Ballesteros 2012).",
+ "generated": "2026-11-15",
+ "notes": [
+  "Records are little-endian float32, 8 per star in the order of 'fields'; NaN means unknown.",
+  "ra, dec: degrees, ICRS, moved from the Hipparcos epoch J1991.25 to epoch_jyear with the star's proper motion (zero radial velocity).",
+  "vmag: Johnson V from I/239; for 0 stars without V it is the Hipparcos Hp magnitude.",
+  "bv: Johnson B-V (I/239, else I/311).",
+  "plx: Hipparcos parallax in mas (I/311); NaN when not positive or less than 5 times its formal error (no reliable distance); meta 'e_plx' holds the error for every star.",
+  "pmra (mu_alpha * cos dec), pmdec: proper motion in mas/yr (I/311).",
+  "teff: estimated from B-V with Ballesteros (2012), B-V clipped to [-0.4, 2.0]; not a spectroscopic temperature, no correction for interstellar reddening.",
+  "rgb: sRGB colour of a blackbody at teff (CIE 1931 2-degree colour matching, D65 white), brightest channel 255; white where B-V is unknown.",
+  "Each tier holds the stars with the previous tier's vmax < vmag <= vmax, brightest first.",
+  "meta: hip (Hipparcos number), sp (spectral type, I/239), con (IAU constellation), e_plx (mas), names keyed by record index (d3-celestial: proper name, Bayer, Flamsteed, variable-star and Gliese designations).",
+  "collections.json: {tier, index} references; nearest uses reliable parallaxes only."
+ ],
+ "colour_reference": {
+  "Sun, B-V 0.65": [
+   255,
+   241,
+   234
+  ],
+  "M dwarf, B-V 1.5": [
+   255,
+   207,
+   155
+  ],
+  "B star, B-V -0.2": [
+   185,
+   204,
+   255
+  ],
+  "A0 (Vega), B-V 0.0": [
+   204,
+   217,
+   255
+  ]
+ }
+}

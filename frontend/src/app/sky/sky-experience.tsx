@@ -1,49 +1,87 @@
 "use client";
-// Sky mode: the globe, the list of featured objects, the view controls and the right-hand panel.
-// Selection lives in the URL for featured objects (/sky?target=r-dra), so a view can be shared.
-// Layout: on large screens an editorial left column (intro, list, map caption) and the globe in
-// the space to its right; below that, the intro on top and the list as a bottom rail; the panel
-// is a side panel from tablets up and a bottom sheet on phones. The globe is told how much space
-// the interface covers and centres itself in the rest.
+// Sky mode: the globe of real stars, the side rail (search and star lists), the view controls
+// and the right-hand panel. What is selected lives in the URL so a view can be shared:
+//   ?target=r-dra        one of the five challenge targets
+//   ?star=32349          a catalogue star by HIP number
+//   ?ra=..&dec=..        a spot of sky
+//   ?mode=3d             3D space instead of the sphere
+// Layout: on large screens the rail is a column on the left and the globe uses the space to its
+// right; below that the rail sits on top (search, with the lists folded away). The panel is a
+// side panel from tablets up and a bottom sheet on phones. The globe is told how much space the
+// interface covers and centres itself in the rest.
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsFloat, parseAsInteger, parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
 import { MinusIcon, PlusIcon, RotateCcwIcon } from "lucide-react";
 import { FEATURED_TARGETS, findFeatured, type FeaturedTarget } from "@/lib/targets";
 import { cn } from "@/lib/utils";
+import { Term } from "@/components/ui/term";
+import {
+  ensureCatalogue,
+  getCatalogue,
+  getStar,
+  spectralMeaning,
+  starTitle,
+  subscribeCatalogue,
+  type Catalogue,
+} from "@/lib/stars";
 import type {
   GlobeHandle,
+  GlobeMarker,
   GlobeSelection,
   GlobeView,
   Insets,
   SkyLayerToggles,
+  SkyMode,
 } from "@/components/globe/sky-globe";
 import { FlatSkyMap } from "@/components/globe/flat-sky-map";
 import { LayersControl } from "@/components/globe/layers-control";
 import { formatDec, formatRa } from "@/components/globe/globe-math";
 import { SkyPanel } from "@/components/sky-panel/sky-panel";
 import { KIND_LABEL, TargetStory } from "@/components/sky-panel/target-story";
-import { PatchStory } from "@/components/sky-panel/patch-story";
+import { StarStory } from "@/components/sky-panel/star-story";
+import { SpotStory } from "@/components/sky-panel/spot-story";
+import { SkyRail } from "@/components/sky-panel/sky-rail";
 
 const SkyGlobe = dynamic(() => import("@/components/globe/sky-globe"), {
   ssr: false,
   loading: () => <GlobeLoading />,
 });
 
-const SKY_TEXTURE_META = "/textures/spherex-sky.json";
-/** Constellations start faint and the grid off; everything else on. */
 const DEFAULT_LAYERS: SkyLayerToggles = {
-  stars: true,
-  constellations: true,
+  spherex: false,
+  constellations: false,
   names: true,
   grid: false,
   markers: true,
 };
-const MARKERS = FEATURED_TARGETS.map(({ slug, name, ra, dec }) => ({ slug, name, ra, dec }));
 
-// ---------------------------------------------------------------------------------- media hooks
+/** Distance of each challenge target for 3D space, from its curated facts (light-years). */
+function targetDistancePc(t: FeaturedTarget): number | null {
+  const f = t.facts.find((x) => x.label === "Distance");
+  const m = f ? /([\d.,]+)\s*light-years/.exec(f.value) : null;
+  return m ? Number(m[1].replace(/,/g, "")) / 3.261564 : null;
+}
+
+const MARKERS: GlobeMarker[] = FEATURED_TARGETS.map((t) => ({
+  slug: t.slug,
+  name: t.name,
+  ra: t.ra,
+  dec: t.dec,
+  distancePc: targetDistancePc(t),
+}));
+
+const urlKeys = {
+  target: parseAsString,
+  star: parseAsInteger,
+  ra: parseAsFloat,
+  dec: parseAsFloat,
+  mode: parseAsStringLiteral(["3d"] as const),
+};
+
+// ---------------------------------------------------------------------------------- hooks
 
 function useMedia(query: string, server = false) {
   return useSyncExternalStore(
@@ -69,7 +107,6 @@ function hasWebGL(): boolean {
   return webglCache;
 }
 
-/** Callback ref that tracks an element's size; reports 0 x 0 while it is unmounted. */
 function useSize<T extends HTMLElement>() {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const observer = useRef<ResizeObserver | null>(null);
@@ -82,9 +119,7 @@ function useSize<T extends HTMLElement>() {
     }
     const ro = new ResizeObserver(() => {
       const r = el.getBoundingClientRect();
-      setSize((s) =>
-        s.width === r.width && s.height === r.height ? s : { width: r.width, height: r.height },
-      );
+      setSize((s) => (s.width === r.width && s.height === r.height ? s : { width: r.width, height: r.height }));
     });
     ro.observe(el);
     observer.current = ro;
@@ -92,57 +127,35 @@ function useSize<T extends HTMLElement>() {
   return [ref, size] as const;
 }
 
-/** Band ranges of the globe texture, from the JSON that documents it (public/textures). */
-type SkyMeta = Partial<Record<"blue" | "green" | "red" | "mono", [number, number]>>;
-function useSkyMeta(enabled: boolean): SkyMeta | null {
-  const [meta, setMeta] = useState<SkyMeta | null>(null);
-  useEffect(() => {
-    if (!enabled) return;
-    const controller = new AbortController();
-    fetch(SKY_TEXTURE_META, { signal: controller.signal })
-      .then((r) => (r.ok ? r.json() : null))
-      .then(
-        (
-          j: {
-            channels?: {
-              rgb?: Record<string, { range_um?: [number, number] }>;
-              mono?: { range_um?: [number, number] };
-            };
-          } | null,
-        ) => {
-          const rgb = j?.channels?.rgb;
-          if (!rgb) return;
-          const ok = (r: unknown): r is [number, number] =>
-            Array.isArray(r) && r.length === 2 && r.every((v) => Number.isFinite(v));
-          const pick = (r: unknown) => (ok(r) ? r : undefined);
-          setMeta({
-            blue: pick(rgb.blue?.range_um),
-            green: pick(rgb.green?.range_um),
-            red: pick(rgb.red?.range_um),
-            mono: pick(j?.channels?.mono?.range_um),
-          });
-        },
-      )
-      .catch(() => {});
-    return () => controller.abort();
-  }, [enabled]);
-  return meta;
+function useCatalogue(): Catalogue | null {
+  useEffect(() => ensureCatalogue(), []);
+  return useSyncExternalStore(subscribeCatalogue, getCatalogue, () => null);
 }
 
 // ---------------------------------------------------------------------------------- component
 
 export function SkyExperience() {
-  const [targetSlug, setTargetSlug] = useQueryState(
-    "target",
-    parseAsString.withOptions({ history: "replace", scroll: false }),
-  );
-  const [patch, setPatch] = useState<{ ra: number; dec: number } | null>(null);
-  const target = findFeatured(targetSlug);
+  const [q, setQ] = useQueryStates(urlKeys, { history: "replace", scroll: false });
+  const catalogue = useCatalogue();
+  const [localStar, setLocalStar] = useState<number | null>(null);
+
+  // A star from the URL (HIP number) becomes a selection once its tier has loaded.
+  const urlStarId = q.star !== null && catalogue ? (catalogue.byHip.get(q.star) ?? null) : null;
+  const starId = localStar ?? urlStarId;
+  const target = findFeatured(q.target);
+  const star = starId !== null ? getStar(catalogue, starId) : null;
+  const spot = q.ra !== null && q.dec !== null && Math.abs(q.dec) <= 90 ? { ra: ((q.ra % 360) + 360) % 360, dec: q.dec } : null;
   const selection: GlobeSelection = target
     ? { kind: "target", slug: target.slug }
-    : patch
-      ? { kind: "patch", ra: patch.ra, dec: patch.dec }
-      : null;
+    : starId !== null
+      ? { kind: "star", id: starId }
+      : spot
+        ? { kind: "spot", ra: spot.ra, dec: spot.dec }
+        : null;
+  const pendingStar = q.star !== null && starId === null && !target && !(catalogue?.complete ?? false);
+
+  const mode: SkyMode = q.mode === "3d" ? "space" : "sphere";
+  const canSpace = catalogue?.source === "hipparcos";
 
   const reducedMotion = useReducedMotion() ?? false;
   const isLarge = useMedia("(min-width: 1024px)", true);
@@ -157,206 +170,182 @@ export function SkyExperience() {
   const [globeFailed, setGlobeFailed] = useState(false);
   const flat = !webglOk || globeFailed;
 
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
+  const [railStar, setRailStar] = useState<number | null>(null);
   const [layers, setLayers] = useState<SkyLayerToggles>(DEFAULT_LAYERS);
   const [view, setView] = useState<GlobeView>("colour");
   const [imagery, setImagery] = useState(1);
-  const [textureReady, setTextureReady] = useState(false);
   const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
   const [columnRef, columnSize] = useSize<HTMLDivElement>();
-  const [introRef, introSize] = useSize<HTMLDivElement>();
-  const [railRef, railSize] = useSize<HTMLDivElement>();
+  const [topRef, topSize] = useSize<HTMLDivElement>();
   const globe = useRef<GlobeHandle>(null);
   const opener = useRef<HTMLElement | null>(null);
   const centreText = useRef<HTMLSpanElement>(null);
   const [announcement, setAnnouncement] = useState("");
-  const keyboardTurn = useRef(false);
-  const announceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const headingId = useId();
 
   const panelLayout: "side" | "sheet" = isTablet ? "side" : "sheet";
-  const open = selection !== null;
+  const open = selection !== null || pendingStar;
 
-  // Space the interface covers; the globe centres itself in what is left.
   const insets: Insets = useMemo(() => {
     const right = open && panelLayout === "side" ? panelSize.width + 32 : 0;
     if (isLarge) return { top: 0, right, bottom: 0, left: columnSize.width ? columnSize.width + 40 : 0 };
-    if (open && panelLayout === "sheet") return { top: 0, right: 0, bottom: panelSize.height, left: 0 };
-    return {
-      top: !open && introSize.height ? introSize.height + 24 : 0,
-      right,
-      bottom: railSize.height ? railSize.height + 28 : 0,
-      left: 0,
-    };
-  }, [open, panelLayout, panelSize, isLarge, columnSize.width, introSize.height, railSize.height]);
+    if (open && panelLayout === "sheet") return { top: topSize.height ? topSize.height + 8 : 0, right: 0, bottom: panelSize.height, left: 0 };
+    return { top: topSize.height ? topSize.height + 12 : 0, right, bottom: 56, left: 0 };
+  }, [open, panelLayout, panelSize, isLarge, columnSize.width, topSize.height]);
 
   // ------------------------------------------------------------------ selection
+  const remember = (from: HTMLElement | null | undefined) => {
+    opener.current = from ?? document.querySelector<HTMLElement>("[data-testid=sky-globe]");
+  };
   const selectTarget = useCallback(
     (slug: string, from?: HTMLElement | null) => {
-      if (from !== undefined) opener.current = from;
-      else if (!opener.current)
-        opener.current = document.querySelector<HTMLElement>("[data-testid=sky-globe]");
-      setPatch(null);
-      void setTargetSlug(slug);
+      remember(from);
+      setLocalStar(null);
+      void setQ({ target: slug, star: null, ra: null, dec: null });
     },
-    [setTargetSlug],
+    [setQ],
   );
-  const selectPatch = useCallback(
-    (ra: number, dec: number) => {
-      opener.current = document.querySelector<HTMLElement>("[data-testid=sky-globe]");
-      void setTargetSlug(null);
-      setPatch({ ra, dec });
+  const selectStar = useCallback(
+    (id: number, from?: HTMLElement | null) => {
+      remember(from);
+      const s = getStar(getCatalogue(), id);
+      setLocalStar(id);
+      void setQ({
+        target: null,
+        star: s?.hip ?? null,
+        ra: s && !s.hip ? Number(s.ra.toFixed(5)) : null,
+        dec: s && !s.hip ? Number(s.dec.toFixed(5)) : null,
+      });
+      if (s) setAnnouncement(`${starTitle(s)} selected.`);
     },
-    [setTargetSlug],
+    [setQ],
+  );
+  const selectSpot = useCallback(
+    (ra: number, dec: number) => {
+      remember(null);
+      setLocalStar(null);
+      void setQ({ target: null, star: null, ra: Number(ra.toFixed(5)), dec: Number(dec.toFixed(5)) });
+    },
+    [setQ],
   );
   const close = useCallback(() => {
-    void setTargetSlug(null);
-    setPatch(null);
+    setLocalStar(null);
+    void setQ({ target: null, star: null, ra: null, dec: null });
     const back = opener.current;
     opener.current = null;
     requestAnimationFrame(() => back?.focus({ preventScroll: true }));
-  }, [setTargetSlug]);
+  }, [setQ]);
+  const setMode = useCallback(
+    (m: SkyMode) => {
+      void setQ({ mode: m === "space" ? "3d" : null });
+      setAnnouncement(m === "space" ? "3D space: the stars move out to their distances from the Sun." : "Back on the sky sphere.");
+    },
+    [setQ],
+  );
 
-  // Focus the panel heading whenever it shows something new.
   const contentKey = target
     ? `t:${target.slug}`
-    : patch
-      ? `p:${patch.ra.toFixed(4)},${patch.dec.toFixed(4)}`
-      : "";
+    : starId !== null
+      ? `s:${starId}`
+      : spot
+        ? `p:${spot.ra.toFixed(4)},${spot.dec.toFixed(4)}`
+        : pendingStar
+          ? "pending"
+          : "";
   useEffect(() => {
-    if (!contentKey) return;
-    const id = requestAnimationFrame(() =>
-      document.getElementById(headingId)?.focus({ preventScroll: true }),
-    );
+    if (!contentKey || contentKey === "pending") return;
+    const id = requestAnimationFrame(() => document.getElementById(headingId)?.focus({ preventScroll: true }));
     return () => cancelAnimationFrame(id);
   }, [contentKey, headingId]);
 
   const onCentreChange = useCallback((ra: number, dec: number) => {
     const el = centreText.current;
     if (el) el.textContent = `RA ${formatRa(ra, 1)}  Dec ${formatDec(dec, 1)}`;
-    if (keyboardTurn.current) {
-      clearTimeout(announceTimer.current);
-      announceTimer.current = setTimeout(() => {
-        keyboardTurn.current = false;
-        setAnnouncement(
-          `Centre of view: right ascension ${Math.round(ra)} degrees, declination ${dec < 0 ? "minus " : ""}${Math.abs(Math.round(dec))} degrees.`,
-        );
-      }, 650);
-    }
   }, []);
-  useEffect(() => () => clearTimeout(announceTimer.current), []);
-
-  const onTextureReady = useCallback(() => setTextureReady(true), []);
-  const skyMeta = useSkyMeta(textureReady || flat);
   const onUnavailable = useCallback(() => setGlobeFailed(true), []);
   const nextTarget = (t: FeaturedTarget) =>
     FEATURED_TARGETS[(FEATURED_TARGETS.findIndex((x) => x.slug === t.slug) + 1) % FEATURED_TARGETS.length];
 
-  // ------------------------------------------------------------------ pieces
-  const list = (
-    <TargetList
-      targets={FEATURED_TARGETS}
-      selected={target?.slug ?? null}
-      hovered={hovered}
-      onHover={setHovered}
-      onSelect={(slug, el) => selectTarget(slug, el)}
-      variant={isLarge ? "column" : "rail"}
-    />
-  );
+  const shareUrl =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/sky?${new URLSearchParams(
+          Object.entries({
+            star: q.star !== null ? String(q.star) : "",
+            ra: q.ra !== null ? String(q.ra) : "",
+            dec: q.dec !== null ? String(q.dec) : "",
+            mode: q.mode ?? "",
+          }).filter(([, v]) => v),
+        ).toString()}`;
 
-  const band = (b: [number, number] | undefined) =>
-    b ? <span className="readout">{`${b[0].toFixed(2)}–${b[1].toFixed(2)}`}</span> : null;
-  const caption = (
-    <p className="text-micro text-pretty text-fg-faint" data-testid="globe-caption">
-      {textureReady || flat ? (
-        <>
-          {view === "mono" && !flat ? (
-            <>
-              SPHEREx all-sky map, Data Release 1, at {skyMeta?.mono ? band(skyMeta.mono) : "about 1.25"} µm:
-              one of its 102 colours on its own, shown in grey.
-            </>
-          ) : skyMeta?.blue && skyMeta.green && skyMeta.red ? (
-            <>
-              SPHEREx all-sky map, Data Release 1, in false colour: blue {band(skyMeta.blue)} µm, green{" "}
-              {band(skyMeta.green)} µm, red {band(skyMeta.red)} µm.
-            </>
-          ) : (
-            <>SPHEREx all-sky map, Data Release 1, in false colour.</>
-          )}{" "}
-          {layers.stars && !flat ? "White dots: Hipparcos catalogue stars to magnitude 8. " : null}
-          Seen from outside, so the sky is mirror-reversed, as on a classic celestial globe.
-        </>
-      ) : (
-        <>
-          The SPHEREx map is still being prepared for the globe. Until it arrives, the white dots show the
-          stars of the Hipparcos catalogue.
-        </>
-      )}
-    </p>
+  const eyebrow = target
+    ? KIND_LABEL[target.kind]
+    : star
+      ? starEyebrow(star.sp)
+      : spot
+        ? "Empty sky"
+        : "Star";
+
+  // ------------------------------------------------------------------ pieces
+  const rail = (
+    <SkyRail
+      catalogue={catalogue}
+      selection={selection}
+      hoveredTarget={hoveredTarget}
+      onSelectStar={selectStar}
+      onSelectTarget={selectTarget}
+      onSelectCoords={selectSpot}
+      onHoverStar={setRailStar}
+      onHoverTarget={setHoveredTarget}
+      compact={!isLarge}
+    />
   );
 
   return (
     <div
       className="absolute inset-0"
-      // The how-to hint goes once the globe has been used in any way: drag, wheel or keys.
       onPointerDownCapture={(e) => {
         if (!touched && (e.target as HTMLElement).closest("[data-testid=sky-globe]")) setTouched(true);
       }}
       onWheelCapture={(e) => {
         if (!touched && (e.target as HTMLElement).closest("[data-testid=sky-globe]")) setTouched(true);
       }}
-      onKeyDownCapture={(e) => {
-        if ((e.target as HTMLElement).dataset.testid !== "sky-globe") return;
-        if (!touched) setTouched(true);
-        if (e.key.startsWith("Arrow")) keyboardTurn.current = true;
-      }}
     >
-      {/* Quiet backdrop: a faint pool of light behind the globe, nothing more. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_58%_50%,#0d0d0c_0%,var(--ink)_70%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_60%_50%,#0b0b0a_0%,var(--ink)_70%)]"
       />
 
-      {/* Heading and list first in reading order; they float above the globe (z-10).
-          Large screens: one editorial column on the left. */}
       {isLarge ? (
         <div
           ref={columnRef}
-          className="pointer-events-none absolute top-8 bottom-7 left-8 z-10 flex w-[19.5rem] flex-col gap-8 xl:left-10"
+          className="pointer-events-none absolute top-7 bottom-6 left-8 z-10 flex w-[20rem] flex-col gap-6 xl:left-10"
         >
-          {/* A scrim behind the column, for when the globe is flown close and passes under it. */}
           <div
             aria-hidden
-            className="absolute -top-8 -bottom-7 -left-10 -z-10 w-[calc(100%+9rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.92)_0%,rgb(5_5_5/0.86)_60%,rgb(5_5_5/0.5)_80%,transparent_100%)]"
+            className="absolute -top-7 -bottom-6 -left-10 -z-10 w-[calc(100%+8rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.94)_0%,rgb(5_5_5/0.88)_62%,rgb(5_5_5/0.45)_82%,transparent_100%)]"
           />
-          <Intro />
-          <div className="pointer-events-auto">{list}</div>
-          <div className="pointer-events-auto mt-auto">{caption}</div>
+          <Intro mode={mode} />
+          <div className="pointer-events-auto flex min-h-0 flex-1 flex-col">{rail}</div>
         </div>
       ) : (
-        <>
+        <div ref={topRef} className="absolute inset-x-3 top-3 z-10 flex flex-col gap-2 sm:inset-x-5">
           <AnimatePresence initial={false}>
             {!open && (
               <motion.div
-                ref={introRef}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="pointer-events-none absolute inset-x-4 top-4 z-10 sm:inset-x-6"
+                className="pointer-events-none"
               >
-                <Intro compact />
+                <Intro compact mode={mode} />
               </motion.div>
             )}
           </AnimatePresence>
-          <div
-            ref={railRef}
-            className="absolute bottom-3 left-0 z-10 transition-[right] duration-500 ease-out-expo"
-            style={{ right: open && panelLayout === "side" ? panelSize.width + 24 : 0 }}
-          >
-            {list}
-          </div>
-        </>
+          <div className="pointer-events-auto rounded-lg border border-hair bg-ink/85 p-2">{rail}</div>
+        </div>
       )}
 
       {flat ? (
@@ -364,27 +353,30 @@ export function SkyExperience() {
           <FlatSkyMap
             markers={MARKERS}
             selection={selection}
-            hovered={hovered}
-            onHoverChange={setHovered}
+            hovered={hoveredTarget}
+            onHoverChange={setHoveredTarget}
             onSelectTarget={(slug) => selectTarget(slug, null)}
-            onSelectPatch={selectPatch}
+            onSelectPatch={selectSpot}
             className="max-w-4xl"
           />
         </div>
       ) : (
         <SkyGlobe
+          catalogue={catalogue}
           markers={MARKERS}
           selection={selection}
-          hovered={hovered}
-          onHoverChange={setHovered}
+          hovered={hoveredTarget}
+          railStar={railStar}
+          onHoverChange={setHoveredTarget}
           onSelectTarget={(slug) => selectTarget(slug)}
-          onSelectPatch={selectPatch}
+          onSelectStar={(id) => selectStar(id)}
+          onSelectSpot={selectSpot}
+          mode={canSpace ? mode : "sphere"}
           layers={layers}
           view={view}
           imagery={imagery}
           insets={insets}
           reducedMotion={reducedMotion}
-          onTextureReady={onTextureReady}
           onCentreChange={onCentreChange}
           onUnavailable={onUnavailable}
           handleRef={globe}
@@ -392,29 +384,33 @@ export function SkyExperience() {
       )}
 
       <p id="sky-globe-help" className="sr-only">
-        Drag, or use the arrow keys, to fly round the globe. Plus and minus zoom; scrolling or pinching zooms
-        towards a spot, a double click flies in, and Shift-drag or right-drag moves the view a little. Enter
-        describes the patch of sky at the centre. The five featured objects are also listed as buttons.
+        Drag, or use the arrow keys, to turn the view. Plus and minus zoom; scrolling or pinching zooms towards a
+        spot, and a double click flies in. Click a star for its details, or empty sky to learn about that spot; Enter
+        describes the spot at the centre. The side list and the search box reach every star by keyboard. The 3D
+        space button moves the stars out to their real distances.
       </p>
       <p className="sr-only" aria-live="polite">
         {announcement}
       </p>
 
-      {/* First-visit hint, until the globe is first touched. */}
       <AnimatePresence>
         {isLarge && !flat && !touched && !open && (
           <motion.p
             key="hint"
             aria-hidden
             initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: reducedMotion ? 0 : 2.8, duration: 0.6 } }}
+            animate={{ opacity: 1, y: 0, transition: { delay: reducedMotion ? 0 : 3, duration: 0.6 } }}
             exit={{ opacity: 0, transition: { duration: 0.25 } }}
-            className="pointer-events-none absolute top-7 text-center text-micro text-fg-faint"
+            className="pointer-events-none absolute top-6 text-center text-micro text-fg-faint"
             style={{ left: insets.left, right: insets.right }}
           >
-            {coarse
-              ? "Drag to orbit · Pinch to zoom · Double-tap to fly in"
-              : "Drag to orbit · Scroll to zoom · Double-click to fly in"}
+            {mode === "space"
+              ? coarse
+                ? "Drag to orbit · Pinch to fly closer · Tap a star to fly to it"
+                : "Drag to orbit · Scroll to fly closer · Click a star to fly to it"
+              : coarse
+                ? "Drag to turn · Pinch to zoom · Tap a star"
+                : "Drag to turn · Scroll to zoom · Click any star, or empty sky"}
           </motion.p>
         )}
       </AnimatePresence>
@@ -422,51 +418,43 @@ export function SkyExperience() {
       {/* View controls */}
       <div
         className={cn(
-          "absolute flex items-center gap-3 transition-[right,opacity] duration-500 ease-out-expo",
-          isLarge ? "bottom-7" : "right-4",
+          "absolute bottom-4 z-10 flex items-center gap-2 transition-[right,opacity] duration-500 ease-out-expo lg:bottom-6",
           open && !isTablet && "pointer-events-none opacity-0",
         )}
-        style={
-          isLarge
-            ? { right: open && panelLayout === "side" ? panelSize.width + 40 : 32 }
-            : {
-                bottom: railSize.height + 18,
-                right: open && panelLayout === "side" ? panelSize.width + 32 : 16,
-              }
-        }
+        style={{ right: open && panelLayout === "side" ? panelSize.width + 40 : isLarge ? 32 : 12 }}
       >
         <p
-          className={cn("hidden rounded-md bg-ink/70 px-2 py-1.5 text-micro text-fg-faint", !flat && "sm:block")}
+          className={cn("hidden rounded-md bg-ink/70 px-2 py-1.5 text-micro text-fg-faint", !flat && mode === "sphere" && "xl:block")}
           aria-hidden
         >
           <span className="mr-2">Centre</span>
           <span ref={centreText} className="readout whitespace-pre text-fg-dim" />
         </p>
         {!flat && (
-          <div
-            role="toolbar"
-            aria-label="Globe view"
-            className="inline-flex items-center rounded-md border border-hair bg-ink/70 p-0.5"
-          >
-            <LayersControl
-              layers={layers}
-              onLayersChange={setLayers}
-              view={view}
-              onViewChange={setView}
-              imagery={imagery}
-              onImageryChange={setImagery}
-            />
-            <span aria-hidden className="mx-1 h-4 w-px bg-hair-strong" />
-            <IconButton label="Zoom out" onClick={() => globe.current?.zoomBy(1 / 1.3)}>
-              <MinusIcon />
-            </IconButton>
-            <IconButton label="Zoom in" onClick={() => globe.current?.zoomBy(1.3)}>
-              <PlusIcon />
-            </IconButton>
-            <IconButton label="Reset view" onClick={() => globe.current?.resetView()}>
-              <RotateCcwIcon />
-            </IconButton>
-          </div>
+          <>
+            <ModeSwitch mode={mode} onChange={setMode} disabled={!canSpace} reducedMotion={reducedMotion} />
+            <div role="toolbar" aria-label="Globe view" className="inline-flex items-center rounded-md border border-hair bg-ink/80 p-0.5">
+              <LayersControl
+                layers={layers}
+                onLayersChange={setLayers}
+                view={view}
+                onViewChange={setView}
+                imagery={imagery}
+                onImageryChange={setImagery}
+                disabled={mode === "space"}
+              />
+              <span aria-hidden className="mx-1 h-4 w-px bg-hair-strong" />
+              <IconButton label="Zoom out" onClick={() => globe.current?.zoomBy(1 / 1.3)}>
+                <MinusIcon />
+              </IconButton>
+              <IconButton label="Zoom in" onClick={() => globe.current?.zoomBy(1.3)}>
+                <PlusIcon />
+              </IconButton>
+              <IconButton label="Reset view" onClick={() => globe.current?.resetView()}>
+                <RotateCcwIcon />
+              </IconButton>
+            </div>
+          </>
         )}
       </div>
 
@@ -476,7 +464,7 @@ export function SkyExperience() {
             key="panel"
             layout={panelLayout}
             labelledBy={headingId}
-            eyebrow={target ? KIND_LABEL[target.kind] : "Anywhere on the globe"}
+            eyebrow={eyebrow}
             contentKey={contentKey}
             onClose={close}
             onSize={setPanelSize}
@@ -490,15 +478,32 @@ export function SkyExperience() {
                 next={nextTarget(target)}
                 onSelect={(slug) => selectTarget(slug)}
               />
-            ) : patch ? (
-              <PatchStory
-                ra={patch.ra}
-                dec={patch.dec}
+            ) : star && catalogue ? (
+              <StarStory
+                star={star}
+                catalogue={catalogue}
                 headingId={headingId}
-                targets={FEATURED_TARGETS}
-                onSelect={(slug) => selectTarget(slug)}
+                reducedMotion={reducedMotion}
+                inSpace={mode === "space"}
+                onFly3D={() => setMode("space")}
+                onSelectTarget={(slug) => selectTarget(slug)}
+                shareUrl={shareUrl}
               />
-            ) : null}
+            ) : spot ? (
+              <SpotStory
+                ra={spot.ra}
+                dec={spot.dec}
+                catalogue={catalogue}
+                headingId={headingId}
+                reducedMotion={reducedMotion}
+                onSelectStar={(id) => selectStar(id)}
+                onHoverStar={setRailStar}
+              />
+            ) : (
+              <p id={headingId} tabIndex={-1} className="text-ui text-fg-dim outline-none">
+                Finding HIP <span className="readout">{q.star}</span> in the catalogue…
+              </p>
+            )}
           </SkyPanel>
         )}
       </AnimatePresence>
@@ -506,32 +511,97 @@ export function SkyExperience() {
   );
 }
 
+function starEyebrow(sp: string | null): string {
+  const m = spectralMeaning(sp);
+  if (!m) return "Star";
+  const first = m.split(/[;:.]/)[0].replace(/^(A|An) /, "");
+  const clean = first.replace(/, steadily burning hydrogen like the Sun/, "");
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
 // ---------------------------------------------------------------------------------- pieces
 
-function Intro({ compact = false }: { compact?: boolean }) {
+function Intro({ compact = false, mode }: { compact?: boolean; mode: SkyMode }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5">
       <h1 className={cn("text-balance text-fg", compact ? "text-heading" : "text-title")}>
-        The sky as SPHEREx sees it
+        {mode === "space" ? "The stars around the Sun" : "Every star you can click"}
       </h1>
-      <p className={cn("text-pretty text-fg-dim", compact ? "text-meta" : "text-ui measure")}>
-        {compact
-          ? "The whole sky in infrared light, on a globe you can fly around. Pick an object to watch it move."
-          : "The whole sky in infrared light, wrapped around a globe you can fly around, with the real stars as white dots. Pick an object to watch it move, or click anywhere to see what is there."}
-      </p>
+      {compact ? null : (
+        <p className="text-ui measure text-pretty text-fg-dim">
+          {mode === "space" ? (
+            <>
+              The same stars at their real distances, measured from their{" "}
+              <Term k="parallax">parallax</Term>. Fly around; click any star.
+            </>
+          ) : (
+            <>
+              About 118,000 stars from the <Term k="hipparcos" /> catalogue, in their true colours. Click one to see
+              what is known about it, and what <Term k="spherex" /> has seen there.
+            </>
+          )}
+        </p>
+      )}
     </div>
   );
 }
 
-function IconButton({
-  label,
-  onClick,
-  children,
+function ModeSwitch({
+  mode,
+  onChange,
+  disabled,
+  reducedMotion,
 }: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
+  mode: SkyMode;
+  onChange: (m: SkyMode) => void;
+  disabled: boolean;
+  reducedMotion: boolean;
 }) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="View"
+      className="relative inline-flex items-center rounded-md border border-hair bg-ink/80 p-0.5"
+      data-testid="mode-toggle"
+      title={disabled ? "3D space needs the distance catalogue, which is still loading" : undefined}
+    >
+      {(
+        [
+          { id: "sphere", label: "Sphere" },
+          { id: "space", label: "3D space" },
+        ] as const
+      ).map((m) => {
+        const on = mode === m.id;
+        return (
+          <button
+            key={m.id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            disabled={disabled && m.id === "space"}
+            onClick={() => onChange(m.id)}
+            className={cn(
+              "relative h-7 rounded-[4px] px-2.5 text-micro font-medium transition-colors disabled:opacity-40",
+              on ? "text-fg" : "text-fg-dim hover:text-fg",
+            )}
+            data-testid={`mode-${m.id}`}
+          >
+            {on ? (
+              <motion.span
+                layoutId="sky-mode-pill"
+                className="absolute inset-0 rounded-[4px] border border-accent-muted bg-white/[0.06]"
+                transition={reducedMotion ? { duration: 0 } : { type: "spring", stiffness: 480, damping: 38 }}
+              />
+            ) : null}
+            <span className="relative">{m.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function IconButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
@@ -545,86 +615,10 @@ function IconButton({
   );
 }
 
-function TargetList({
-  targets,
-  selected,
-  hovered,
-  onHover,
-  onSelect,
-  variant,
-}: {
-  targets: FeaturedTarget[];
-  selected: string | null;
-  hovered: string | null;
-  onHover: (slug: string | null) => void;
-  onSelect: (slug: string, el: HTMLElement) => void;
-  variant: "column" | "rail";
-}) {
-  const column = variant === "column";
-  return (
-    <nav aria-labelledby="featured-heading" data-testid="target-list">
-      <h2 id="featured-heading" className={cn("text-meta text-fg-faint", column ? "mb-2.5" : "sr-only")}>
-        Five objects to start with
-      </h2>
-      <ul
-        className={cn(
-          column
-            ? "flex flex-col"
-            : "flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden",
-        )}
-      >
-        {targets.map((t, i) => {
-          const isSelected = selected === t.slug;
-          const isHovered = hovered === t.slug;
-          return (
-            <li key={t.slug} className={cn(column ? "" : "shrink-0 snap-start")}>
-              <button
-                type="button"
-                aria-pressed={isSelected}
-                onClick={(e) => onSelect(t.slug, e.currentTarget)}
-                onPointerEnter={() => onHover(t.slug)}
-                onPointerLeave={() => onHover(null)}
-                onFocus={() => onHover(t.slug)}
-                onBlur={() => onHover(null)}
-                className={cn(
-                  "group relative flex w-full flex-col items-start text-left transition-colors duration-200",
-                  column
-                    ? "gap-0.5 border-t border-hair py-3 pr-2 pl-4 hover:bg-white/[0.025]"
-                    : "panel w-[13.5rem] gap-0.5 px-3.5 py-2.5",
-                  column && i === targets.length - 1 && "border-b",
-                  (isSelected || isHovered) && !column && "border-hair-strong",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute rounded-full bg-accent transition-[opacity,transform] duration-300 ease-out-expo",
-                    column ? "top-3.5 bottom-3.5 left-0 w-0.5 origin-center" : "inset-x-3.5 top-0 h-px",
-                    isSelected ? "scale-100 opacity-100" : "scale-50 opacity-0",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-ui font-medium transition-colors",
-                    isSelected || isHovered ? "text-fg" : "text-fg/90",
-                  )}
-                >
-                  {t.name}
-                </span>
-                <span className="text-meta text-pretty text-fg-dim">{t.tagline}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
-
 function GlobeLoading() {
   return (
     <div className="absolute inset-0 grid place-items-center" aria-hidden>
-      <div className="size-[min(62vh,80vw)] animate-pulse rounded-full bg-white/[0.02]" />
+      <div className="size-[min(62vh,80vw)] animate-pulse rounded-full bg-white/[0.015]" />
     </div>
   );
 }

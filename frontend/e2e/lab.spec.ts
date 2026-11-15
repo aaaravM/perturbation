@@ -110,9 +110,8 @@ test("mode tabs and the detector picker switch the frames", async ({ page }) => 
   await expect(player).toHaveAttribute("data-mode", "epochs");
   await page.getByTestId("det-rgb").click();
   await expect(page.getByTestId("det-range")).toContainText("False colour");
-  await page.getByTestId("layer-flags").isDisabled();
   await page.getByTestId("det-D6").click();
-  await page.getByTestId("layer-flags").click();
+  await page.getByTestId("layer-toggle-flags").click();
   await expect.poll(() => param(page, "layers")).toBe("path,flags");
   await page.waitForTimeout(600);
   await shot(page, "lab-flags-1440x900");
@@ -131,19 +130,22 @@ test("the panel opens for a target and for a clicked position, and Esc closes it
   await page.waitForTimeout(400);
   await shot(page, "lab-panel-charts-1440x900");
 
+  // The analysis pane is docked: Esc clears the selection, the pane stays.
   await page.keyboard.press("Escape");
-  await expect(panel).toHaveCount(0);
+  await expect(page.getByTestId("target-details")).toHaveCount(0);
+  await expect(page.getByTestId("analysis-empty")).toBeVisible();
+  await expect(panel).toBeVisible();
 
-  // Click the sky: the panel shows that position and takes focus.
-  await page.mouse.click(560, 420);
+  // Click empty sky with the Gaia layer off: the pane describes that position.
+  await page.getByTestId("layer-toggle-gaia").click();
+  const box = (await page.getByTestId("sky-viewer").boundingBox())!;
+  await page.mouse.click(box.x + box.width * 0.2, box.y + box.height * 0.25);
   await expect(page.getByTestId("position-details")).toBeVisible();
-  await expect(page.getByTestId("panel-focus-target")).toBeFocused();
   if (!LIVE_BACKEND) await expect(page.getByTestId("quicklook-off")).toContainText("not connected");
   await page.waitForTimeout(500);
   await shot(page, "lab-position-1440x900");
   await page.keyboard.press("Escape");
-  await expect(panel).toHaveCount(0);
-  await expect(page.getByTestId("sky-viewer")).toBeFocused();
+  await expect(page.getByTestId("position-details")).toHaveCount(0);
 });
 
 test("the URL restores mode, detector, frame, layers and view", async ({ page }) => {
@@ -154,8 +156,8 @@ test("the URL restores mode, detector, frame, layers and view", async ({ page })
   await expect(page.getByTestId("mode-epochs")).toHaveAttribute("aria-selected", "true");
   await expect(counter(page)).toHaveText("4 / 6");
   await expect(page.getByTestId("blink-play")).toHaveAttribute("data-playing", "false");
-  await expect(page.getByTestId("layer-flags")).toHaveAttribute("data-state", "checked");
-  await expect(page.getByTestId("layer-path")).toHaveAttribute("data-state", "unchecked");
+  await expect(page.getByTestId("layer-toggle-flags")).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByTestId("layer-toggle-path")).toHaveAttribute("aria-checked", "false");
   await expect.poll(async () => (await viewerCenter(page))?.ra, { timeout: 20_000 }).toBeCloseTo(180.01, 3);
   expect((await viewerCenter(page))?.dec).toBeCloseTo(30.02, 3);
   expect((await viewerCenter(page))?.fov).toBeCloseTo(0.3, 2);
@@ -254,10 +256,10 @@ for (const slug of ["barnards-star", "eps-indi-b", "wise-0855", "rw-aur", "r-dra
 test.describe("phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("the Lab works on a phone, with the panel as a bottom sheet", async ({ page }) => {
+  test("the Lab works on a phone, with Data, Viewer and Analysis tabs", async ({ page }) => {
     await openFixture(page);
     await expect(page.getByTestId("fixture-banner")).toBeVisible();
-    // On phones the target panel waits for "Details", so the sheet does not cover the blink.
+    // On phones the viewer comes first; the analysis waits for "Details".
     await expect(page.getByTestId("detail-panel")).toHaveCount(0);
     await page.waitForTimeout(1500);
     await shot(page, "lab-390x844");

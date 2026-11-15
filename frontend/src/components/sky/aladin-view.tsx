@@ -46,6 +46,8 @@ export interface AladinViewProps {
   onStatusChange?: (status: AladinStatus) => void;
   /** A click (not a drag) on the sky. */
   onSkyClick?: (position: { ra: number; dec: number }) => void;
+  /** The pointer over the sky, or null when it leaves (for live readouts and tools). */
+  onSkyMove?: (position: { ra: number; dec: number; x: number; y: number } | null) => void;
   /** The live Aladin session once attached (null after unmount), for overlays such as the blink. */
   onSessionChange?: (session: AladinSession | null) => void;
   /** Bump to rebuild the SPHEREx layer after an error. */
@@ -85,6 +87,7 @@ export function AladinView({
   onViewChange,
   onStatusChange,
   onSkyClick,
+  onSkyMove,
   onSessionChange,
   retryToken = 0,
   contextOpacity = 1,
@@ -108,6 +111,7 @@ export function AladinView({
   const onViewChangeRef = useRef(onViewChange);
   const onStatusChangeRef = useRef(onStatusChange);
   const onSkyClickRef = useRef(onSkyClick);
+  const onSkyMoveRef = useRef(onSkyMove);
   const onSessionChangeRef = useRef(onSessionChange);
   const statusRef = useRef<AladinStatus["state"]>("loading");
   const tileStatsRef = useRef({ frame, ok: 0, failed: 0, lastStatus: 0 });
@@ -119,6 +123,7 @@ export function AladinView({
     onViewChangeRef.current = onViewChange;
     onStatusChangeRef.current = onStatusChange;
     onSkyClickRef.current = onSkyClick;
+    onSkyMoveRef.current = onSkyMove;
     onSessionChangeRef.current = onSessionChange;
   });
 
@@ -206,6 +211,7 @@ export function AladinView({
       },
       onTile: handleTile,
       onClick: (position) => onSkyClickRef.current?.(position),
+      onMove: (position) => onSkyMoveRef.current?.(position),
     });
 
     setStatus({ state: "loading" });

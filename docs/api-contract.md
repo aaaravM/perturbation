@@ -127,6 +127,24 @@ The backend is its own Vercel project (root directory `backend/`, entrypoint `ba
 | `GET /api/spectrum/quick?ra&dec` | `{wl_um[102], bw_um[], flux_ujy[], err_ujy[], flux_partial_ujy[], lower_limit[], label, ra, dec, n_finite, pixel_arcsec, notes}`. DR1 cube quick look, sorted by wavelength. `null` marks a blank or masked channel; for those, `flux_partial_ujy` is a lower limit. About 1.5 s |
 | `GET /api/catalog/gaia?ra&dec&radius_arcmin=5&epoch_mjd=` | `[{source_id, ra, dec, g, bp_rp, pmra, pmdec, parallax}]`. Gaia DR3 sources from IRSA Gator (`gaia_dr3_source`), moved from 2016.0 to `epoch_mjd` (default: today). `radius_arcmin` is at most 15, and at most 5,000 rows come back. `source_id` is a **string**: Gaia ids are too large for a JavaScript number |
 | `GET /api/catalog/wise?ra&dec&radius_arcmin=5` | `[{designation, ra, dec, w1, w2, w1_err, w2_err}]`: AllWISE (`allwise_p3as_psd`), positions at the AllWISE epoch (about 2010.5) |
+| `GET /api/object?ra&dec&radius_arcsec=6&epoch&pmra&pmdec&hip` | Everything known at one spot (a clicked star or point), in parts: `{schema: "pxh-object/1", generated_at, query, sky, gaia, simbad, spherex, spectrum, complete, seconds}`. See "Looking up a star or a spot" below. 1–3 s |
+| `GET /api/patch?ra&dec&radius_arcmin=20` | What is in a patch of sky, in parts: `{schema: "pxh-patch/1", generated_at, query, sky, stars_count, brightest, spherex, spectrum, complete, seconds}`. 2–5 s |
+
+**Looking up a star or a spot (`/api/object`, `/api/patch`).** Each part is an object with `status`, `source` (the catalogue or archive it came from, to show next to the numbers) and `seconds`. `status` is `"ok"`, `"none"` (the service answered and there is nothing there; `message` says so in plain words), `"error"` or `"timeout"` (with a `message`). Parts run in parallel, each limited to 8 s (11 s for the patch's Gaia parts), so a whole answer takes under 15 s even when a service hangs. A part that times out keeps running and fills the caches, so asking again a few seconds later is fast. The HTTP status is 200 whenever the inputs are valid (422 `invalid_input` otherwise). `complete` is true when no part failed or timed out; only complete answers get the one-day CDN `Cache-Control`, partial ones get `no-store`, so a retry is never served a stale failure.
+
+`/api/object` inputs: `ra`, `dec` (deg, ICRS) are the position **at `epoch`**, a Julian year that defaults to 2026.0, the epoch of the star files. For a click on a SPHEREx image, pass the image's date instead. `radius_arcsec` is 0–60 (default 6). For a star from the star files, also pass its `pmra`, `pmdec` (mas/yr) and `hip`. The search centre is then moved to each catalogue's own epoch (Gaia 2016.0, SIMBAD J2000), and SIMBAD is asked by identifier `HIP n`, whose Gaia DR3 cross-identification picks the Gaia source. Without them the nearest source wins, and a second cone in both Gaia and SIMBAD still finds fast movers (over 300 mas/yr, such as Barnard's Star) from where they are at `epoch`. SIMBAD names the star rather than one of its planets, which share its position.
+
+| Part | Fields (all optional except `status` and `source`) |
+|---|---|
+| `sky` (astropy) | `constellation` (IAU abbreviation), `constellation_name`, `l`, `b` (galactic, deg), `ecliptic_lon`, `ecliptic_lat`, `where`: plain sentences ("In the plane of the Milky Way…", "Towards the centre of the Milky Way…", "Along the ecliptic…", "In the Large Magellanic Cloud…") |
+| `gaia` (Gaia DR3 via IRSA Gator) | `source_id` (string), `ra`, `dec` (2016.0), `ref_epoch`, `ra_epoch`, `dec_epoch` (moved to `epoch`), `separation_arcsec`, `n_within`, `g`, `bp_rp`, `parallax`, `parallax_error`, `distance_pc`, `distance_ly` (only when parallax / error ≥ 5), `pmra`, `pmdec`, `pm_total` (mas/yr), `radial_velocity` (km/s), `teff_gspphot` (K), `logg_gspphot`, `ruwe`, `phot_variable_flag`, `hint` (a cautious plain reading of the colour and brightness: red dwarf, white dwarf, giant, Sun-like; a near neighbour; variable; poor fit), `matched_by`, `url` (VizieR record). Very bright stars (brighter than about G = 3, such as Sirius) are not in Gaia DR3: `status: "none"` with a note, never a faint neighbour in their place |
+| `simbad` (SIMBAD TAP mirrors: CfA, IDIA, CDS) | `main_id`, `name` (readable: "α CMa", "Barnard's star"), `otype`, `otype_label` (plain English: "BY Draconis variable: a spotted, rotating star"), `sp_type`, `vmag`, `parallax`, `gaia_dr3_id`, `separation_arcsec`, `n_within`, `matched_by`, `url` |
+| `spherex` (IRSA SIA, no file reads) | `n_images`, `n_exposures`, `n_epochs`, `first_obs`, `last_obs` (dates), `deep_field`, `counts_complete`, `collections`, `detectors: {D1..D6}`, `epochs: [{label, start, end, year, n_exposures, full}]`, `warnings`. At the deep fields each deep collection is searched for at most 1,000 images (a full search takes 20 s), and `counts_complete` is false |
+| `spectrum` (DR1 cube) | The `/api/spectrum/quick` fields. Saturated stars are blank in the cube: `n_finite` can be 0, and `lower_limit` marks partial channels |
+
+`/api/patch` adds, for `radius_arcmin` 1–60 (default 20): `stars_count` = `{count, method: "exact" | "estimate", g_limit: 18, radius_arcmin, area_deg2, density_per_deg2}`. It is exact when the patch has at most 8,000 Gaia sources to G = 18; otherwise it is estimated from the sources within 2 arcmin of the centre (`sample_radius_arcmin`, `sample_count`, `relative_error`, and a `message` saying so). `brightest` = `{stars: [{source_id, ra, dec, separation_arcmin, g, bp_rp, parallax, distance_ly, simbad_id, name, otype_label}] (up to 8, brightest first), g_limit (12, or 16 when fewer than 5 are brighter than 12), n_brighter, names: "ok" | "unavailable", notes}`. Names come from SIMBAD's Gaia DR3 cross-identifications, and `name` is null where SIMBAD has none.
+
+**Star files for the Sky globe** (static, `frontend/public/data/stars/`, built by `scripts/build_hip_catalog.py`): every Hipparcos star (117,955) in three brightness tiers, with positions at J2026.0, accurate blackbody colours and names. `manifest.json` describes the format in its `notes`. A star's `hip`, `pmra` and `pmdec` from these files are exactly the `/api/object` inputs above.
 
 **Building a field (client).**
 1. Call `/api/field/summary` and show the coverage and epochs straight away.
@@ -158,6 +176,15 @@ The backend is its own Vercel project (root directory `backend/`, entrypoint `ba
 | catalog/gaia 5′ / catalog/wise 3′ (Gator, uncached) | 7.1 / 7.3 s | 245 / 57 kB and 15 / 3.6 kB |
 | health, targets, resolve (local table) | under 15 ms | under 2 kB |
 | resolve Vega (Sesame) / an unknown name (404) | 0.5 s | under 0.4 kB |
+| object, Barnard's Star with `hip` and motion / position only (Gaia and SIMBAD found by the fast-mover cones) | 1.5–2.4 / 0.9–1.5 s | 7.2 / 2.8 kB |
+| object, Proxima Centauri, position only (SIMBAD names the star, not its planet) | 1.1 s | 7.1 kB |
+| object, Sirius with `hip` (SIMBAD α CMa; Gaia `none`: too bright for Gaia DR3) | 1.3–2.2 s | 5.7 kB |
+| object, random fields RA 150.1 Dec +2.2 / RA 83 Dec −5 | 2.5 / 2.0 s | 6–7 kB |
+| object, north galactic pole RA 192.86 Dec +27.13 (Gaia and SIMBAD `none`) | 1.2–1.9 s | 6.2 kB |
+| object, a new spot in the north deep field (deep search capped at 1,000 images) | 4.5 s | 7.4 kB |
+| patch 20′: Barnard's Star (5,068 sources to G = 18) / Sirius (3,503) / RA 150.1 Dec +2.2 (415) / north galactic pole (229) | 2.8–3.1 / 2.3–3.0 / 1.8 / 1.7 s | 7.5–8.3 / 3.0 kB |
+| patch 20′, galactic centre RA 266.4 Dec −29 (8,741, exact) / south deep field | 4.7 / 6.3 s | 8.3 / 9.6 kB |
+| object or patch again (in-memory cache) | 0.005 s | the same |
 
 Local run: `cd backend && uv run uvicorn index:app --port 8000`.
 

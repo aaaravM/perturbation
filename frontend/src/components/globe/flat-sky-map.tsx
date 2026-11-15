@@ -120,7 +120,7 @@ export function FlatSkyMap({
             </button>
           );
         })}
-        {selection?.kind === "patch" && (
+        {selection?.kind === "spot" && (
           <span
             aria-hidden
             className="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent"

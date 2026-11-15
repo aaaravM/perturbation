@@ -3,7 +3,7 @@
 //   ra, dec  view centre (deg, ICRS)      fov    view width (deg)
 //   target   featured target slug         mode   epochs | then-now | difference
 //   det      D1..D6 | rgb                 frame  index into the current mode's frames
-//   layers   comma list: path, flags, wise
+//   layers   comma list: path, flags, wise, gaia
 
 import { parseAsArrayOf, parseAsFloat, parseAsInteger, parseAsString, parseAsStringLiteral, throttle } from "nuqs";
 
@@ -15,9 +15,9 @@ export type LabMode = (typeof LAB_MODES)[number];
 export const LAB_DETECTORS = ["D1", "D2", "D3", "D4", "D5", "D6", "rgb"] as const;
 export type LabDetector = (typeof LAB_DETECTORS)[number];
 
-export const LAB_LAYERS = ["path", "flags", "wise"] as const;
+export const LAB_LAYERS = ["path", "flags", "wise", "gaia"] as const;
 export type LabLayer = (typeof LAB_LAYERS)[number];
-export const DEFAULT_LAYERS: LabLayer[] = ["path"];
+export const DEFAULT_LAYERS: LabLayer[] = ["path", "gaia"];
 
 /**
  * ra, dec and fov have no URL default: a link with only ?target= frames that target, and a link

@@ -1,247 +1,172 @@
-// Sky mode (/sky): the 3D globe renders, the five objects are listed, choosing one opens the
-// plain-language panel with the right Lab link, Escape closes it, empty sky and the keyboard
-// work, the camera zooms and flies, the layers control works, the phone layout uses a bottom
-// sheet, and a browser without WebGL gets the flat map.
+// Sky mode (/sky): the globe of real stars loads with the full catalogue, a star chosen from the
+// lists or the search opens its panel with the catalogue's numbers, the 3D space view unfolds and
+// folds back, empty sky (by keyboard) is described specifically, the challenge targets still open
+// their bundles, phones get a bottom sheet, and a browser without WebGL gets the flat map.
 // Design-review screenshots are opt-in: UI_REVIEW_DIR=/some/dir pnpm test:e2e sky
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { hideDevOverlay, watchPage } from "./helpers";
 
-// Per-target bundles are produced by the backend while the frontend is built; until one exists
-// its manifest 404s (the panel then says so, or shows the labelled dev fixture). Nothing else may.
-const PENDING_DATA = /\/bundles\/[^/]+\/manifest\.json$/;
-const unexpected = (lines: string[]) =>
-  lines.filter(
-    (l) => !(PENDING_DATA.test(l.split(" ").pop() ?? "") || /bundles\/[^/]+\/manifest\.json/.test(l)),
-  );
+// Per-target bundles may still be building (404 until then); nothing else may fail.
+const PENDING_DATA = /\/bundles\/[^/]+\/manifest\.json/;
+const unexpected = (lines: string[]) => lines.filter((l) => !PENDING_DATA.test(l));
 
 const globe = (page: Page) => page.getByTestId("sky-globe");
-const list = (page: Page) => page.getByTestId("target-list");
+const rail = (page: Page) => page.getByTestId("sky-rail");
 const panel = (page: Page) => page.getByTestId("sky-panel");
 
-async function openSky(page: Page) {
-  const response = await page.goto("/sky");
+async function openSky(page: Page, url = "/sky") {
+  const response = await page.goto(url);
   expect(response?.status()).toBe(200);
   await expect(globe(page).locator("canvas")).toBeVisible();
+  // The full Hipparcos catalogue: 117,955 stars in three tiers.
+  await expect(rail(page).getByTestId("stars-loaded")).toContainText("117,955", { timeout: 30_000 });
 }
 
-test("/sky renders the globe and lists the five objects", async ({ page }) => {
+test("/sky draws the stars and lists the challenge targets", async ({ page }) => {
   const log = watchPage(page);
   await openSky(page);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("The sky as SPHEREx sees it");
-  const buttons = list(page).getByRole("button");
-  await expect(buttons).toHaveCount(5);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Every star you can click");
+  await expect(globe(page)).toHaveAttribute("data-texture", "ready");
+  await expect(globe(page)).toHaveAttribute("data-map", "off"); // just the dots by default
+  const targets = page.getByTestId("target-list").getByRole("button");
+  await expect(targets).toHaveCount(5);
   for (const name of ["Barnard's Star", "Epsilon Indi B", "WISE 0855−0714", "RW Aurigae", "R Draconis"]) {
-    await expect(
-      list(page).getByRole("button", { name: new RegExp(name.replace(/[−']/g, ".")) }),
-    ).toBeVisible();
+    await expect(page.getByTestId("target-list").getByRole("button", { name: new RegExp(name.replace(/[−']/g, ".")) })).toBeVisible();
   }
-  // The SPHEREx map arrives on the globe, and the mode switch shows Sky as the current page.
-  await expect(globe(page)).toHaveAttribute("data-texture", "ready", { timeout: 30_000 });
-  await expect(page.getByTestId("mode-switch").getByRole("link", { name: "Sky" })).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
   await page.waitForTimeout(800);
   expect(unexpected(log.badResponses), "HTTP errors").toEqual([]);
   expect(unexpected(log.consoleErrors), "console errors").toEqual([]);
 });
 
-test("choosing Barnard's Star opens its panel; Escape closes it and returns focus", async ({ page }) => {
+test("a star from the Brightest list opens its panel with the catalogue's numbers", async ({ page }) => {
   await openSky(page);
-  const item = list(page).getByRole("button", { name: /Barnard.s Star/ });
-  await item.click();
+  await rail(page).getByRole("tab", { name: "Brightest" }).click();
+  const sirius = rail(page).getByTestId("rail-star").filter({ hasText: "Sirius" });
+  await sirius.click();
 
-  await expect(panel(page)).toBeVisible();
+  await expect(page).toHaveURL(/[?&]star=32349\b/);
   const heading = panel(page).getByRole("heading", { level: 2 });
-  await expect(heading).toHaveText("Barnard's Star");
+  await expect(heading).toHaveText("Sirius");
   await expect(heading).toBeFocused();
-  await expect(page.getByRole("dialog", { name: "Barnard's Star" })).toBeVisible();
-  await expect(item).toHaveAttribute("aria-pressed", "true");
-  await expect(page).toHaveURL(/[?&]target=barnards-star\b/);
-
-  const lab = panel(page).getByRole("link", { name: /Open in the Lab/ });
-  await expect(lab).toHaveAttribute("href", "/explore?target=barnards-star");
-
-  // Either the real bundle's blink, the labelled dev fixture, or an honest "being prepared".
-  await expect(
-    panel(page).getByTestId("mini-blink").or(panel(page).getByTestId("bundle-missing")),
-  ).toBeVisible({ timeout: 30_000 });
-  if (await panel(page).getByTestId("mini-blink").isVisible()) {
-    const fixture = await panel(page).getByTestId("provenance").textContent();
-    if (/fixture/i.test(fixture ?? "")) {
-      await expect(panel(page).getByTestId("fixture-banner")).toHaveText(
-        /Development fixture: not real data/,
-      );
-    }
-  }
+  await expect(panel(page).getByTestId("star-designations")).toContainText("HIP 32349");
+  await expect(panel(page).getByTestId("star-designations")).toContainText("Canis Major");
+  // 379.21 mas -> 8.6 light-years
+  await expect(panel(page).getByTestId("fact-distance")).toContainText("light-years");
+  await expect(panel(page).getByTestId("fact-distance").locator("number-flow-react").first()).toHaveAttribute(
+    "aria-label",
+    "8.6",
+  );
+  await expect(panel(page).getByTestId("see-in-spherex")).toHaveAttribute(
+    "href",
+    /^\/explore\?ra=101\.\d+&dec=-16\.\d+&fov=0\.1667$/,
+  );
+  await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 10_000 });
 
   await page.keyboard.press("Escape");
   await expect(panel(page)).toHaveCount(0);
-  await expect(item).toBeFocused();
-  await expect(page).not.toHaveURL(/target=/);
+  await expect(sirius).toBeFocused();
+  await expect(page).not.toHaveURL(/star=/);
 });
 
-test("a deep link opens the object, and every object has a Lab link", async ({ page }) => {
-  await page.goto("/sky?target=r-dra");
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("R Draconis");
-  await expect(panel(page).getByRole("link", { name: /Open in the Lab/ })).toHaveAttribute(
-    "href",
-    "/explore?target=r-dra",
-  );
-  // "Next" walks through the five.
-  await panel(page)
-    .getByRole("button", { name: /^Next: / })
-    .click();
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Barnard's Star");
-});
-
-test("clicking empty sky describes that patch, with a Lab link", async ({ page }) => {
+test("search finds a star by HIP number, and a challenge target by name", async ({ page }) => {
   await openSky(page);
-  await page.waitForTimeout(2800); // entrance turn settles
-  // Below and right of the globe's centre: clear of the five markers in the opening view.
-  const outline = await page.getByTestId("globe-outline").boundingBox();
-  if (!outline) throw new Error("no globe outline");
-  const ring = { x: outline.x + outline.width / 2, y: outline.y + outline.height / 2, r: outline.width / 2 };
-  await page.mouse.click(ring.x + ring.r * 0.3, ring.y + ring.r * 0.35);
+  const search = page.getByTestId("star-search");
+  await search.fill("HIP 87937");
+  await expect(page.getByTestId("search-results").getByRole("option").first()).toContainText("Barnard");
+  await search.press("Enter");
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText(/Barnard/);
+  await expect(panel(page).getByTestId("fact-motion")).toContainText("a year");
+  // It is also one of the five: the panel offers its SPHEREx bundle.
+  await panel(page).getByRole("button", { name: /One of the five challenge targets/ }).click();
+  await expect(page).toHaveURL(/[?&]target=barnards-star\b/);
+  await expect(panel(page).getByTestId("target-story")).toBeVisible();
 
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("This patch of sky");
-  const ra = Number((await panel(page).getByTestId("patch-ra").textContent())?.replace("°", ""));
-  const dec = Number(
-    (await panel(page).getByTestId("patch-dec").textContent())?.replace("°", "").replace("−", "-"),
-  );
-  expect(ra).toBeGreaterThanOrEqual(0);
-  expect(ra).toBeLessThan(360);
-  expect(Math.abs(dec)).toBeLessThanOrEqual(90);
-  const href = await panel(page)
-    .getByRole("link", { name: /Look closer in the Lab/ })
-    .getAttribute("href");
-  expect(href).toMatch(/^\/explore\?ra=\d+\.\d{4}&dec=-?\d+\.\d{4}&fov=1\.5$/);
+  await search.fill("wise 0855");
+  await search.press("Enter");
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("WISE 0855−0714");
 });
 
-test("arrow keys turn the globe and Enter describes the centre of the view", async ({ page }) => {
+test("3D space: the stars unfold around the Sun and fold back", async ({ page }) => {
   await openSky(page);
-  await page.waitForTimeout(2800);
-  await globe(page).focus();
-  await page.keyboard.press("ArrowUp");
-  await page.keyboard.press("ArrowUp");
-  await page.waitForTimeout(1600); // the camera flies there in about a second
-  await page.keyboard.press("Enter");
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("This patch of sky");
-  const dec = Number(
-    (await panel(page).getByTestId("patch-dec").textContent())?.replace("°", "").replace("−", "-"),
-  );
-  // Opening view faces Dec -2; two steps north is about +28 (it drifts in RA, not in Dec).
-  expect(dec).toBeGreaterThan(20);
-  expect(dec).toBeLessThan(35);
+  await page.getByTestId("mode-space").click();
+  await expect(page).toHaveURL(/[?&]mode=3d\b/);
+  await expect(globe(page)).toHaveAttribute("data-mode", "space", { timeout: 10_000 });
+  await expect(page.getByTestId("space-sun").getByText("Sun", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("space-legend")).toContainText("log scale");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("The stars around the Sun");
+
+  // A star chosen in 3D flies the camera to it.
+  await page.getByTestId("star-search").fill("Vega");
+  await page.getByTestId("star-search").press("Enter");
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Vega");
+  await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 10_000 });
+
+  await page.getByTestId("mode-sphere").click();
+  await expect(globe(page)).toHaveAttribute("data-mode", "sphere", { timeout: 10_000 });
+  await expect(page).not.toHaveURL(/mode=3d/);
 });
 
-test("the layers control: one SPHEREx colour, imagery strength and the overlays", async ({ page }) => {
-  await openSky(page);
-  await expect(globe(page)).toHaveAttribute("data-texture", "ready", { timeout: 30_000 });
-  await page.getByRole("button", { name: "Layers" }).click();
-  const layersPanel = page.getByTestId("layers-panel");
-  await expect(layersPanel).toBeVisible();
-
-  await layersPanel.getByRole("radio", { name: "1.25 µm" }).click();
-  await expect(globe(page)).toHaveAttribute("data-view", "mono");
-  await expect(page.getByTestId("globe-caption")).toContainText("one of its 102 colours");
-  await layersPanel.getByRole("radio", { name: "False colour" }).click();
-  await expect(globe(page)).toHaveAttribute("data-view", "colour");
-  await expect(page.getByTestId("globe-caption")).toContainText("false colour");
-
-  // The SPHEREx imagery can be turned right down, leaving the catalogue stars on a bare globe.
-  const imagery = layersPanel.getByRole("slider", { name: "SPHEREx imagery opacity" });
-  await imagery.focus();
-  await page.keyboard.press("Home");
-  await expect(imagery).toHaveAttribute("aria-valuetext", "0 percent");
-  await page.keyboard.press("End");
-  await expect(imagery).toHaveAttribute("aria-valuetext", "100 percent");
-
-  // Defaults: stars, constellations, names and objects on; the grid off.
-  const grid = layersPanel.getByRole("switch", { name: /^Grid/ });
-  await expect(grid).toHaveAttribute("aria-checked", "false");
-  await grid.click();
-  await expect(grid).toHaveAttribute("aria-checked", "true");
-  for (const name of [/^Stars/, /^Constellations/, /^Star names/, /^Featured objects/]) {
-    await expect(layersPanel.getByRole("switch", { name })).toHaveAttribute("aria-checked", "true");
-  }
-  await layersPanel.getByRole("switch", { name: /^Stars/ }).click();
-  await expect(page.getByTestId("globe-caption")).not.toContainText("White dots");
-  await layersPanel.getByRole("switch", { name: /^Stars/ }).click();
-  await expect(page.getByTestId("globe-caption")).toContainText("White dots");
-});
-
-test("the camera zooms towards the cursor, flies in on double-click and resets", async ({ page }) => {
+test("empty sky by keyboard: Enter describes the spot at the centre, specifically", async ({ page }) => {
   await openSky(page);
   await page.waitForTimeout(3000); // entrance flight settles
-  const altitude = async () => Number(await globe(page).getAttribute("data-altitude"));
-  const home = await altitude();
-  expect(home).toBeGreaterThan(1);
-
-  const outline = await page.getByTestId("globe-outline").boundingBox();
-  if (!outline) throw new Error("no globe outline");
-  const cx = outline.x + outline.width / 2;
-  const cy = outline.y + outline.height / 2;
-  await page.mouse.move(cx + outline.width * 0.15, cy);
-  for (let i = 0; i < 4; i++) {
-    await page.mouse.wheel(0, -240);
-    await page.waitForTimeout(80);
-  }
-  await page.waitForTimeout(1200);
-  const zoomed = await altitude();
-  expect(zoomed).toBeLessThan(home * 0.5);
-
-  // Keyboard: minus backs out again.
   await globe(page).focus();
-  await page.keyboard.press("-");
-  await page.waitForTimeout(900);
-  expect(await altitude()).toBeGreaterThan(zoomed);
+  await page.keyboard.press("Enter");
+  const story = panel(page).getByTestId("spot-story");
+  await expect(story).toBeVisible();
+  const heading = await story.getByTestId("spot-heading").textContent();
+  expect(heading).not.toBe("This patch of sky");
+  await expect(story.getByTestId("spot-constellation")).toContainText("constellation");
+  const ra1 = Number(await story.getByTestId("spot-ra").getAttribute("data-value"));
+  const dec1 = Number(await story.getByTestId("spot-dec").getAttribute("data-value"));
+  expect(ra1).toBeGreaterThanOrEqual(0);
+  expect(ra1).toBeLessThan(360);
+  expect(Math.abs(dec1)).toBeLessThanOrEqual(90);
+  await expect(story.getByTestId("spot-nearest").getByRole("button")).toHaveCount(6);
+  await expect(story.getByTestId("watch-patch")).toHaveAttribute("href", /^\/explore\?ra=\d+\.\d+&dec=-?\d+\.\d+&fov=0\.1667$/);
 
-  await page.getByRole("button", { name: "Reset view" }).click();
-  await page.waitForTimeout(2600);
-  expect(Math.abs((await altitude()) - home) / home).toBeLessThan(0.05);
+  // Somewhere else, something else.
+  await globe(page).focus();
+  for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowUp");
+  await page.waitForTimeout(1800);
+  await page.keyboard.press("Enter");
+  await expect
+    .poll(async () => Number(await panel(page).getByTestId("spot-dec").getAttribute("data-value")))
+    .toBeGreaterThan(dec1 + 10);
+  expect(await panel(page).getByTestId("spot-heading").textContent()).not.toBe(heading);
 
-  // A double click flies in towards that spot (and describes it).
-  await page.mouse.dblclick(cx, cy + outline.height * 0.12);
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("This patch of sky");
-  await page.waitForTimeout(2600);
-  expect(await altitude()).toBeLessThan(home * 0.5);
+  // A nearby star in the list opens that star.
+  await panel(page).getByTestId("spot-nearest").getByRole("button").first().click();
+  await expect(panel(page).getByTestId("star-story")).toBeVisible();
+});
+
+test("a deep link opens a challenge target, with its Lab link", async ({ page }) => {
+  await page.goto("/sky?target=r-dra");
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("R Draconis");
+  await expect(panel(page).getByRole("link", { name: /Open in the Lab/ })).toHaveAttribute("href", "/explore?target=r-dra");
 });
 
 test("on a phone the panel is a bottom sheet", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openSky(page);
-  await list(page)
-    .getByRole("button", { name: /Epsilon Indi B/ })
-    .click();
+  await page.getByTestId("star-search").fill("Betelgeuse");
+  await page.getByTestId("star-search").press("Enter");
   await expect(panel(page)).toHaveAttribute("data-layout", "sheet");
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Epsilon Indi B");
-  await panel(page).getByRole("button", { name: "Close panel" }).click();
-  await expect(panel(page)).toHaveCount(0);
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Betelgeuse");
 });
 
-test("without WebGL the flat map and the list still work", async ({ page }) => {
+test("without WebGL the flat map and the lists still work", async ({ page }) => {
   await page.addInitScript(() => {
-    // Pretend WebGL is unavailable; every other context type still works.
-    const original = HTMLCanvasElement.prototype.getContext as (
-      this: HTMLCanvasElement,
-      ...args: unknown[]
-    ) => unknown;
-    Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
-      configurable: true,
-      value(this: HTMLCanvasElement, type: string, ...rest: unknown[]) {
-        return /webgl/i.test(type) ? null : original.call(this, type, ...rest);
-      },
-    });
+    const original = HTMLCanvasElement.prototype.getContext;
+    // @ts-expect-error narrowing the overloads is not needed for this stub
+    HTMLCanvasElement.prototype.getContext = function (type: string, ...rest: unknown[]) {
+      return /webgl/i.test(type) ? null : (original as (...args: unknown[]) => unknown).call(this, type, ...rest);
+    };
   });
   await page.goto("/sky");
   await expect(page.getByTestId("sky-flat-map")).toBeVisible();
-  await expect(page.getByTestId("sky-globe")).toHaveCount(0);
-  await list(page)
-    .getByRole("button", { name: /WISE 0855/ })
-    .click();
-  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("WISE 0855−0714");
+  await page.getByTestId("target-list").getByRole("button", { name: /R Draconis/ }).click();
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("R Draconis");
 });
 
 // ------------------------------------------------------------------------------ screenshots
@@ -254,63 +179,44 @@ for (const vp of [
 ] as const) {
   test(`sky screenshots at ${vp.name}`, async ({ page }) => {
     test.skip(!OUT, "set UI_REVIEW_DIR to save design-review screenshots");
+    test.setTimeout(180_000);
+    const api = process.env.SKY_API_URL ?? "https://planet-x-hunter-api.vercel.app";
+    await page.addInitScript((url) => {
+      try {
+        localStorage.setItem("pxh:api", url);
+      } catch {
+        // no storage: the panels say live data is off
+      }
+    }, api);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await openSky(page);
     await hideDevOverlay(page);
-    await expect(globe(page)).toHaveAttribute("data-texture", "ready", { timeout: 30_000 });
-    await page.waitForTimeout(3200);
+    await page.waitForTimeout(3500);
     await page.screenshot({ path: path.join(OUT!, `sky-globe-${vp.name}.png`) });
 
-    // Close to the surface, looking out over the curve of the globe.
-    const box = await page.getByTestId("globe-outline").boundingBox();
-    if (box) {
-      await page.mouse.move(box.x + box.width * 0.55, box.y + box.height * 0.42);
-      for (let i = 0; i < 7; i++) {
-        await page.mouse.wheel(0, -240);
-        await page.waitForTimeout(90);
-      }
-      await page.waitForTimeout(2600);
-      await page.screenshot({ path: path.join(OUT!, `sky-close-${vp.name}.png`) });
-      await page.getByRole("button", { name: "Reset view" }).click();
-      await page.waitForTimeout(2600);
-    }
-
-    // The bare globe: SPHEREx imagery turned down, catalogue stars and constellations only.
-    await page.getByRole("button", { name: "Layers" }).click();
-    const imagery = page.getByRole("slider", { name: "SPHEREx imagery opacity" });
-    await imagery.focus();
-    await page.keyboard.press("Home");
-    await page.screenshot({ path: path.join(OUT!, `sky-layers-${vp.name}.png`) });
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(900);
-    await page.screenshot({ path: path.join(OUT!, `sky-bare-${vp.name}.png`) });
-    await page.getByRole("button", { name: "Layers" }).click();
-    await imagery.focus();
-    await page.keyboard.press("End");
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(600);
-
-    await list(page)
-      .getByRole("button", { name: /Barnard.s Star/ })
-      .click();
-    await expect(globe(page)).toHaveAttribute("data-arrived", "t:barnards-star", { timeout: 10_000 });
-    await expect(
-      panel(page).getByTestId("mini-blink").or(panel(page).getByTestId("bundle-missing")),
-    ).toBeVisible({ timeout: 30_000 });
-    await page.waitForTimeout(1600);
-    await page.screenshot({ path: path.join(OUT!, `sky-panel-${vp.name}.png`) });
-
-    const scroller = panel(page).locator("[data-lenis-prevent]");
-    await scroller.evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
-    await page.waitForTimeout(1600);
-    await page.screenshot({ path: path.join(OUT!, `sky-panel-end-${vp.name}.png`) });
+    await page.getByTestId("star-search").fill("Betelgeuse");
+    await page.getByTestId("star-search").press("Enter");
+    await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 10_000 });
+    await page.waitForTimeout(6000); // live data arrives
+    await page.screenshot({ path: path.join(OUT!, `sky-star-${vp.name}.png`) });
 
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(600);
     await globe(page).focus();
     await page.keyboard.press("Enter");
-    await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("This patch of sky");
-    await page.waitForTimeout(1800);
-    await page.screenshot({ path: path.join(OUT!, `sky-patch-${vp.name}.png`) });
+    await expect(panel(page).getByTestId("spot-story")).toBeVisible();
+    await page.waitForTimeout(6000);
+    await page.screenshot({ path: path.join(OUT!, `sky-empty-${vp.name}.png`) });
+
+    await page.keyboard.press("Escape");
+    await page.getByTestId("mode-space").click();
+    await expect(globe(page)).toHaveAttribute("data-mode", "space", { timeout: 10_000 });
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(OUT!, `sky-3d-${vp.name}.png`) });
+
+    await page.getByTestId("star-search").fill("Sirius");
+    await page.getByTestId("star-search").press("Enter");
+    await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 10_000 });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(OUT!, `sky-3d-star-${vp.name}.png`) });
   });
 }

@@ -57,9 +57,12 @@ function PointShape(props: { cx?: number; cy?: number; payload?: Point }) {
 export function SpectrumChart({
   spectrum,
   epochLabel,
+  height = 232,
 }: {
   spectrum: NonNullable<FieldManifest["spectrum"]>;
   epochLabel: (epoch: number) => string;
+  /** Chart height in pixels. */
+  height?: number;
 }) {
   const fluxes = [
     ...spectrum.points.map((p) => p.flux_ujy + p.err_ujy),
@@ -88,7 +91,7 @@ export function SpectrumChart({
 
   return (
     <figure className="flex flex-col gap-2" data-testid="spectrum-chart">
-      <ChartContainer config={{}} className="aspect-auto h-[232px] w-full [&_.recharts-cartesian-axis-tick_text]:fill-fg-faint">
+      <ChartContainer config={{}} style={{ height }} className="aspect-auto w-full [&_.recharts-cartesian-axis-tick_text]:fill-fg-faint">
         <ComposedChart margin={{ top: 18, right: 10, bottom: 18, left: 2 }}>
           <CartesianGrid stroke="var(--hair)" vertical={false} />
           {DETECTOR_KEYS.map((d, i) => (

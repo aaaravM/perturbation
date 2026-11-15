@@ -33,6 +33,8 @@ export interface SessionSubscriber {
   onTile?: (event: TileEvent) => void;
   /** A click (not the end of a drag) on the sky, in ICRS degrees. */
   onClick?: (position: { ra: number; dec: number }) => void;
+  /** The pointer over the sky (ICRS degrees and canvas pixels), or null when it leaves. */
+  onMove?: (position: { ra: number; dec: number; x: number; y: number } | null) => void;
 }
 
 export interface AladinSession {
@@ -159,6 +161,15 @@ export function attachSession(mount: HTMLElement, initialView: SkyView): Promise
         if (event?.isDragging || !Number.isFinite(event?.ra) || !Number.isFinite(event?.dec)) return;
         subscriber?.onClick?.({ ra: event.ra, dec: event.dec });
       }) as never);
+      aladin.on("mouseMove", ((event: { ra?: number; dec?: number; x?: number; y?: number }) => {
+        const { ra, dec, x, y } = event ?? {};
+        if (Number.isFinite(ra) && Number.isFinite(dec)) {
+          subscriber?.onMove?.({ ra: ra as number, dec: dec as number, x: Number(x ?? 0), y: Number(y ?? 0) });
+        } else {
+          subscriber?.onMove?.(null);
+        }
+      }) as never);
+      host.addEventListener("pointerleave", () => subscriber?.onMove?.(null));
       observeTiles();
       return session;
     })().catch((err) => {

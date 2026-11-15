@@ -22,7 +22,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import Response, StreamingResponse
 
 from pxh import __version__, config
-from pxh.api import catalogs, field
+from pxh.api import catalogs, field, lookup
 from pxh.api.caching import CDN_DAY, CDN_SHORT, NO_STORE
 from pxh.api.errors import ApiProblem, archive_unavailable, invalid
 from pxh.sky import propagate
@@ -100,10 +100,6 @@ def respond(doc: Any, cache: str = CDN_DAY, status: int = 200) -> Response:
 
         return StreamingResponse(chunks(), status_code=status, media_type="application/json", headers=headers)
     return Response(body, status_code=status, media_type="application/json", headers=headers)
-
-
-def _num(value: float, digits: int) -> float | None:
-    return round(float(value), digits) if math.isfinite(float(value)) else None
 
 
 # --- endpoints ----------------------------------------------------------------------------------------
@@ -254,25 +250,33 @@ def spectrum_quick(ra: float = Query(...), dec: float = Query(...)) -> Response:
         raise ApiProblem(404, "no_coverage", f"No DR1 cube data at this position: {exc}"[:300]) from exc
     except sia.SiaError as exc:
         raise archive_unavailable(f"The IRSA cube search failed: {exc}"[:300]) from exc
-    order = sorted(range(len(res["wavelength_um"])), key=lambda i: float(res["wavelength_um"][i]))
+    return respond(lookup.spectrum_doc(res, ra, dec))
 
-    def col(key: str, digits: int) -> list[float | None]:
-        return [_num(res[key][i], digits) for i in order]
 
-    return respond({
-        "wl_um": [round(float(res["wavelength_um"][i]), 5) for i in order],
-        "bw_um": col("bandwidth_um", 5),
-        "flux_ujy": col("flux_ujy", 3),
-        "err_ujy": col("flux_err_ujy", 3),
-        "flux_partial_ujy": col("flux_partial_ujy", 3),
-        "lower_limit": [bool(res["lower_limit"][i]) for i in order],
-        "label": res["label"],
-        "ra": ra,
-        "dec": dec,
-        "n_finite": int(res["n_finite"]),
-        "pixel_arcsec": round(float(res["pixel_arcsec"]), 3),
-        "notes": res["notes"],
-    })
+@router.get("/object")
+def object_info(
+    ra: float = Query(..., description="deg, ICRS, at `epoch`"),
+    dec: float = Query(..., description="deg, ICRS, at `epoch`"),
+    radius_arcsec: float = Query(lookup.RADIUS_ARCSEC_DEFAULT, description="arcsec, at most 60"),
+    epoch: float | None = Query(None, description="Julian year of ra/dec (default 2026.0, the star files)"),
+    pmra: float | None = Query(None, description="proper motion mu_alpha* in mas/yr, if known"),
+    pmdec: float | None = Query(None, description="proper motion mu_delta in mas/yr, if known"),
+    hip: int | None = Query(None, description="Hipparcos number, if the spot is a Hipparcos star"),
+) -> Response:
+    """Everything known at one spot: Gaia DR3, SIMBAD, SPHEREx coverage, quick-look spectrum, sky facts."""
+    doc = lookup.object_lookup(ra, dec, radius_arcsec, epoch, pmra, pmdec, hip)
+    return respond(doc, CDN_DAY if doc["complete"] else NO_STORE)
+
+
+@router.get("/patch")
+def patch_info(
+    ra: float = Query(..., description="deg, ICRS"),
+    dec: float = Query(..., description="deg, ICRS"),
+    radius_arcmin: float = Query(lookup.PATCH_RADIUS_DEFAULT, description="arcmin, 1-60"),
+) -> Response:
+    """What is in a patch of sky: where it is, its brightest stars, star count, SPHEREx coverage, spectrum."""
+    doc = lookup.patch_lookup(ra, dec, radius_arcmin)
+    return respond(doc, CDN_DAY if doc["complete"] else NO_STORE)
 
 
 @router.get("/catalog/gaia")
