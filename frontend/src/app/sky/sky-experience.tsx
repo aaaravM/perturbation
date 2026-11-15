@@ -45,6 +45,7 @@ import { KIND_LABEL, TargetStory } from "@/components/sky-panel/target-story";
 import { StarStory } from "@/components/sky-panel/star-story";
 import { SpotStory } from "@/components/sky-panel/spot-story";
 import { SkyRail } from "@/components/sky-panel/sky-rail";
+import { SkyTourButton, SkyTourHost } from "@/components/tour/tour-host";
 
 const SkyGlobe = dynamic(() => import("@/components/globe/sky-globe"), {
   ssr: false,
@@ -354,7 +355,7 @@ export function SkyExperience() {
           explanations work with a mouse; only the shading that fades it into the sky lets drags
           through to the globe. */}
       {isLarge ? (
-        <div ref={columnRef} className="absolute top-7 bottom-6 left-8 z-10 flex w-[20rem] flex-col gap-6 xl:left-10">
+        <div ref={columnRef} data-tour="sky-side" className="absolute top-7 bottom-6 left-8 z-10 flex w-[20rem] flex-col gap-6 xl:left-10">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-7 -bottom-6 -left-10 -z-10 w-[calc(100%+8rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.94)_0%,rgb(5_5_5/0.88)_62%,rgb(5_5_5/0.45)_82%,transparent_100%)]"
@@ -363,7 +364,7 @@ export function SkyExperience() {
           <div className="flex min-h-0 flex-1 flex-col">{rail}</div>
         </div>
       ) : (
-        <div ref={topRef} className="absolute inset-x-3 top-3 z-10 flex flex-col gap-2 sm:inset-x-5">
+        <div ref={topRef} data-tour="sky-top" className="absolute inset-x-3 top-3 z-10 flex flex-col gap-2 sm:inset-x-5">
           <AnimatePresence initial={false}>
             {!open && (
               <motion.div
@@ -450,6 +451,7 @@ export function SkyExperience() {
 
       {/* View controls */}
       <div
+        data-tour="sky-controls"
         className={cn(
           "absolute bottom-4 z-10 flex items-center gap-2 transition-[right,opacity] duration-500 ease-out-expo lg:bottom-6",
           open && !isTablet && "pointer-events-none opacity-0",
@@ -463,6 +465,7 @@ export function SkyExperience() {
           <span className="mr-2">Centre</span>
           <span ref={centreText} className="readout whitespace-pre text-fg-dim" />
         </p>
+        <SkyTourButton />
         {!flat && (
           <>
             <ModeSwitch mode={mode} onChange={setMode} disabled={!canSpace} reducedMotion={reducedMotion} />
@@ -490,6 +493,8 @@ export function SkyExperience() {
           </>
         )}
       </div>
+
+      <SkyTourHost offerClassName="absolute right-3 bottom-[3.75rem] left-3 z-10 flex justify-end sm:left-auto lg:right-8 lg:bottom-[4.5rem]" />
 
       <AnimatePresence>
         {open && (

@@ -1,4 +1,4 @@
-# Planet X Hunter backend (`pxh`)
+# Perturbation backend (`pxh`)
 
 A Python 3.13 package and FastAPI service that turns SPHEREx Level-2 data at IRSA into aligned epoch frames, difference images, spectra, motion measurements and automatic mover and variable candidates. It is the API behind the website; Vercel serves it from `index.py`.
 

@@ -3,7 +3,7 @@
 // keyboard and URL round-trip are covered. Set UI_REVIEW_DIR to save design-review screenshots.
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-import { hideDevOverlay, viewerCenter, watchPage } from "./helpers";
+import { DESKTOP_LAYOUT, hideDevOverlay, viewerCenter, watchPage } from "./helpers";
 
 const OUT = process.env.UI_REVIEW_DIR;
 const FIXTURE = "/explore?target=_fixture";
@@ -30,6 +30,11 @@ const frameLabel = (page: Page) => page.locator("[data-testid=frame-label]:not([
 const param = (page: Page, name: string) => new URL(page.url()).searchParams.get(name);
 
 test.describe.configure({ mode: "serial" });
+
+// In a phone profile only the "phone" tests run: the others drive the desktop panes.
+test.beforeEach(({ isMobile }, testInfo) => {
+  test.skip(isMobile && !testInfo.titlePath.includes("phone"), DESKTOP_LAYOUT);
+});
 
 test("the fixture is labelled and the blink cycles through every frame", async ({ page }) => {
   const log = watchPage(page);

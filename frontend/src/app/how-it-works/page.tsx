@@ -28,7 +28,7 @@ const STEPS = [
   { id: "data", label: "Data and code" },
 ] as const;
 
-const API_URL = "https://planet-x-hunter-api.vercel.app";
+const API_URL = "https://perturbation-api.vercel.app";
 const IRSA_SPHEREX = "https://irsa.ipac.caltech.edu/Missions/spherex.html";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -179,7 +179,11 @@ export default async function HowItWorksPage() {
             <Prose>
               <p>
                 The oldest way to find things that move is to flip between two pictures of the same stars taken at different
-                times. Distant stars hold still; anything nearby that moved jumps. Clyde Tombaugh found Pluto like this in 1930.
+                times. Distant stars hold still; anything nearby that moved jumps. Clyde Tombaugh found Pluto like this in 1930, and{" "}
+                <Link href="/planet-x" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-accent">
+                  SPHEREx sees Pluto move the same way
+                </Link>
+                .
               </p>
               <p>
                 Subtracting one picture from the other makes it plainer still. In a{" "}
@@ -367,7 +371,7 @@ export default async function HowItWorksPage() {
             <DataFlow />
             <dl className="grid max-w-4xl grid-cols-1 gap-x-10 sm:grid-cols-2">
               {[
-                { term: "Source code", href: REPO_URL, label: "github.com/aaaravM/planet-x-hunter", note: "Apache-2.0 licence" },
+                { term: "Source code", href: REPO_URL, label: "github.com/aaaravM/perturbation", note: "Apache-2.0 licence" },
                 {
                   term: "Phase 1 data report",
                   href: `${REPO_URL}/blob/main/docs/data-findings.md`,
@@ -383,7 +387,7 @@ export default async function HowItWorksPage() {
                 {
                   term: "API",
                   href: API_URL,
-                  label: "planet-x-hunter-api.vercel.app",
+                  label: "perturbation-api.vercel.app",
                   note: "Its contract is in docs/api-contract.md",
                 },
                 { term: "SPHEREx at IRSA", href: IRSA_SPHEREX, label: "irsa.ipac.caltech.edu", note: "The images themselves" },

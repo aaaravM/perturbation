@@ -34,7 +34,7 @@ for (const vp of [
 
     test(`/ has no serious or critical violations (${vp.name})`, async ({ page }) => {
       await page.goto("/");
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Watch the sky move.");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Perturbation");
       await page.waitForTimeout(1500); // the globe has taken over from its still
       await audit(page, `/ ${vp.name}`);
     });

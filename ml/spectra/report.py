@@ -140,7 +140,7 @@ def main() -> None:
     w("")
     w("## In plain words")
     w("")
-    w("Planet X Hunter reads the SPHEREx quick-look spectrum at any spot (102 colours of infrared light, from the "
+    w("The site reads the SPHEREx quick-look spectrum at any spot (102 colours of infrared light, from the "
       "DR1 all-sky cube) and says what kind of object it looks most like: a hot star, a Sun-like star, a cool star, a "
       "brown dwarf, a young or dusty star, a galaxy or a quasar. A small neural network makes that call. It learned "
       "from real SPHEREx spectra of objects that SIMBAD and Gaia had already classified, and it was tested on parts "

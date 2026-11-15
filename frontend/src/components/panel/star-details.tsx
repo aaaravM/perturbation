@@ -316,7 +316,7 @@ export function StarDetails({
         )}
         {coverage.state === "off" && !fieldCoverage && (
           <p className="text-meta text-fg-dim" data-testid="coverage-off">
-            Coverage for any point comes from the Planet X Hunter backend, which this page is not connected to.
+            Coverage for any point comes from the Perturbation backend, which this page is not connected to.
           </p>
         )}
         {coverage.state === "loading" && <Skeleton className="h-9 w-full bg-ink-3" />}
@@ -338,7 +338,7 @@ export function StarDetails({
       >
         {spectrum.state === "off" && (
           <p className="text-meta text-fg-dim" data-testid="quicklook-off">
-            The spectrum at any point is read from the SPHEREx DR1 all-sky cube by the Planet X Hunter backend. It is not
+            The spectrum at any point is read from the SPHEREx DR1 all-sky cube by the Perturbation backend. It is not
             connected to this page, so no spectrum is shown rather than a made-up one.
           </p>
         )}

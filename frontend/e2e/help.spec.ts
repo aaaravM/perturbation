@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { hideDevOverlay, watchPage } from "./helpers";
+import { FIREFOX_DEV_AXE, firefoxOnDevServer, hideDevOverlay, watchPage } from "./helpers";
 import { SHOTS_DIR, serveDiscoveries } from "./fixtures/discoveries/serve";
 
 async function openQueue(page: Page) {
@@ -75,7 +75,7 @@ test("review queue: keys and clicks, a check every fifth item, votes saved, down
 
   // Downloads.
   const [csv] = await Promise.all([page.waitForEvent("download"), page.getByTestId("export-csv").click()]);
-  expect(csv.suggestedFilename()).toMatch(/^planet-x-hunter-answers-\d{4}-\d{2}-\d{2}\.csv$/);
+  expect(csv.suggestedFilename()).toMatch(/^perturbation-answers-\d{4}-\d{2}-\d{2}\.csv$/);
   const rows = fs.readFileSync(await csv.path(), "utf8").trim().split(/\r?\n/);
   expect(rows[0]).toBe("id,source,answer,expected,correct,model,run,answered_at");
   expect(rows).toHaveLength(6);
@@ -143,7 +143,8 @@ for (const vp of [
   { name: "desktop", width: 1440, height: 900 },
   { name: "phone", width: 390, height: 844 },
 ]) {
-  test(`/help has no serious or critical axe violations (${vp.name})`, async ({ page }) => {
+  test(`/help has no serious or critical axe violations (${vp.name})`, async ({ page, browserName }) => {
+    test.skip(firefoxOnDevServer(browserName), FIREFOX_DEV_AXE);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await serveDiscoveries(page);
     await openQueue(page);

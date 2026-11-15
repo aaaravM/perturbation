@@ -60,7 +60,7 @@ REPO = Path(__file__).resolve().parents[1]
 CACHE = REPO / "data" / "cache" / "hipparcos"
 OUT = REPO / "frontend" / "public" / "data" / "stars"
 
-USER_AGENT = "PlanetXHunter/0.1 (catalogue builder)"
+USER_AGENT = "Perturbation/0.1 (catalogue builder)"
 VIZIER_MIRRORS = ("https://vizier.cfa.harvard.edu", "https://vizier.idia.ac.za")
 HIP2_COLUMNS = "HIP,RArad,DErad,Plx,e_Plx,pmRA,pmDE,Hpmag,B-V"
 HIPMAIN_COLUMNS = "HIP,Vmag,B-V,SpType"

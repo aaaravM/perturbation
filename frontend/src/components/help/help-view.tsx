@@ -203,7 +203,7 @@ function YourAnswers() {
               type="button"
               data-testid="export-csv"
               disabled={votes.length === 0}
-              onClick={() => downloadText(`planet-x-hunter-answers-${stamp()}.csv`, votesToCsv(votes), "text/csv")}
+              onClick={() => downloadText(`perturbation-answers-${stamp()}.csv`, votesToCsv(votes), "text/csv")}
               className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-hair-strong px-4 text-ui text-fg transition-colors hover:bg-white/[0.05] disabled:pointer-events-none disabled:text-fg-faint"
             >
               <DownloadIcon aria-hidden className="size-4" />
@@ -213,7 +213,7 @@ function YourAnswers() {
               type="button"
               data-testid="export-json"
               disabled={votes.length === 0}
-              onClick={() => downloadText(`planet-x-hunter-answers-${stamp()}.json`, votesToJson(votes), "application/json")}
+              onClick={() => downloadText(`perturbation-answers-${stamp()}.json`, votesToJson(votes), "application/json")}
               className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-hair-strong px-4 text-ui text-fg transition-colors hover:bg-white/[0.05] disabled:pointer-events-none disabled:text-fg-faint"
             >
               <DownloadIcon aria-hidden className="size-4" />

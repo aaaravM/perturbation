@@ -59,10 +59,14 @@ export function TwoWaysIn({ animate }: { animate: boolean }) {
           Or read about{" "}
           <Link href="/discoveries" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-fg">
             what the search has found
-          </Link>{" "}
-          and{" "}
+          </Link>
+          ,{" "}
           <Link href="/how-it-works" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-fg">
             how it works
+          </Link>{" "}
+          and{" "}
+          <Link href="/planet-x" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-fg">
+            the first Planet X
           </Link>
           .
         </p>

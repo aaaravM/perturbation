@@ -42,7 +42,7 @@ test("landing -> Sky globe -> Barnard's Star -> the Lab, and Back through it all
   const log = watchPage(page);
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Watch the sky move.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Perturbation");
   await page.waitForTimeout(4200); // hero blink mid-cycle
   await shot(page, "landing-1440x900");
 
@@ -102,7 +102,7 @@ test("landing -> Sky globe -> Barnard's Star -> the Lab, and Back through it all
   await expect(skyPanel(page).getByRole("heading", { level: 2 })).toHaveText("Barnard's Star");
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Watch the sky move.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Perturbation");
   await page.goForward();
   await expect(page).toHaveURL(/\/sky/);
   await expect(page.getByTestId("sky-globe").locator("canvas")).toBeVisible();

@@ -1,5 +1,5 @@
 "use client"
-// Local edit (Planet X Hunter): aria-label / aria-valuetext are forwarded to the thumb, which
+// Local edit (Perturbation): aria-label / aria-valuetext are forwarded to the thumb, which
 // is the element with role="slider"; on the root they gave the control no accessible name.
 
 import * as React from "react"

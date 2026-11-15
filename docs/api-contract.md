@@ -99,7 +99,7 @@ Frame URLs in bundles are relative to the manifest. Every PNG shares `grid.wcs`.
 
 The backend is its own Vercel project (root directory `backend/`, entrypoint `backend/index.py`, Python 3.13, Fluid compute: 300 s, 2 GB, 1 vCPU). The base URL comes from `NEXT_PUBLIC_API_URL`. Everything is `GET` and JSON. There is no Server-Sent Events stream and no file store: the client builds a field **one detector per request**, and every frame comes back inline as a `data:image/png;base64,...` URL. (This replaces the absolute `/api/files/...` URLs mentioned in section 1. `resolveFrameUrl` must pass `data:` URLs through unchanged; today it treats them as relative paths.)
 
-**CORS.** Origins come from the env var `ALLOWED_ORIGINS`: a comma list where `*` stands for one DNS label. The default is `http://localhost:3000,https://*.vercel.app`.
+**CORS.** Origins come from the env var `ALLOWED_ORIGINS`: a comma list where `*` stands for one DNS label. The default is `http://localhost:3000,https://*.vercel.app,https://perturbation.earth,https://www.perturbation.earth`, the same list the production API uses.
 
 **Caching.**
 - Deterministic answers send `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`, so Vercel's CDN answers repeats without running Python. Round coordinates the same way every time (5 decimals) so repeats hit the cache.

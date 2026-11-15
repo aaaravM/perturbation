@@ -1,15 +1,15 @@
-# Planet X Hunter
+# Perturbation
 
-Planet X Hunter is a public website for NASA's SPHEREx infrared sky survey: pick any patch of sky, blink between SPHEREx's visits, subtract them, measure how stars move and change brightness, read their 102-channel spectra, and browse the results of an automatic search of 53 fields for things that moved or changed. SPHEREx maps the whole sky about every six months, so any field can be compared with itself months apart, the way Clyde Tombaugh found Pluto in 1930 while hunting for "Planet X": by blinking two photographs of the same stars.
+Perturbation is a public website for NASA's SPHEREx infrared sky survey: pick any patch of sky, blink between SPHEREx's visits, subtract them, measure how stars move and change brightness, read their 102-channel spectra, and browse the results of an automatic search of 53 fields for things that moved or changed. SPHEREx maps the whole sky about every six months, so any field can be compared with itself months apart, the way Clyde Tombaugh found Pluto in 1930 while hunting for "Planet X": by blinking two photographs of the same stars.
 
 Made by team Ninth Vanguard for the NASA Space Apps Challenge 2026, challenge "Planet X and SPHEREx".
 
-- **Live site:** [planet-x-hunter.vercel.app](https://planet-x-hunter.vercel.app)
-- **Sky globe:** [/sky](https://planet-x-hunter.vercel.app/sky)
-- **Lab, opened on Barnard's Star:** [/explore?target=barnards-star](https://planet-x-hunter.vercel.app/explore?target=barnards-star)
-- **Discoveries:** [/discoveries](https://planet-x-hunter.vercel.app/discoveries)
-- **How it works:** [/how-it-works](https://planet-x-hunter.vercel.app/how-it-works)
-- **API:** base URL `https://planet-x-hunter-api.vercel.app/api` (try [/api/health](https://planet-x-hunter-api.vercel.app/api/health)), interactive docs at [/docs](https://planet-x-hunter-api.vercel.app/docs)
+- **Live site:** [perturbation.earth](https://perturbation.earth)
+- **Sky globe:** [/sky](https://perturbation.earth/sky)
+- **Lab, opened on Barnard's Star:** [/explore?target=barnards-star](https://perturbation.earth/explore?target=barnards-star)
+- **Discoveries:** [/discoveries](https://perturbation.earth/discoveries)
+- **How it works:** [/how-it-works](https://perturbation.earth/how-it-works)
+- **API:** base URL `https://perturbation-api.vercel.app/api` (try [/api/health](https://perturbation-api.vercel.app/api/health)), interactive docs at [/docs](https://perturbation-api.vercel.app/docs)
 
 <p>
   <img src="docs/images/home.webp" width="49%" alt="Home page: the SPHEREx all-sky map on a globe beside the title Watch the sky move">
@@ -26,13 +26,14 @@ Top: the home page, and the Sky globe in 3D space focused on Barnard's Star. Bot
 
 | Page | What it does |
 |---|---|
-| [Sky](https://planet-x-hunter.vercel.app/sky) | A globe of 117,955 Hipparcos stars in their true colours. Click a star for what is known about it and what SPHEREx has seen there, or switch to 3D space to see the stars at their real distances around the Sun. |
-| [Lab](https://planet-x-hunter.vercel.app/explore?target=barnards-star) | A workbench for any patch of sky: blink SPHEREx's visits detector by detector, see difference images, compare with WISE images from 2010, and click a source for its motion, light curve and spectrum. The five challenge targets open from prepared data; any other position is built live from IRSA. |
-| [Discoveries](https://planet-x-hunter.vercel.app/discoveries) | The automatic search's list: 18 candidates from 53 SPHEREx fields, each with its blink, difference stamp, calibrated confidence, q-value and catalogue match. You choose the false-alarm rate you accept (1%, 5%, 10% or 20%). |
-| [Help the search](https://planet-x-hunter.vercel.app/help) | Look at blinking candidates from the search, with known objects mixed in as checks, and say what you see. Answers stay in your browser; you can download them as CSV or JSON. |
-| [How it works](https://planet-x-hunter.vercel.app/how-it-works) | The method in eight steps, from SPHEREx exposures to measured motions, spectra and the automatic search, with the measured results, the limits, and a folded layer of detail for scientists. |
-| [Settings](https://planet-x-hunter.vercel.app/settings) | Glass, motion and explanation marks; how the Sky globe and the Lab start; what this browser keeps. |
-| [About](https://planet-x-hunter.vercel.app/about) | The challenge, the team, data credits and licences, and how to cite. |
+| [Sky](https://perturbation.earth/sky) | A globe of 117,955 Hipparcos stars in their true colours. Click a star for what is known about it and what SPHEREx has seen there, or switch to 3D space to see the stars at their real distances around the Sun. |
+| [Lab](https://perturbation.earth/explore?target=barnards-star) | A workbench for any patch of sky: blink SPHEREx's visits detector by detector, see difference images, compare with WISE images from 2010, and click a source for its motion, light curve and spectrum. The five challenge targets open from prepared data; any other position is built live from IRSA. |
+| [Discoveries](https://perturbation.earth/discoveries) | The automatic search's list: 18 candidates from 53 SPHEREx fields, each with its blink, difference stamp, calibrated confidence, q-value and catalogue match. You choose the false-alarm rate you accept (1%, 5%, 10% or 20%). |
+| [Planet X](https://perturbation.earth/planet-x) | Pluto, the first Planet X, found again in 236 SPHEREx images: the blink both ways, with JPL’s predicted position, its methane-ice spectrum (dips of 31%, 62% and 89%), stacking along its orbit (signal-to-noise 2.5 in one exposure, 7.3 stacked), and why a planet like the predicted Planet Nine is out of SPHEREx’s reach. Method and numbers: [docs/validation/pluto.md](docs/validation/pluto.md). |
+| [Help the search](https://perturbation.earth/help) | Look at blinking candidates from the search, with known objects mixed in as checks, and say what you see. Answers stay in your browser; you can download them as CSV or JSON. |
+| [How it works](https://perturbation.earth/how-it-works) | The method in eight steps, from SPHEREx exposures to measured motions, spectra and the automatic search, with the measured results, the limits, and a folded layer of detail for scientists. |
+| [Settings](https://perturbation.earth/settings) | Glass, motion and explanation marks; how the Sky globe and the Lab start; what this browser keeps. |
+| [About](https://perturbation.earth/about) | The challenge, the team, data credits and licences, and how to cite. |
 
 ## How it works
 
@@ -115,7 +116,7 @@ To use a local API from the website, set `NEXT_PUBLIC_API_URL=http://localhost:8
 
 ## API
 
-All endpoints answer `GET` under `https://planet-x-hunter-api.vercel.app/api`. Errors are JSON with `error`, `message` and `retryable`. Parameters and response shapes are in [docs/api-contract.md](docs/api-contract.md) and the [interactive docs](https://planet-x-hunter-api.vercel.app/docs).
+All endpoints answer `GET` under `https://perturbation-api.vercel.app/api`. Errors are JSON with `error`, `message` and `retryable`. Parameters and response shapes are in [docs/api-contract.md](docs/api-contract.md) and the [interactive docs](https://perturbation-api.vercel.app/docs).
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -154,7 +155,7 @@ All endpoints answer `GET` under `https://planet-x-hunter-api.vercel.app/api`. E
 | Skiper UI, free tier | Free with attribution |
 | IBM Plex Sans and IBM Plex Mono | SIL Open Font License 1.1 |
 | three.js, React Three Fiber, drei, Motion, Lenis, Recharts and the other libraries | MIT, ISC or Apache-2.0 |
-| Planet X Hunter's own code | Apache-2.0 |
+| Perturbation's own code | Apache-2.0 |
 
 Interface components come from shadcn/ui, Cult UI, Watermelon UI and Skiper UI. The full list, with versions and sources, is in [frontend/CREDITS.md](frontend/CREDITS.md). The API and the training code are built on Astropy, reproject, photutils, NumPy, SciPy and FastAPI, and on PyTorch and scikit-learn for training ([backend/pyproject.toml](backend/pyproject.toml), [ml/pyproject.toml](ml/pyproject.toml)).
 
@@ -169,10 +170,10 @@ If you use what you find here, please credit the missions and catalogues behind 
 
 To cite this tool:
 
-> Team Ninth Vanguard (2026). Planet X Hunter: a public explorer of the changing infrared sky seen by SPHEREx. NASA Space Apps Challenge 2026. https://planet-x-hunter.vercel.app (source code: https://github.com/aaaravM/planet-x-hunter).
+> Team Ninth Vanguard (2026). Perturbation: a public explorer of the changing infrared sky seen by SPHEREx. NASA Space Apps Challenge 2026. https://perturbation.earth (source code: https://github.com/aaaravM/perturbation).
 
 ## Team and licence
 
-Planet X Hunter is made by team Ninth Vanguard for the NASA Space Apps Challenge 2026. Questions, corrections and ideas are welcome as [GitHub issues](https://github.com/aaaravM/planet-x-hunter/issues).
+Perturbation is made by team Ninth Vanguard for the NASA Space Apps Challenge 2026. Questions, corrections and ideas are welcome as [GitHub issues](https://github.com/aaaravM/perturbation/issues).
 
 The code is released under the [Apache License 2.0](LICENSE); `backend/pyproject.toml` and `ml/pyproject.toml` declare the same licence. The data and the third-party components above keep their own terms.

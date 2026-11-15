@@ -1,5 +1,5 @@
 "use client";
-// Live data for the Sky panels, from the Planet X Hunter API (NEXT_PUBLIC_API_URL).
+// Live data for the Sky panels, from the Perturbation API (NEXT_PUBLIC_API_URL).
 //
 // A star asks /api/object (with its HIP number and proper motion, so Gaia and SIMBAD find the
 // right source); a spot of empty sky asks /api/patch. Each answer comes in parts (sky, gaia,

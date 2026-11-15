@@ -7,12 +7,14 @@ import * as React from "react";
 import { Trash2Icon } from "lucide-react";
 import { PREFS_STORAGE_KEY, resetPreferences, subscribePreferences } from "@/lib/preferences";
 import { SettingsSection, useFlash } from "@/components/settings/controls";
+import { TOUR_SEEN_KEY } from "@/lib/tour";
 
 const KNOWN: Record<string, { label: string; detail: string }> = {
   [PREFS_STORAGE_KEY]: { label: "Your settings", detail: "The choices on this page." },
   "pxh-lab-left": { label: "Lab, left pane width", detail: "Set by dragging the edge of the Data pane." },
   "pxh-lab-right": { label: "Lab, right pane width", detail: "Set by dragging the edge of the Analysis pane." },
   "pxh-lab-hint-seen": { label: "Lab, first-visit tip", detail: "Remembers that you closed the tip." },
+  [TOUR_SEEN_KEY]: { label: "Guided tours, first-visit offers", detail: "Remembers which tools have offered their tour." },
   "pxh:api": { label: "API address", detail: "Points a development copy of the site at an API." },
 };
 
@@ -76,7 +78,7 @@ export function StoredDataSection() {
     <SettingsSection
       id="data"
       title="Data and privacy"
-      description="Planet X Hunter sets no cookies and runs no analytics. The few things it remembers stay in this browser, listed here."
+      description="This site sets no cookies and runs no analytics. The few things it remembers stay in this browser, listed here."
       canReset={!!items && items.length > 0}
       onReset={() => {
         for (const item of items ?? []) removeItem(item.key);

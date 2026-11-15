@@ -8,7 +8,7 @@
 // Design-review screenshots are opt-in: UI_REVIEW_DIR=/some/dir.
 import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { hideDevOverlay } from "./helpers";
+import { DESKTOP_LAYOUT, hideDevOverlay } from "./helpers";
 
 interface PageCase {
   path: string;
@@ -47,6 +47,7 @@ const PAGES: PageCase[] = [
   { path: "/explore?target=barnards-star", budget: 10, ready: labReady, keep: (page) => page.getByTestId("blink-player") },
   { path: "/discoveries", budget: 4 },
   { path: "/help", budget: 4 },
+  { path: "/planet-x", budget: 3 },
   { path: "/how-it-works", budget: 6 },
   { path: "/about", budget: 6 },
   { path: "/settings", budget: 2 },
@@ -190,7 +191,8 @@ for (const c of PAGES) {
   });
 }
 
-test("the Settings switch for marks hides only the question marks", async ({ page }) => {
+test("the Settings switch for marks hides only the question marks", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await open(page, PAGES[0]);
   const term = page.locator("[data-term]").first();
   test.skip((await term.count()) === 0, "no explained words on the home page");
@@ -204,7 +206,8 @@ test("the Settings switch for marks hides only the question marks", async ({ pag
 
 // Tabbing to a word below the fold scrolls the page to it. The explanation opens and stays open
 // while the word has focus (WCAG 1.4.13), rather than closing with that scroll.
-test("a word reached with Tab keeps its explanation open while the page scrolls to it", async ({ page }) => {
+test("a word reached with Tab keeps its explanation open while the page scrolls to it", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await open(page, { path: "/how-it-works", budget: 6 });
   await page.waitForTimeout(1500); // smooth scrolling has started and left the page at the top
   const term = page.locator("[data-term]").first();

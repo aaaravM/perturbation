@@ -45,7 +45,7 @@ function arg(name) {
 
 async function load(rel, src) {
   if (src) return readFile(path.join(src, path.basename(rel)), "utf8");
-  const res = await fetch(`${RAW}/${rel}`, { headers: { "User-Agent": "planet-x-hunter-catalog-builder" } });
+  const res = await fetch(`${RAW}/${rel}`, { headers: { "User-Agent": "perturbation-catalog-builder" } });
   if (!res.ok) throw new Error(`${res.status} for ${rel}`);
   return res.text();
 }

@@ -1,6 +1,6 @@
 # Models
 
-Training and evaluation code for the Planet X Hunter models. It is a separate uv project so that PyTorch
+Training and evaluation code for the website's models. It is a separate uv project so that PyTorch
 never reaches the deployed API: trained weights are exported to `backend/src/pxh/ml/weights/` and run there
 with plain NumPy.
 

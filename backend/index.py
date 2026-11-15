@@ -1,4 +1,4 @@
-"""Vercel entrypoint of the Planet X Hunter API (a FastAPI app named ``app``).
+"""Vercel entrypoint of the Perturbation API (a FastAPI app named ``app``).
 
 Vercel detects ``index.py`` at the project root (the Vercel project's root directory is ``backend/``) and
 serves ``app`` as one Python function. ``src/`` is put on ``sys.path`` so ``pxh`` imports whether or not the

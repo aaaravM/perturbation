@@ -195,7 +195,7 @@ export function loadLiveField(
       status: "unavailable",
       reason: "no-backend",
       message:
-        "Frames for a new patch of sky are built on demand by the Planet X Hunter backend, which is not connected to this site yet.",
+        "Frames for a new patch of sky are built on demand by the Perturbation backend, which is not connected to this site yet.",
     });
   }
   // Rounded the same way every time, so repeats hit the backend's CDN cache.
@@ -238,7 +238,7 @@ export function loadLiveField(
       res = await fetch(`${API_URL}/api/field/build?${query}&det=D6&modes=epoch,difference,flags`, { signal });
     } catch (err) {
       if (signal.aborted) throw err;
-      return { status: "error", message: "The Planet X Hunter backend could not be reached.", retryable: true };
+      return { status: "error", message: "The Perturbation backend could not be reached.", retryable: true };
     }
     if (!res.ok) return apiFailure(res);
     let manifest: FieldManifest;

@@ -1,6 +1,6 @@
 // Catalogue lookups for "click any star" in the Lab, straight from the archives:
 // - Gaia DR3 sources in a cone: the CfA mirror of VizieR (I/355/gaiadr3, CORS open), or the
-//   Planet X Hunter backend's /api/catalog/gaia (IRSA Gator) when VizieR does not answer.
+//   Perturbation backend's /api/catalog/gaia (IRSA Gator) when VizieR does not answer.
 //   Positions are Gaia's epoch 2016.0, moved linearly with their proper motion to the epoch shown.
 // - SIMBAD (CfA mirror, TAP): the name, object type and spectral type of a Gaia source, looked up
 //   by its exact "Gaia DR3 <id>" identifier, so nothing is matched by guesswork.
@@ -42,7 +42,7 @@ export interface GaiaSource {
 
 export interface GaiaCone {
   sources: GaiaSource[];
-  /** "VizieR (CfA mirror)" or "IRSA Gator via the Planet X Hunter backend". */
+  /** "VizieR (CfA mirror)" or "IRSA Gator via the Perturbation backend". */
   via: string;
   /** True when the cone held more sources than were kept (the faintest were dropped). */
   truncated: boolean;
@@ -207,7 +207,7 @@ export async function loadGaiaCone(
   } catch (err) {
     if (signal?.aborted || !API_URL) throw err;
     const sources = await gaiaFromBackend(center.ra, center.dec, radiusArcmin, epoch, signal);
-    return { ...base, sources, via: "IRSA Gator via the Planet X Hunter backend", truncated: sources.length >= GAIA_MAX_ROWS };
+    return { ...base, sources, via: "IRSA Gator via the Perturbation backend", truncated: sources.length >= GAIA_MAX_ROWS };
   }
 }
 

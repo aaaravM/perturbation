@@ -79,7 +79,7 @@ export function GlassPreview() {
           transition={reduce ? { duration: 0 } : { duration: 40, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
         />
         <LiquidGlass interactive className="absolute inset-x-3 top-3 flex h-12 items-center justify-between gap-4 px-4">
-          <span className="truncate text-ui font-medium text-fg">Planet X Hunter</span>
+          <span className="truncate text-ui font-medium text-fg">Perturbation</span>
           <span className="flex shrink-0 items-center gap-4 text-ui text-(--fg-glass-dim)">
             <span className="text-fg">Sky</span>
             <span>Lab</span>

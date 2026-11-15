@@ -11,14 +11,14 @@ import { REPO_URL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Planet X Hunter in plain words: the NASA Space Apps 2026 challenge it answers, team Ninth Vanguard, data credits and licences, and how to cite the data.",
+    "This site in plain words: the challenge it answers, team Ninth Vanguard, data credits and licences, and how to cite the data.",
 };
 
-const SITE_URL = "https://planet-x-hunter.vercel.app";
+const SITE_URL = "https://perturbation.earth";
 const IRSA_SPHEREX = "https://irsa.ipac.caltech.edu/Missions/spherex.html";
 const GAIA_CREDITS = "https://gea.esac.esa.int/archive/documentation/credits.html";
 
-const SITE_CITATION = `Team Ninth Vanguard (2026). Planet X Hunter: a public explorer of the changing infrared sky seen by SPHEREx. NASA Space Apps Challenge 2026. ${SITE_URL} (source code: ${REPO_URL}).`;
+const SITE_CITATION = `Team Ninth Vanguard (2026). Perturbation: a public explorer of the changing infrared sky seen by SPHEREx. ${SITE_URL} (source code: ${REPO_URL}).`;
 
 const LINK =
   "text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-accent";
@@ -51,6 +51,11 @@ const DATA_CREDITS: { what: string; credit: ReactNode; terms: string }[] = [
   },
   { what: "Constellation boundaries", credit: "IAU boundaries (Roman 1987), via astropy", terms: "BSD-3-Clause (astropy)" },
   { what: "WISE 0855−0714 motion", credit: "Kirkpatrick et al. 2021, ApJS 253, 7", terms: "Published paper" },
+  {
+    what: "Pluto’s predicted positions (Planet X page)",
+    credit: "JPL Horizons, NASA/JPL-Caltech Solar System Dynamics",
+    terms: "Public; credit NASA/JPL",
+  },
   { what: "Lab sky viewer", credit: "Aladin Lite, CDS, Strasbourg", terms: "LGPL-3.0" },
 ];
 
@@ -60,7 +65,7 @@ const SOFTWARE_CREDITS: { what: string; terms: string }[] = [
   { what: "Skiper UI, free tier", terms: "Free with attribution" },
   { what: "IBM Plex Sans and IBM Plex Mono", terms: "SIL Open Font License 1.1" },
   { what: "three.js, React Three Fiber, drei, Motion, Lenis, Recharts and the other libraries", terms: "MIT, ISC or Apache-2.0" },
-  { what: "Planet X Hunter’s own code", terms: "Apache-2.0" },
+  { what: "Perturbation’s own code", terms: "Apache-2.0" },
 ];
 
 function AboutSection({ id, title, children }: { id: string; title: string; children: ReactNode }) {
@@ -88,8 +93,7 @@ export default function AboutPage() {
         <SkyBackdrop src="/textures/spherex-sky-rgb-2k.webp" />
         <div className="relative mx-auto w-full max-w-7xl px-4 pt-[calc(var(--nav-h)+6rem)] pb-14 sm:px-6 sm:pt-[calc(var(--nav-h)+10rem)] sm:pb-20">
           <LiquidGlass as="div" variant="regular" radius={24} className="max-w-xl p-6 sm:p-8">
-            <p className="text-meta text-(--fg-glass-dim)">NASA Space Apps Challenge 2026 · Planet X and SPHEREx</p>
-            <h1 className="mt-3 text-title text-balance text-fg">About Planet X Hunter</h1>
+            <h1 className="text-title text-balance text-fg">About Perturbation</h1>
             <p className="mt-4 text-lead text-pretty text-(--fg-glass-dim)">
               A free website for exploring the sky as NASA’s SPHEREx telescope sees it, and for watching it change.
             </p>
@@ -103,7 +107,7 @@ export default function AboutPage() {
           <p>
             SPHEREx photographs the whole sky in infrared light, the colours just past red that our eyes cannot see, and comes
             back to every part of it about every six months. Flipping between its visits shows stars that move and stars that
-            brighten or fade. Planet X Hunter makes that open to anyone.
+            brighten or fade. This site makes that open to anyone.
           </p>
           <p>
             There are two ways in. The Sky is a globe of the whole sky to spin and explore. The Lab is a workbench for any patch
@@ -136,7 +140,7 @@ export default function AboutPage() {
 
         <AboutSection id="challenge" title="The challenge">
           <p>
-            Planet X Hunter is an entry to the NASA Space Apps Challenge 2026, for the challenge “Planet X and SPHEREx”. It asks
+            Perturbation is an entry to the NASA Space Apps Challenge 2026, for the challenge “Planet X and SPHEREx”. It asks
             for a public tool to explore SPHEREx images and see the sky change over time: blinking between visits, subtracting
             them, reading spectra, and testing it all on five known stars that move or vary.
           </p>
@@ -149,7 +153,7 @@ export default function AboutPage() {
 
         <AboutSection id="team" title="The team">
           <p>
-            Planet X Hunter is made by team Ninth Vanguard for the NASA Space Apps Challenge 2026. All of the work, from the
+            Perturbation is made by team Ninth Vanguard. All of the work, from the
             first checks of the SPHEREx data to this page, is in the{" "}
             <a href={REPO_URL} className={LINK}>
               public repository
@@ -212,7 +216,7 @@ export default function AboutPage() {
           <p>
             The code is open source under the Apache-2.0 licence, at{" "}
             <a href={REPO_URL} className={LINK}>
-              github.com/aaaravM/planet-x-hunter
+              github.com/aaaravM/perturbation
             </a>
             .
           </p>

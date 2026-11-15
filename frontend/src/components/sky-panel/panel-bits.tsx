@@ -146,7 +146,7 @@ export function LiveNote<T>({ live, what }: { live: Live<T>; what: string }) {
   if (live.state === "off")
     return (
       <p className="text-meta text-pretty text-fg-faint" data-testid="live-off">
-        Live {what} come from the Planet X Hunter API, which is not connected on this copy of the site.
+        Live {what} come from the Perturbation API, which is not connected on this copy of the site.
       </p>
     );
   return (

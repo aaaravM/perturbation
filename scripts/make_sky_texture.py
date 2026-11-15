@@ -67,7 +67,7 @@ REPO = Path(__file__).resolve().parents[1]
 HIPS_URL = "https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube"
 CACHE_DIR = REPO / "data" / "cache" / "hips"
 OUT_DIR = REPO / "frontend" / "public" / "textures"
-USER_AGENT = "planet-x-hunter-texture-builder/1.0"
+USER_AGENT = "perturbation-texture-builder/1.0"
 CREDIT = "SPHEREx DR1 all-sky cube, Caltech/IPAC/NASA; IRSA"
 
 TILE_WIDTH = 512

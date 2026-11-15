@@ -1,6 +1,6 @@
 # SPHEREx data findings: Phase 1 report
 
-**Planet X Hunter** · NASA Space Apps Challenge 2026, "Planet X and SPHEREx" · Team Ninth Vanguard
+**Perturbation** · NASA Space Apps Challenge 2026, "Planet X and SPHEREx" · Team Ninth Vanguard
 
 Written Saturday 14 November 2026 (Pacific time), from the Phase 1 runs of that afternoon.
 

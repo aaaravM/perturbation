@@ -3,6 +3,7 @@
 
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { FIREFOX_DEV_AXE, firefoxOnDevServer } from "./helpers";
 
 const choice = (page: Page, group: string, name: string | RegExp) =>
   page.getByTestId(group).getByRole("radio", { name });
@@ -112,7 +113,8 @@ for (const vp of [
   { name: "desktop", width: 1440, height: 900 },
   { name: "phone", width: 390, height: 844 },
 ]) {
-  test(`/settings has no serious or critical axe violations (${vp.name})`, async ({ page }) => {
+  test(`/settings has no serious or critical axe violations (${vp.name})`, async ({ page, browserName }) => {
+    test.skip(firefoxOnDevServer(browserName), FIREFOX_DEV_AXE);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await openSettings(page);
     const results = await new AxeBuilder({ page })

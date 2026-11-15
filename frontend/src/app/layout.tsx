@@ -28,12 +28,18 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://perturbation.earth"),
   title: {
-    default: "Planet X Hunter",
-    template: "%s · Planet X Hunter",
+    default: "Perturbation",
+    template: "%s · Perturbation",
   },
   description:
-    "Flip between NASA SPHEREx infrared maps of any patch of sky to spot moving and variable objects. NASA Space Apps 2026, Team Ninth Vanguard.",
+    "Flip between NASA SPHEREx infrared maps of any patch of sky to spot moving and variable objects.",
+  // Link previews: each page's own title and description fill og:title and og:description.
+  openGraph: {
+    siteName: "Perturbation",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {

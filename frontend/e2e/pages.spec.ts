@@ -4,7 +4,7 @@
 // horizontal scroll on a phone, and no serious or critical axe violations.
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { hideDevOverlay, watchPage } from "./helpers";
+import { DESKTOP_LAYOUT, hideDevOverlay, watchPage } from "./helpers";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const PHONE = { width: 390, height: 844 };
@@ -22,8 +22,16 @@ async function noSideScroll(page: Page) {
   expect(over, "horizontal page scroll").toBeLessThanOrEqual(0);
 }
 
+/** Hydrated: every scroll entrance has been observed (the server renders them all "idle"). */
+async function hydrated(page: Page) {
+  await expect(page.locator('[data-reveal="idle"]')).toHaveCount(0);
+}
+
 /** Every figure entrance has finished: nothing waits hidden for a scroll. */
 async function revealAll(page: Page) {
+  // A scroll that ends before hydration leaves the sections below the fold hidden until the next
+  // scroll (WebKit's dev build hydrates later than Chrome).
+  await hydrated(page);
   await page.evaluate(async () => {
     for (let y = 0; y < document.documentElement.scrollHeight; y += Math.round(innerHeight * 0.6)) {
       window.scrollTo(0, y);
@@ -164,7 +172,8 @@ test.describe("How it works", () => {
     { name: "desktop", width: 1440, height: 900 },
     { name: "phone", ...PHONE },
   ]) {
-    test(`no serious or critical axe violations, folds open (${vp.name})`, async ({ page }) => {
+    test(`no serious or critical axe violations, folds open (${vp.name})`, async ({ page, isMobile }) => {
+      test.skip(isMobile && vp.name === "desktop", DESKTOP_LAYOUT);
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto("/how-it-works");
       await hideDevOverlay(page);
@@ -183,7 +192,7 @@ test.describe("About", () => {
   test("the project, the challenge, the team, credits, citation and contact", async ({ page }) => {
     const log = watchPage(page);
     expect((await page.goto("/about"))?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Planet X Hunter");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Perturbation");
     const main = page.getByRole("main");
     await expect(main.getByRole("heading", { level: 2 })).toHaveText([
       "The project in plain words",
@@ -199,11 +208,11 @@ test.describe("About", () => {
     await expect(main).toContainText("doi:10.26131/IRSA679");
     await expect(main.getByRole("link", { name: "open an issue on GitHub" })).toHaveAttribute(
       "href",
-      "https://github.com/aaaravM/planet-x-hunter/issues",
+      "https://github.com/aaaravM/perturbation/issues",
     );
-    await expect(main.getByRole("link", { name: "github.com/aaaravM/planet-x-hunter" })).toHaveAttribute(
+    await expect(main.getByRole("link", { name: "github.com/aaaravM/perturbation" })).toHaveAttribute(
       "href",
-      "https://github.com/aaaravM/planet-x-hunter",
+      "https://github.com/aaaravM/perturbation",
     );
     await page.waitForTimeout(800);
     expect(log.badResponses, "HTTP errors").toEqual([]);
@@ -227,22 +236,28 @@ test.describe("About", () => {
     expect(await citeTop()).toBeLessThan(200);
   });
 
-  test("the citation copies", async ({ page, context }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  test("the citation copies", async ({ page, context, browserName }) => {
+    // Playwright grants clipboard permissions in Chromium only. Elsewhere "Copied" is the check: it
+    // shows only once the browser has accepted the text.
+    const readBack = browserName === "chromium";
+    if (readBack) await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/about");
+    await hydrated(page);
     const cite = page.locator("#cite");
     await cite.getByRole("button", { name: "Copy citation" }).click();
     await expect(cite.getByRole("button", { name: "Copied" })).toBeVisible();
+    if (!readBack) return;
     const copied = await page.evaluate(() => navigator.clipboard.readText());
-    expect(copied).toContain("Team Ninth Vanguard (2026). Planet X Hunter");
-    expect(copied).toContain("https://planet-x-hunter.vercel.app");
+    expect(copied).toContain("Team Ninth Vanguard (2026). Perturbation");
+    expect(copied).toContain("https://perturbation.earth");
   });
 
   for (const vp of [
     { name: "desktop", width: 1440, height: 900 },
     { name: "phone", ...PHONE },
   ]) {
-    test(`no serious or critical axe violations (${vp.name})`, async ({ page }) => {
+    test(`no serious or critical axe violations (${vp.name})`, async ({ page, isMobile }) => {
+      test.skip(isMobile && vp.name === "desktop", DESKTOP_LAYOUT);
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto("/about");
       await hideDevOverlay(page);

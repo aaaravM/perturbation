@@ -1,7 +1,7 @@
 [project]
 name = "pxh-ml"
 version = "0.1.0"
-description = "Planet X Hunter models: data preparation, training and evaluation (PyTorch). Inference ships in the backend as plain NumPy."
+description = "Models for the Perturbation website: data preparation, training and evaluation (PyTorch). Inference ships in the backend as plain NumPy."
 requires-python = ">=3.13,<3.14"
 license = "Apache-2.0"
 dependencies = [

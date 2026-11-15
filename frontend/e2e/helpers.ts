@@ -9,6 +9,21 @@ export const ALLWISE_TILE =
 
 const NEXT_DEV_INTERNALS = /^https?:\/\/localhost:\d+\/__nextjs_/;
 
+/**
+ * playwright.cross.config.ts also runs every spec in an iPhone profile. A test that drives the
+ * desktop layout skips there with `test.skip(isMobile, DESKTOP_LAYOUT)`; each spec's phone tests
+ * cover phones.
+ */
+export const DESKTOP_LAYOUT = "drives the desktop layout; the phone tests cover phones";
+
+/**
+ * In Playwright's Firefox, these axe checks lose the page ("Page crashed") against the dev server,
+ * while the same checks pass against the production site. They skip in Firefox unless E2E_BASE_URL
+ * points the run at a built site.
+ */
+export const firefoxOnDevServer = (browserName: string) => browserName === "firefox" && !process.env.E2E_BASE_URL;
+export const FIREFOX_DEV_AXE = "Playwright's Firefox loses the page during axe on the dev server; set E2E_BASE_URL";
+
 export interface TileRecord {
   url: string;
   status: number;

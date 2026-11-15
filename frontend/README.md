@@ -1,6 +1,6 @@
-# Planet X Hunter: website
+# Perturbation: website
 
-The Next.js site for Planet X Hunter. The project overview, data credits and results are in the
+The Next.js site for Perturbation. The project overview, data credits and results are in the
 [main README](../README.md).
 
 ## Run it
@@ -9,7 +9,7 @@ Requires Node.js 20.9 or later and [pnpm](https://pnpm.io).
 
 ```bash
 pnpm install
-cp .env.example .env.local   # connects the site to the Planet X Hunter API
+cp .env.example .env.local   # connects the site to the Perturbation API
 pnpm dev                     # http://localhost:3000
 ```
 
@@ -24,7 +24,7 @@ pnpm lint
 npx tsc --noEmit
 pnpm build
 pnpm test:e2e                                                # Chrome, against the dev server
-E2E_BASE_URL=https://planet-x-hunter.vercel.app pnpm test:e2e  # against the live site
+E2E_BASE_URL=https://perturbation.earth pnpm test:e2e  # against the live site
 npx playwright test --config playwright.cross.config.ts      # Safari's engine (desktop, iPhone) and Firefox
 ```
 

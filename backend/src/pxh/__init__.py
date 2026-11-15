@@ -1,4 +1,4 @@
-"""Planet X Hunter backend.
+"""Perturbation backend.
 """
 
 __version__ = "0.1.0"

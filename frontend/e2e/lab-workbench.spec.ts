@@ -4,7 +4,7 @@
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { hideDevOverlay, watchPage } from "./helpers";
+import { DESKTOP_LAYOUT, FIREFOX_DEV_AXE, firefoxOnDevServer, hideDevOverlay, watchPage } from "./helpers";
 
 const OUT = process.env.UI_REVIEW_DIR;
 const TARGET = "/explore?target=barnards-star";
@@ -52,6 +52,11 @@ async function clickAStar(page: Page) {
 }
 
 test.describe.configure({ mode: "serial" });
+
+// In a phone profile only the "phone" tests run: the others drive the desktop panes.
+test.beforeEach(({ isMobile }, testInfo) => {
+  test.skip(isMobile && !testInfo.titlePath.includes("phone"), DESKTOP_LAYOUT);
+});
 
 test("clicking a star opens its Gaia DR3 and SIMBAD information", async ({ page }) => {
   test.skip(!(await hasBundle(page, "barnards-star")), "Barnard's Star bundle not built yet");
@@ -155,7 +160,8 @@ test("the blink still cycles, crossfades, and compares with a wipe", async ({ pa
   await page.keyboard.press("Escape");
 });
 
-test("the workbench has no serious or critical accessibility violations", async ({ page }) => {
+test("the workbench has no serious or critical accessibility violations", async ({ page, browserName }) => {
+  test.skip(firefoxOnDevServer(browserName), FIREFOX_DEV_AXE);
   test.skip(!(await hasBundle(page, "barnards-star")), "Barnard's Star bundle not built yet");
   await openTarget(page);
   await page.getByTestId("blink-play").click();

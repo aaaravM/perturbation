@@ -7,7 +7,7 @@
 // Design-review screenshots are opt-in: UI_REVIEW_DIR=/some/dir pnpm test:e2e sky
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-import { hideDevOverlay, watchPage } from "./helpers";
+import { DESKTOP_LAYOUT, hideDevOverlay, watchPage } from "./helpers";
 
 // Per-target bundles may still be building (404 until then); nothing else may fail.
 const PENDING_DATA = /\/bundles\/[^/]+\/manifest\.json/;
@@ -26,7 +26,8 @@ async function openSky(page: Page, url = "/sky") {
   await expect(rail(page).getByTestId("stars-loaded")).toHaveText(/^117,955 stars from/, { timeout: 30_000 });
 }
 
-test("/sky draws the stars and lists the challenge targets", async ({ page }) => {
+test("/sky draws the stars and lists the challenge targets", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   const log = watchPage(page);
   await openSky(page);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Every star you can click");
@@ -42,7 +43,8 @@ test("/sky draws the stars and lists the challenge targets", async ({ page }) =>
   expect(unexpected(log.consoleErrors), "console errors").toEqual([]);
 });
 
-test("a star from the Brightest list opens its panel with the catalogue's numbers", async ({ page }) => {
+test("a star from the Brightest list opens its panel with the catalogue's numbers", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await openSky(page);
   await rail(page).getByRole("tab", { name: "Brightest" }).click();
   const sirius = rail(page).getByTestId("rail-star").filter({ hasText: "Sirius" });
@@ -90,7 +92,8 @@ test("search finds a star by HIP number, and a challenge target by name", async 
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("WISE 0855−0714");
 });
 
-test("3D space: the stars unfold around the Sun and fold back", async ({ page }) => {
+test("3D space: the stars unfold around the Sun and fold back", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await openSky(page);
   await page.getByTestId("mode-space").click();
   await expect(page).toHaveURL(/[?&]mode=3d\b/);
@@ -112,7 +115,9 @@ test("3D space: the stars unfold around the Sun and fold back", async ({ page })
 
 test("3D space: a selected star stays lit while the rest dim, with its distance on the line from the Sun", async ({
   page,
+  isMobile,
 }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await openSky(page, "/sky?star=32349&mode=3d");
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Sirius");
   await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 15_000 });
@@ -224,7 +229,8 @@ test("on a phone the panel is a bottom sheet", async ({ page }) => {
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Betelgeuse");
 });
 
-test("without WebGL the flat map and the lists still work", async ({ page }) => {
+test("without WebGL the flat map and the lists still work", async ({ page, isMobile }) => {
+  test.skip(isMobile, DESKTOP_LAYOUT);
   await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
     // @ts-expect-error narrowing the overloads is not needed for this stub
@@ -249,7 +255,7 @@ for (const vp of [
   test(`sky screenshots at ${vp.name}`, async ({ page }) => {
     test.skip(!OUT, "set UI_REVIEW_DIR to save design-review screenshots");
     test.setTimeout(180_000);
-    const api = process.env.SKY_API_URL ?? "https://planet-x-hunter-api.vercel.app";
+    const api = process.env.SKY_API_URL ?? "https://perturbation-api.vercel.app";
     await page.addInitScript((url) => {
       try {
         localStorage.setItem("pxh:api", url);

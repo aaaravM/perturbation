@@ -1,4 +1,4 @@
-"""Planet X Hunter HTTP API (FastAPI), deployable as Vercel Python functions.
+"""Perturbation HTTP API (FastAPI), deployable as Vercel Python functions.
 
 - ``pxh.api.app``: the application factory (``create_app``) and ``configure`` (middleware, error handlers,
   routes), used by ``backend/index.py`` (the Vercel entrypoint) and by ``uvicorn pxh.api.app:app``.

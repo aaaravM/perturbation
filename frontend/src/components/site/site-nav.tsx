@@ -180,7 +180,7 @@ export function SiteNav() {
               href="/"
               className="-mx-1 inline-flex h-11 min-w-0 shrink items-center truncate rounded-sm px-1 text-ui font-medium tracking-[-0.01em] text-fg transition-colors duration-200 hover:text-fg-dim md:pointer-fine:h-8"
             >
-              Planet X Hunter
+              Perturbation
             </Link>
             <span aria-hidden className="hidden h-4 w-px bg-hair-strong sm:block" />
             <ModeSwitch pathname={pathname} reduce={reduce} />
@@ -192,7 +192,7 @@ export function SiteNav() {
                 {PAGE_LINKS.map((link) => {
                   const active = isActive(pathname, link.href);
                   return (
-                    <li key={link.href} className="flex items-center">
+                    <li key={link.href} className={cn("items-center", "wide" in link ? "hidden min-[840px]:flex" : "flex")}>
                       <Link
                         href={link.href}
                         aria-current={active ? "page" : undefined}
@@ -243,7 +243,7 @@ export function SiteNav() {
               </SheetTrigger>
               <SheetContent side="right" className="w-72 border-hair bg-ink-2">
                 <SheetHeader>
-                  <SheetTitle className="text-ui font-medium text-fg">Planet X Hunter</SheetTitle>
+                  <SheetTitle className="text-ui font-medium text-fg">Perturbation</SheetTitle>
                   <SheetDescription className="sr-only">Site navigation</SheetDescription>
                 </SheetHeader>
                 <ul className="flex flex-col px-4">

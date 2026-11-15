@@ -1,7 +1,8 @@
 """Runtime settings of the HTTP API, read from environment variables (once per process).
 
 - ``ALLOWED_ORIGINS``: comma-separated CORS origins. An entry with ``*`` is a wildcard for one DNS label,
-  e.g. ``https://*.vercel.app``. Default: ``http://localhost:3000,https://*.vercel.app``.
+  e.g. ``https://*.vercel.app``. Default: a local dev server, the Vercel deployments and the site's domain,
+  ``http://localhost:3000,https://*.vercel.app,https://perturbation.earth,https://www.perturbation.earth``.
 - ``PXH_MAX_IMAGES``: request budget of one field build, in detector images at a 10 arcmin field (scaled
   down for wider fields, which need more byte-range requests per image). Default 48.
 - ``PXH_MAX_IMAGES_PER_EPOCH``: most images co-added per epoch and detector. Default 12.
@@ -20,7 +21,9 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 
-DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000,https://*.vercel.app"
+DEFAULT_ALLOWED_ORIGINS = (
+    "http://localhost:3000,https://*.vercel.app,https://perturbation.earth,https://www.perturbation.earth"
+)
 _LABEL = "[A-Za-z0-9-]+"
 
 

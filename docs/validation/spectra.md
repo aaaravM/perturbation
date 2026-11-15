@@ -4,7 +4,7 @@
 
 ## In plain words
 
-Planet X Hunter reads the SPHEREx quick-look spectrum at any spot (102 colours of infrared light, from the DR1 all-sky cube) and says what kind of object it looks most like: a hot star, a Sun-like star, a cool star, a brown dwarf, a young or dusty star, a galaxy or a quasar. A small neural network makes that call. It learned from real SPHEREx spectra of objects that SIMBAD and Gaia had already classified, and it was tested on parts of the sky it never saw during training.
+The site reads the SPHEREx quick-look spectrum at any spot (102 colours of infrared light, from the DR1 all-sky cube) and says what kind of object it looks most like: a hot star, a Sun-like star, a cool star, a brown dwarf, a young or dusty star, a galaxy or a quasar. A small neural network makes that call. It learned from real SPHEREx spectra of objects that SIMBAD and Gaia had already classified, and it was tested on parts of the sky it never saw during training.
 
 - On 5,647 test spectra from 43 held-out sky tiles it picked the catalogue's class **76%** of the time (90% range over tiles: 69% to 83%). Averaged over the seven classes equally (macro F1) it scores **0.64** (0.55 to 0.70).
 - It finds most of the galaxies, quasars and brown dwarfs in the test tiles (93%, 86% and 86%), and fewest of the cool stars and young or dusty stars (72% and 60%). The rare classes have few test spectra, so their numbers are uncertain (see the table below).

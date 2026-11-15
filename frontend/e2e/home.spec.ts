@@ -25,7 +25,8 @@ test.describe("wide screens", () => {
   test("hero links, the pinned story in order, results and the two ways in", async ({ page }) => {
     const log = watchPage(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Watch the sky move.");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Perturbation");
+    await expect(page.locator('[data-story="stage"]').getByText("Watch the sky move.", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: /Try Barnard.s Star/ })).toHaveAttribute("href", "/explore?target=barnards-star");
     await expect(page.getByRole("link", { name: "Explore the sky globe" })).toHaveAttribute("href", "/sky");
 

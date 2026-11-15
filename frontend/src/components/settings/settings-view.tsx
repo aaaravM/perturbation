@@ -1,6 +1,6 @@
 "use client";
-// The Settings page: appearance, the Sky globe, the Lab, data and privacy, the API connection and
-// the Lab's keyboard shortcuts. Every choice goes straight into the preferences store
+// The Settings page: appearance, the Sky globe, the Lab, the guided tours, data and privacy, the
+// API connection and the Lab's keyboard shortcuts. Every choice goes straight into the preferences store
 // (lib/preferences), so it applies at once on every open page; each section says "Saved" quietly
 // and has its own Reset.
 
@@ -22,6 +22,7 @@ import {
 import { supportsGlassRefraction } from "@/components/ui/liquid-glass";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { TOUR_HREF } from "@/lib/tour";
 import { Choice, SettingRow, SettingsSection, Toggle, useFlash, type ChoiceOption } from "@/components/settings/controls";
 import { BlinkPreview, GlassPreview } from "@/components/settings/previews";
 import { StoredDataSection } from "@/components/settings/stored-data";
@@ -32,6 +33,7 @@ const SECTIONS = [
   { id: "appearance", label: "Appearance" },
   { id: "sky", label: "Sky globe" },
   { id: "lab", label: "Lab" },
+  { id: "tours", label: "Guided tours" },
   { id: "data", label: "Data and privacy" },
   { id: "connection", label: "Connection" },
   { id: "shortcuts", label: "Keyboard shortcuts" },
@@ -40,6 +42,7 @@ const SECTIONS = [
 const APPEARANCE_KEYS = ["glass", "motion", "termMarks"] as const satisfies readonly PreferenceKey[];
 const SKY_KEYS = ["skyStarDetail", "skyStartIn", "skyConstellations", "skyInfraredMap"] as const satisfies readonly PreferenceKey[];
 const LAB_KEYS = ["labDetector", "labBlinkMs"] as const satisfies readonly PreferenceKey[];
+const TOUR_KEYS = ["tourOffer"] as const satisfies readonly PreferenceKey[];
 
 const changed = (p: Preferences, keys: readonly PreferenceKey[]) => keys.some((k) => p[k] !== PREFERENCE_DEFAULTS[k]);
 
@@ -106,6 +109,16 @@ export function SettingsView() {
             onReset={() => resetPreferences(LAB_KEYS)}
           >
             <LabRows prefs={prefs} />
+          </SettingsSection>
+
+          <SettingsSection
+            id="tours"
+            title="Guided tours"
+            description="Step by step through the Sky globe or the Lab: a pointer shows each control and uses it, and each step explains one word."
+            canReset={changed(prefs, TOUR_KEYS)}
+            onReset={() => resetPreferences(TOUR_KEYS)}
+          >
+            <TourRows prefs={prefs} />
           </SettingsSection>
 
           <StoredDataSection />
@@ -387,6 +400,36 @@ function LabRows({ prefs }: { prefs: Preferences }) {
       >
         <BlinkPreview ms={prefs.labBlinkMs} />
       </SettingRow>
+    </>
+  );
+}
+
+function TourRows({ prefs }: { prefs: Preferences }) {
+  const set = useSetter();
+  const link =
+    "inline-flex h-9 items-center rounded-[8px] border border-hair-strong px-3 text-meta text-fg-dim transition-colors hover:border-fg-faint hover:text-fg";
+  return (
+    <>
+      <SettingRow
+        label="Offer the guided tour on a first visit"
+        htmlFor="pref-tour-offer"
+        description="A small note the first time you open the Sky globe or the Lab, offering its tour. Each tool offers it once."
+        control={<Toggle id="pref-tour-offer" checked={prefs.tourOffer} onChange={(v) => set("tourOffer", v)} testId="pref-tour-offer" />}
+      />
+      <SettingRow
+        label="Replay a tour"
+        description="Start a tour again from its first step. The Lab tour opens on Barnard's Star."
+        control={
+          <div className="flex flex-wrap gap-2">
+            <Link href={TOUR_HREF.sky} className={link} data-testid="replay-sky-tour">
+              Replay the Sky tour
+            </Link>
+            <Link href={TOUR_HREF.lab} className={link} data-testid="replay-lab-tour">
+              Replay the Lab tour
+            </Link>
+          </div>
+        }
+      />
     </>
   );
 }

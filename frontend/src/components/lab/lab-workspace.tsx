@@ -71,6 +71,7 @@ import {
 import { CommandPalette, ShortcutsDialog, type PaletteAction } from "@/components/lab/command-palette";
 import { ResizeHandle, ToolButton, usePaneSize } from "@/components/lab/workbench-ui";
 import { cn } from "@/lib/utils";
+import { LabTourButton, LabTourHost } from "@/components/tour/tour-host";
 
 /** Context cube frame before any field is loaded: D2 channel 4 (~1.2 um), as in the preview. */
 const DEFAULT_CUBE_FRAME = 20;
@@ -1026,7 +1027,7 @@ export function LabWorkspace() {
         onZoomToField={zoomToField}
         hasField={Boolean(manifest)}
       />
-      <div ref={viewerRef} className={cn("relative min-h-0 flex-1 overflow-hidden", tool !== "inspect" && "cursor-crosshair")} data-tool={tool}>
+      <div ref={viewerRef} className={cn("relative min-h-0 flex-1 overflow-hidden", tool !== "inspect" && "cursor-crosshair")} data-tool={tool} data-tour="lab-viewer">
         <AladinView
           key={viewerKey}
           view={view}
@@ -1114,6 +1115,7 @@ export function LabWorkspace() {
             onDetails={() => setPhoneTab("analysis")}
           />
         )}
+        <LabTourHost offerClassName="absolute inset-x-2 bottom-[4.25rem] z-10 flex justify-end min-[900px]:inset-x-auto min-[900px]:right-3 min-[900px]:bottom-3" />
         {skyStatus.state === "error" && (
           <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center p-4">
             <div role="alert" data-testid="sky-error" className="panel pointer-events-auto flex w-full max-w-sm flex-col gap-3 p-5">
@@ -1203,6 +1205,7 @@ export function LabWorkspace() {
           <span className="hidden sm:inline">On the sky globe</span>
           <span className="sr-only sm:hidden">Show this on the sky globe</span>
         </Link>
+        <LabTourButton />
         <ToolButton label="Command palette" shortcut="Ctrl K" onClick={() => setPaletteOpen(true)} testId="open-palette">
           <CommandIcon className="size-3.5" aria-hidden />
         </ToolButton>

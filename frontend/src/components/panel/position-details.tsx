@@ -132,7 +132,7 @@ export function PositionDetails({
       >
         {quick.state === "off" && (
           <p className="text-meta text-fg-dim" data-testid="quicklook-off">
-            A spectrum for any point comes from the SPHEREx DR1 all-sky cube, read by the Planet X Hunter backend in about
+            A spectrum for any point comes from the SPHEREx DR1 all-sky cube, read by the Perturbation backend in about
             a second. The backend is not connected to this site yet, so no spectrum is shown rather than a made-up one.
           </p>
         )}

@@ -31,7 +31,7 @@ from pxh.api.schemas import (
     Resolved,
     TargetSummary,
 )
-from pxh.api.settings import parse_origins
+from pxh.api.settings import DEFAULT_ALLOWED_ORIGINS, parse_origins
 from pxh.models import DetectorImage, Stamp
 from pxh.sky.resolve import NameNotFoundError, ResolverUnavailableError
 from pxh.spherex import sia
@@ -341,8 +341,8 @@ def test_unexpected_error_is_json_with_cors(api: TestClient, monkeypatch: pytest
 
 
 def test_cors(api: TestClient) -> None:
-    ok = api.get("/api/health", headers={"Origin": "https://planet-x-hunter-git-main-team.vercel.app"})
-    assert ok.headers["access-control-allow-origin"] == "https://planet-x-hunter-git-main-team.vercel.app"
+    ok = api.get("/api/health", headers={"Origin": "https://perturbation-git-main-team.vercel.app"})
+    assert ok.headers["access-control-allow-origin"] == "https://perturbation-git-main-team.vercel.app"
     assert "access-control-allow-origin" not in api.get("/api/health", headers={"Origin": "https://evil.example"}).headers
     pre = api.options(
         "/api/field/build",
@@ -359,6 +359,22 @@ def test_parse_origins() -> None:
     assert re.fullmatch(regex, "https://a-b-c.vercel.app")
     assert not re.fullmatch(regex, "https://evil.com/x.vercel.app")
     assert not re.fullmatch(regex, "http://a.vercel.app")
+
+
+def test_default_origins_match_production() -> None:
+    # The same list as ALLOWED_ORIGINS on Vercel: the site's domain, its deployments and local development.
+    exact, regex = parse_origins(DEFAULT_ALLOWED_ORIGINS)
+    assert exact == ("http://localhost:3000", "https://perturbation.earth", "https://www.perturbation.earth")
+    import re
+
+    assert re.fullmatch(regex, "https://perturbation-git-main-team.vercel.app")
+    assert not re.fullmatch(regex, "https://perturbation.earth.evil.example")
+
+
+def test_cors_custom_domain(api: TestClient) -> None:
+    for origin in ("https://perturbation.earth", "https://www.perturbation.earth"):
+        r = api.get("/api/health", headers={"Origin": origin})
+        assert r.headers["access-control-allow-origin"] == origin
 
 
 def test_quick_spectrum(api: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:

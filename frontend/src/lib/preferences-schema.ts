@@ -34,6 +34,8 @@ export interface Preferences {
   labDetector: LabDetectorPref;
   /** Lab blink interval in milliseconds (150-1200, the timeline's speed range). */
   labBlinkMs: number;
+  /** Offer the guided tour the first time the Sky globe or the Lab opens. */
+  tourOffer: boolean;
 }
 
 export type PreferenceKey = keyof Preferences;
@@ -48,6 +50,7 @@ export const PREFERENCE_DEFAULTS: Readonly<Preferences> = Object.freeze({
   skyInfraredMap: false,
   labDetector: "D6",
   labBlinkMs: 500,
+  tourOffer: true,
 });
 
 /** Allowed values, for settings controls. */
@@ -80,6 +83,7 @@ const VALIDATORS: { [K in PreferenceKey]: (v: unknown) => v is Preferences[K] } 
   labDetector: oneOf(PREFERENCE_OPTIONS.labDetector),
   labBlinkMs: (v): v is number =>
     typeof v === "number" && Number.isFinite(v) && v >= LAB_BLINK_MS_RANGE.min && v <= LAB_BLINK_MS_RANGE.max,
+  tourOffer: isBoolean,
 };
 
 export function isValidPreference<K extends PreferenceKey>(key: K, value: unknown): value is Preferences[K] {

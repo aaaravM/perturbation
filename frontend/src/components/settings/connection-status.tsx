@@ -1,5 +1,5 @@
 "use client";
-// Connection: asks the Planet X Hunter API for GET /api/health and shows whether it answered, how
+// Connection: asks the Perturbation API for GET /api/health and shows whether it answered, how
 // long the round trip took (measured here, in this browser), its version and the SPHEREx releases
 // it can read. Checked once on load and again on request.
 
@@ -74,7 +74,7 @@ export function ConnectionSection() {
     <SettingsSection
       id="connection"
       title="Connection"
-      description="The Planet X Hunter API looks up stars, builds new Lab fields and reads SPHEREx spectra. The five prepared fields work without it."
+      description="The Perturbation API looks up stars, builds new Lab fields and reads SPHEREx spectra. The five prepared fields work without it."
     >
       <div className="flex flex-col gap-5 py-5" data-testid="connection">
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">

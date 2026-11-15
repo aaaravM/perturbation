@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 CACHE_DIR = Path(os.environ.get("PXH_CACHE_DIR", str(REPO_ROOT / "data" / "cache")))
 
 # Generic client name: no personal details in requests to outside services.
-USER_AGENT = "PlanetXHunter/0.1 (NASA Space Apps 2026 project)"
+USER_AGENT = "Perturbation/0.1 (NASA Space Apps 2026 project)"
 
 # --- IRSA (verified) ----------------------------------------------------------------------------
 IRSA_SIA_URL = "https://irsa.ipac.caltech.edu/SIA"

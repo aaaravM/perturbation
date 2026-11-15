@@ -12,8 +12,8 @@ const UI_CREDITS = [
 ] as const;
 
 const COLUMNS = [
-  { title: "Explore", links: [...MODE_LINKS, PAGE_LINKS[0]] },
-  { title: "Project", links: [...PAGE_LINKS.slice(1), SETTINGS_LINK] },
+  { title: "Explore", links: [...MODE_LINKS, ...PAGE_LINKS.slice(0, 2)] },
+  { title: "Project", links: [...PAGE_LINKS.slice(2), SETTINGS_LINK] },
 ] as const;
 
 const linkClass =
@@ -24,13 +24,13 @@ export function SiteFooter() {
     <footer className="border-t border-hair bg-ink">
       <div className="mx-auto grid max-w-7xl gap-x-10 gap-y-10 px-4 pt-12 pb-10 sm:px-6 md:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)_minmax(0,1.5fr)] lg:pt-14">
         <div className="flex flex-col gap-3">
-          <p className="text-ui font-medium tracking-[-0.01em] text-fg">Planet X Hunter</p>
+          <p className="text-ui font-medium tracking-[-0.01em] text-fg">Perturbation</p>
           <p className="max-w-[36ch] text-meta text-pretty text-fg-dim">
             A public tool for exploring NASA SPHEREx infrared images of the sky and seeing what changes
             between visits.
           </p>
           <p className="max-w-[40ch] text-meta text-fg-faint">
-            Team Ninth Vanguard. Built for NASA Space Apps 2026, challenge &ldquo;Planet X and SPHEREx&rdquo;.
+            Team Ninth Vanguard.
           </p>
         </div>
 

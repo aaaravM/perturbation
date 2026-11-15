@@ -87,7 +87,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 APP_KWARGS: dict[str, Any] = {
-    "title": "Planet X Hunter API",
+    "title": "Perturbation API",
     "version": __version__,
     "description": "SPHEREx fields over time, spectra and catalogs (docs/api-contract.md section 2).",
     "lifespan": lifespan,
@@ -112,7 +112,7 @@ def configure(app: FastAPI) -> FastAPI:
     @app.get("/", include_in_schema=False)
     def index() -> JSONResponse:
         return JSONResponse(
-            {"name": "Planet X Hunter API", "version": __version__, "docs": "/docs", "health": "/api/health"},
+            {"name": "Perturbation API", "version": __version__, "docs": "/docs", "health": "/api/health"},
             headers={"Cache-Control": NO_STORE},
         )
 

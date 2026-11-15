@@ -116,7 +116,7 @@ async function resolveWithBackend(query: string, signal?: AbortSignal): Promise<
     decJ2000: body.dec_j2000,
     pmra: body.pmra,
     pmdec: body.pmdec,
-    provenance: `Resolved by ${body.resolver ?? "the Planet X Hunter backend"}, moved to today with its proper motion.`,
+    provenance: `Resolved by ${body.resolver ?? "the Perturbation backend"}, moved to today with its proper motion.`,
   };
 }
 

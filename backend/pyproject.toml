@@ -1,7 +1,7 @@
 [project]
 name = "pxh"
 version = "0.1.0"
-description = "Planet X Hunter backend: SPHEREx data access, alignment, co-adds, photometry and spectra"
+description = "Perturbation backend: SPHEREx data access, alignment, co-adds, photometry and spectra"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 license = "Apache-2.0"

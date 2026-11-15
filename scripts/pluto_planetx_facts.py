@@ -1,24 +1,34 @@
-"""How far a distant planet moves between SPHEREx visits: the geometry behind "Could SPHEREx find a new Planet X?".
+"""How far a distant planet moves within and between SPHEREx visits: the geometry behind "Could SPHEREx find a new Planet X?".
 
-Run from backend/:  uv run python ../scripts/pluto_planetx_facts.py
+Run from backend/:  uv run python ../scripts/pluto_planetx_facts.py [--elongation LO HI]
 
 Model (stated assumptions, no fitted numbers): circular, coplanar, prograde orbits; Earth at 1 au with a
-365.25-day period, the planet at d au with Kepler's period d**1.5 years. SPHEREx observes a position when it is
-about 90 degrees from the Sun (solar elongation 90 deg), so a planet is seen at one quadrature and again at
-the next, about six months later, from the opposite side of Earth's orbit: the baseline between the two
-visits is about 2 au across the line of sight, and the shift is about 2 au / d radians. The script finds the
-two quadratures exactly and measures the apparent shift between them, with and without the planet's own
-orbital motion, and the motion within one visit window (days around quadrature).
+365.25-day period, the planet at d au with Kepler's period d**1.5 years.
+
+- Within a visit. SPHEREx looks roughly at right angles to the Sun or further from it: the Pluto images are at
+  solar elongations of 89.6 to 119.2 deg (--elongation; by default the range in pluto.json). The motion within a
+  visit is the length of the planet's track in a window of 7 (or 14) days whose elongations all lie in that
+  range, the largest separation between two of its positions, as Pluto's motion within each visit is measured;
+  every such window in a year is tried. The motion is mostly parallax: it is smallest near 90 deg, where Earth
+  moves almost along the line of sight and the planet's apparent motion slows and reverses, and grows with the
+  elongation.
+- Between visits. A position seen at one quadrature (elongation 90 deg) is seen again at the next, about six
+  months later, from the opposite side of Earth's orbit: the baseline between the two visits is about 2 au
+  across the line of sight, and the shift is about 2 au / d radians. The script finds the two quadratures
+  exactly and measures the apparent shift between them, with and without the planet's own orbital motion.
 
 Prints JSON; pluto_products.py copies the numbers into the page bundle.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
+from pathlib import Path
 
 import numpy as np
+from numpy.lib.stride_tricks import sliding_window_view
 from scipy.optimize import brentq
 
 YEAR_D = 365.25
@@ -26,6 +36,8 @@ PIXEL_ARCSEC = 6.15  # SPHEREx pixel
 ARCSEC_PER_RAD = 180.0 * 3600.0 / math.pi
 DISTANCES_AU = (300.0, 500.0, 1000.0)
 WINDOW_DAYS = (7.0, 14.0)
+STEP_D = 0.05  # sampling of the track within a visit
+BUNDLE_JSON = Path(__file__).resolve().parents[1] / "frontend" / "public" / "planet-x" / "pluto.json"
 
 
 def earth(t: float) -> np.ndarray:
@@ -56,7 +68,26 @@ def shift_arcsec(t1: float, t2: float, d: float, phi0: float, moving: bool = Tru
     return abs((a + math.pi) % (2.0 * math.pi) - math.pi) * ARCSEC_PER_RAD
 
 
-def case(d: float) -> dict:
+def within_visit(d: float, phi0: float, lo: float, hi: float) -> dict:
+    """Shortest and longest track in every window of WINDOW_DAYS whose elongations all lie in lo..hi deg."""
+    t = np.arange(-max(WINDOW_DAYS), YEAR_D + max(WINDOW_DAYS), STEP_D)
+    el = np.array([elongation_deg(x, d, phi0) for x in t])
+    ang = np.unwrap([direction(x, d, phi0) for x in t])
+    out: dict = {"arcsec": {}, "px": {}, "longest_elongation_deg": {}}
+    for w in WINDOW_DAYS:
+        k = round(w / STEP_D) + 1
+        e, a = sliding_window_view(el, k), sliding_window_view(ang, k)
+        inside = (e.min(axis=1) >= lo) & (e.max(axis=1) <= hi)
+        length = (a.max(axis=1) - a.min(axis=1))[inside] * ARCSEC_PER_RAD
+        key = f"{w:g}_days"
+        out["arcsec"][key] = [float(length.min()), float(length.max())]
+        out["px"][key] = [float(length.min()) / PIXEL_ARCSEC, float(length.max()) / PIXEL_ARCSEC]
+        i = int(np.flatnonzero(inside)[np.argmax(length)])
+        out["longest_elongation_deg"][key] = [float(e[i].min()), float(e[i].max())]
+    return out
+
+
+def case(d: float, lo: float, hi: float) -> dict:
     # Quadrature at t = 0: the planet sits at x = 1 au, so its direction from Earth is perpendicular to the
     # Earth-Sun line (phi0 > 0: on the side Earth is moving towards). The next two quadratures follow about
     # half a year apart: one half-year passes through opposition (the parallax runs against the planet's own
@@ -71,12 +102,7 @@ def case(d: float) -> dict:
     ]
     still = brentq(lambda t: elongation_deg(t, d, phi0, moving=False) - 90.0, 120.0, 260.0)
     shifts = [h["shift_arcsec"] for h in halves]
-    window = {
-        f"{w:g}_days": max(
-            shift_arcsec(q - w / 2.0, q + w / 2.0, d, phi0) for q in (0.0, q1)
-        )
-        for w in WINDOW_DAYS
-    }
+    visit = within_visit(d, phi0, lo, hi)
     return {
         "distance_au": d,
         "half_years": halves,
@@ -86,15 +112,31 @@ def case(d: float) -> dict:
         "parallax_only_arcsec": shift_arcsec(0.0, still, d, phi0, moving=False),
         "small_angle_2au_over_d_arcsec": 2.0 / d * ARCSEC_PER_RAD,
         "orbital_motion_half_year_arcsec": 180.0 / d**1.5 * 3600.0,
-        "within_window_max_arcsec": window,
+        "within_visit_arcsec": visit["arcsec"],
+        "within_visit_px": visit["px"],
+        "within_visit_longest_elongation_deg": visit["longest_elongation_deg"],
     }
 
 
-def main() -> int:
+def bundle_elongation() -> tuple[float, float]:
+    """The solar elongations of the Pluto images, from the page bundle."""
+    visits = json.loads(BUNDLE_JSON.read_text(encoding="utf-8"))["summary"]["visits"]
+    return min(v["solar_elongation_deg"][0] for v in visits), max(v["solar_elongation_deg"][1] for v in visits)
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--elongation", nargs=2, type=float, metavar=("LO", "HI"),
+                    help="solar elongations of a visit, in degrees (default: the range of the Pluto images in pluto.json)")
+    args = ap.parse_args(argv)
+    lo, hi = args.elongation or bundle_elongation()
     out = {
-        "assumptions": "circular coplanar prograde orbits; Earth 1 au; visits at solar elongation 90 deg",
+        "assumptions": "circular coplanar prograde orbits; Earth 1 au; within a visit, the track in every 7- or "
+                       f"14-day window seen {lo:.1f} to {hi:.1f} deg from the Sun (the Pluto images); between "
+                       "visits, two quadratures (solar elongation 90 deg) half a year apart",
         "pixel_arcsec": PIXEL_ARCSEC,
-        "cases": [case(d) for d in DISTANCES_AU],
+        "elongation_deg": [lo, hi],
+        "cases": [case(d, lo, hi) for d in DISTANCES_AU],
     }
     print(json.dumps(out, indent=1))
     return 0

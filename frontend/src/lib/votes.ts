@@ -150,7 +150,7 @@ export function votesToJson(votes: readonly Vote[]): string {
     {
       version: VERSION,
       exported: new Date().toISOString(),
-      note: "Answers from the Planet X Hunter review queue, kept in one browser. Not collected centrally.",
+      note: "Answers from the Perturbation review queue, kept in one browser. Not collected centrally.",
       votes,
     },
     null,

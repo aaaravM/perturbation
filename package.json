@@ -1,5 +1,5 @@
 {
-  "name": "planet-x-hunter",
+  "name": "perturbation",
   "private": true,
   "scripts": {
     "dev": "pnpm --dir frontend dev",

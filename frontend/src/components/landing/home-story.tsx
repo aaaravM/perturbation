@@ -1,5 +1,5 @@
 "use client";
-// The home page: the hero, then the story of how Planet X Hunter finds things that move, told with
+// The home page: the hero, then the story of how the site finds things that move, told with
 // real SPHEREx data and scrubbed by scroll.
 //
 // Wide screens: one stage stays pinned while five text beats scroll past it, each pausing in the
@@ -129,13 +129,13 @@ export function HomeStory() {
 function HeroCopy({ id, skip = true }: { id: string; skip?: boolean }) {
   return (
     <div className="pointer-events-auto flex flex-col items-start">
-      <p className="text-meta text-fg-dim">NASA Space Apps 2026 · Planet X and SPHEREx</p>
-      <h1 id={id} className="mt-5 text-display text-balance text-fg">
-        Watch the sky move.
+      <h1 id={id} className="text-display text-balance text-fg">
+        Perturbation
       </h1>
+      <p className="mt-3 text-title text-balance text-fg">Watch the sky move.</p>
       <p className="measure mt-6 text-lead text-pretty text-fg-dim">
-        Planet X Hunter lets anyone flip between NASA SPHEREx&rsquo;s infrared maps of the sky and catch stars, brown dwarfs
-        and asteroids in motion.
+        This site lets anyone flip between NASA SPHEREx&rsquo;s infrared maps of the sky and catch stars, brown dwarfs and
+        asteroids in motion.
       </p>
       <div className="mt-9 flex flex-wrap items-center gap-3">
         <Button asChild size="lg" className="h-11 gap-2 rounded-md px-5">
