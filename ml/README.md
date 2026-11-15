@@ -8,12 +8,14 @@ with plain NumPy.
 cd ml
 uv sync
 uv run python <script>.py
+uv run pytest                 # tests (no survey data needed)
 ```
 
 ## Survey data
 
-The survey dataset is what the mover finder trains and runs on: real SPHEREx Level-2 pixels of about 60
-sky fields, co-added per epoch and detector on one shared grid per field, plus Gaia DR3, CatWISE2020 and
+The survey dataset is what the mover finder trains and runs on: real SPHEREx Level-2 pixels of the 59 sky
+fields listed below (53 of them finished building and are the ones the models use), co-added per epoch and
+detector on one shared grid per field, plus Gaia DR3, CatWISE2020 and
 SIMBAD catalogues of each field. Nothing in it is synthetic. Injected sources, when the models use them for
 training or for measuring completeness, are added in memory by the models code and must be labelled as such.
 
@@ -162,3 +164,33 @@ uv run python movers/evaluate.py --parts known   # recovery of catalogued fast s
   position). Results: `docs/validation/movers.md`.
 - `build_targets.py`: co-adds of the five targets straight from the live field builder (a stand-in used
   before the survey existed).
+
+## Spectral classifier (`spectra/`)
+
+A small 1D convolutional network that reads a SPHEREx quick-look spectrum (102 channels of the DR1 spectral
+cube) and names the most likely of seven classes: hot star, Sun-like star, cool star, brown dwarf, young or
+dusty star, galaxy or quasar. It also flags unusual spectra with a conformal p-value. Inference lives in the
+backend (`pxh.ml.specclass`, NumPy only); this folder builds the labelled set, trains and validates it.
+
+```
+uv run python spectra/build_dataset.py plan
+uv run python spectra/build_dataset.py run     # reads the cube at IRSA; --until HH:MM (Pacific) starts no job after then
+uv run python spectra/build_dataset.py merge
+uv run python spectra/train.py                 # PyTorch CPU; exports backend/src/pxh/ml/weights/specclass_v1.*
+uv run python spectra/targets.py               # the five challenge targets, read live from IRSA
+uv run python spectra/unusual.py               # unusual spectra with false-discovery-rate control
+uv run python spectra/figures.py
+uv run python spectra/report.py                # docs/validation/spectra.md
+```
+
+- `build_dataset.py`: jobs that each read whole rows of one cube tile and measure every catalogued source in
+  them exactly as the API measures one (`pxh.spherex.cube`), then merge the results.
+- `common.py`: the labels, from SIMBAD object and spectral types and Gaia DR3 (`label_from_catalogues`).
+- `train.py`: keeps clean, isolated, unsaturated spectra; splits by cube tile (no tile in two splits); trains
+  with class-balanced weights and augmentation; temperature scaling; the anomaly score (Mahalanobis distance
+  in the penultimate layer) with conformal p-values; test metrics; exports the NumPy weights, the backend
+  check fixture and the public model card `frontend/public/models/specclass.json`.
+- `targets.py`: classifies the quick-look spectra of the five challenge targets with the exported model.
+- `unusual.py`: ranks the most unusual spectra never trained on, with Benjamini-Hochberg q-values; writes
+  `frontend/public/models/specclass_unusual.json`.
+- `figures.py`, `report.py`: the figures and the report. Results: `docs/validation/spectra.md`.

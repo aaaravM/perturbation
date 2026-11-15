@@ -202,6 +202,34 @@ test("the Settings switch for marks hides only the question marks", async ({ pag
   await expect(anyTip(page), "the word still explains itself without its mark").toHaveCount(1);
 });
 
+// Tabbing to a word below the fold scrolls the page to it. The explanation opens and stays open
+// while the word has focus (WCAG 1.4.13), rather than closing with that scroll.
+test("a word reached with Tab keeps its explanation open while the page scrolls to it", async ({ page }) => {
+  await open(page, { path: "/how-it-works", budget: 6 });
+  await page.waitForTimeout(1500); // smooth scrolling has started and left the page at the top
+  const term = page.locator("[data-term]").first();
+  test.skip((await term.count()) === 0, "no explained words on How it works");
+  const below = await term.evaluate((el) => el.getBoundingClientRect().top > window.innerHeight);
+  test.skip(!below, "the first word is already on screen");
+  // Focus what comes just before the word, without scrolling; Tab then moves focus to the word.
+  await term.evaluate((el) => {
+    const focusable = [
+      ...document.querySelectorAll<HTMLElement>(
+        "a[href], button:not([disabled]), input, select, textarea, summary, [tabindex]:not([tabindex='-1'])",
+      ),
+    ];
+    focusable[focusable.indexOf(el as HTMLElement) - 1]?.focus({ preventScroll: true });
+  });
+  await page.keyboard.press("Tab");
+  await expect(term).toBeFocused();
+  const tip = openTip(page, (await term.getAttribute("data-term")) ?? "");
+  await page.waitForTimeout(800);
+  await expect(tip, "the explanation is still open after the page scrolled").toBeVisible();
+  await expect(tip, "and inside the window").toBeInViewport({ ratio: 1 });
+  await page.keyboard.press("Tab");
+  await expect(anyTip(page), "moving focus on closes it").toHaveCount(0);
+});
+
 test.describe("phone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 

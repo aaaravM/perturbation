@@ -24,9 +24,10 @@ test("glass: Off applies at once, survives a reload and resets with its section"
   await expect(html).toHaveAttribute("data-glass", "full");
 
   await choice(page, "pref-glass", "Off").click();
+  // "Saved" shows for about two seconds, so it is checked first.
+  await expect(page.locator("#appearance").getByText("Saved")).toBeVisible();
   await expect(html).toHaveAttribute("data-glass", "off");
   await expect(choice(page, "pref-glass", "Off")).toHaveAttribute("aria-checked", "true");
-  await expect(page.locator("#appearance").getByText("Saved")).toBeVisible();
   // The top bar is a solid panel now.
   const bar = page.locator(".site-nav__bar");
   await expect.poll(() => bar.evaluate((el) => getComputedStyle(el).backdropFilter)).toBe("none");

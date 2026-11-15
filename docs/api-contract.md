@@ -68,7 +68,7 @@ The backend precomputes manifests for the five challenge targets and ships them 
   },
   "render": { "stretch": "asinh", "note": "one stretch per detector, shared by all epochs" },
   "motion": {                       // null if not measured
-    "method": "ePSF wing fit, D5+D6, parallax removed",
+    "method": "Per-exposure ePSF position fits (D5+D6, S/N >= 10, 100 mas floor); sigma-clipped linear fit with parallax removed",
     "epoch_positions": [{ "epoch": 0, "mjd": 60910.2, "ra": 269.44622, "dec": 4.76718, "err_mas": 150 }],
     "fit": { "pmra": -790, "pmdec": 10420, "pmra_err": 300, "pmdec_err": 360, "total_arcsec_yr": 10.43, "total_err": 0.36, "pa_deg": 355.6 },
     "catalog": { "pmra": -801.551, "pmdec": 10362.394, "total_arcsec_yr": 10.39, "pa_deg": 355.6, "source": "Gaia DR3" },

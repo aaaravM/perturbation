@@ -49,6 +49,12 @@ async function classifyAs(page: Page, classification: object) {
   });
 }
 
+// A live request can still be in flight when a test ends; without this, its route.fetch fails
+// with "Test ended" and the error lands on whichever test runs next.
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
 /** Open the Lab's Spectrum tab, clicking again if the first click came before the page was interactive. */
 async function openSpectrumTab(page: Page) {
   const tab = page.getByTestId("analysis-tab-spectrum");

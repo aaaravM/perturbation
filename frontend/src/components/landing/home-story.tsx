@@ -47,7 +47,7 @@ const BEATS: readonly Beat[] = [
   },
   {
     title: "In 102 colours of infrared.",
-    body: "Six detectors split the light into 102 narrow bands. Here is one small patch of sky, around Barnard’s Star, through each of them.",
+    body: "Six detectors split the light into 102 narrow bands. Here is one small patch of sky, around Barnard’s Star, through each of them. Where its centre shows dark, the star is too bright to measure.",
     vh: 1.4,
     still: 0.82,
   },
@@ -186,6 +186,8 @@ function StageStory({ active }: { active: boolean }) {
   const scrim = useTransform(at, (v) => smooth(span(v, 0.45, 0.9)) * (1 - smooth(span(v, 1.5, 1.8))));
   const chrome = useTransform(at, (v) => smooth(span(v, 0.6, 0.9)) * (1 - smooth(span(v, RANGE_VH - 0.25, RANGE_VH))));
   const chromeVisibility = useTransform(chrome, (v) => (v > 0.02 ? "visible" : "hidden"));
+  /** As the story ends the stage's lower edge melts into the page, so no hard seam scrolls past. */
+  const settle = useTransform(at, (v) => smooth(span(v, RANGE_VH - 0.5, RANGE_VH - 0.05)));
 
   const l2 = useLayer(at, SCENES[1][0], SCENES[2][0]);
   const l3 = useLayer(at, SCENES[2][0], SCENES[3][0]);
@@ -239,6 +241,10 @@ function StageStory({ active }: { active: boolean }) {
           <motion.p style={{ opacity: caption }} className="absolute right-6 bottom-5 max-w-[15rem] text-right text-micro text-fg-faint">
             SPHEREx all-sky map, data release 1. Caltech/IPAC/NASA, IRSA.
           </motion.p>
+          <motion.div
+            style={{ opacity: settle }}
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[34svh] bg-linear-to-t from-ink via-ink/70 to-transparent"
+          />
         </div>
 
         <motion.div style={{ opacity: chrome, visibility: chromeVisibility }}>

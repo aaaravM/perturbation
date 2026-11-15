@@ -189,6 +189,8 @@ test.describe("phone", () => {
     await page.getByTestId("open-details").click();
     await page.getByTestId("panel-close").click();
     await expect(pane).toHaveCount(0);
+    // Let the controls the panel covered finish fading back in: mid-fade text fails a contrast check.
+    await page.waitForTimeout(600);
     const results = await new AxeBuilder({ page }).exclude("[data-testid=sky-viewer] canvas").analyze();
     const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
     expect(serious.map((v) => v.id)).toEqual([]);

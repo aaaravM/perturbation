@@ -23,13 +23,14 @@ which ones to report.
 - **Synthetic brightness changes** with S/N of at least 10 are reported 55% of the time, rising to 67% at S/N
   50 to 100.
 - **False alarms are rare.** On the held-out fields, nothing was reported outside the known object at each field's
-  centre: 0 false alarms in 0.25 square degrees, so fewer than 12 per square degree (95% upper limit). Of 540
+  centre: 0 false alarms in 0.25 square degrees, so at most 12.2 per square degree (95% upper limit). Of 540
   synthetic stars that did not change, 3 were reported.
 - **Challenge targets.** Searched as known positions, Epsilon Indi B is found as a mover with a measured motion
   of 4.30 ± 0.39 arcseconds a year (catalogue: 4.68), and WISE 0855-0714 is found as a faint mover-like spot.
   Barnard's Star, R Draconis and RW Aurigae are saturated in nearly every image (357 of 358, 842 of 842 and 306 of
   335); the automatic finder does not detect them (RW Aurigae just misses, at q = 0.051). The hand-made Phase 1
-  measurements of these stars, which fit the unsaturated wings of single exposures, are the reliable ones
+  measurements of these stars in single exposures, which keep the saturated core's pixels that still hold a valid
+  early-ramp slope (and, for R Draconis, use a ring 8 to 12 pixels from the centre), are the reliable ones
   ([`docs/data-findings.md`](../data-findings.md)).
 - **The survey list** (53 fields, 1.47 square degrees) reports 2 candidates at q ≤ 0.05, both known objects: the
   ultracool dwarf SSSPM J1444-2019, moving 3.66 ± 0.43 arcseconds a year (catalogue: 3.51), and a possible
@@ -46,7 +47,7 @@ otherwise.
 
 The pipeline is the deployed one ([`pxh.ml.finder`](../../backend/src/pxh/ml/finder.py)):
 
-1. S/N difference images (latest minus earliest full epoch, and each pair of adjacent epochs), each divided by
+1. S/N difference images (latest minus earliest full epoch, and each pair of adjacent full epochs), each divided by
    its own measured scatter; peaks of at least 5 sigma; a positive and a negative peak in the same pair make a
    mover candidate, any other peak a variable candidate.
 2. The classifier gives P(mover), P(variable), P(artifact), P(nothing) from a 4 × 21 × 21 pixel stamp; the score
@@ -139,7 +140,7 @@ Each held-out field was searched as is, with nothing added.
 | Fields | Area | Reported at q ≤ 0.05 | False alarms per square degree |
 |---|---|---|---|
 | Control fields ctrl-03 and ctrl-05 (random sky) | 0.056 deg² | 0 | 0 (95% upper limit 54) |
-| All 9 test fields, outside 45″ of the object at each centre | 0.247 deg² | 0 | 0 (95% upper limit 12) |
+| All 9 test fields, outside 45″ of the object at each centre | 0.247 deg² | 0 | 0 (95% upper limit 12.2) |
 
 In the synthetic test, 3 of 540 steady stars (0.6%) were reported, all brighter than S/N 30: the residual a bright
 star leaves when two epochs are registered to 0.1-0.25″ rather than exactly.
@@ -181,9 +182,10 @@ The survey run writes the same targeted tests, with the best candidate's stamp, 
 WISEA J085510.74-071442.5.
 
 Barnard's Star, R Draconis and RW Aurigae are far brighter than the finder's working range: their cores saturate,
-so the co-adds mask them and only the wings change. The Phase 1 analysis measured them by fitting the wings in
-single exposures: Barnard's Star moves 10.55 ± 0.12″/yr (Gaia: 10.41) and R Draconis pulsates with 0.355 ± 0.018
-mag ([`docs/data-findings.md`](../data-findings.md)). The automatic finder does not replace that analysis for
+so the co-adds mask them and only the wings change. The Phase 1 analysis measured them in single
+exposures: Barnard's Star moves 10.55 ± 0.12″/yr (Gaia: 10.41) in fits that keep the saturated core's pixels that
+still hold a valid early-ramp slope, and R Draconis pulsates with 0.355 ± 0.018 mag in a ring 8 to 12 pixels from
+its centre ([`docs/data-findings.md`](../data-findings.md)). The automatic finder does not replace that analysis for
 saturated stars.
 
 ## The survey run
@@ -193,7 +195,7 @@ candidates, of which 3,156 are in the families (the rest touch the field edge or
 computed **within each field**, exactly as the Lab and `/api/candidates` compute them, so a candidate has the same q
 in both. A single family for the whole survey cannot work with this null set: with 3,156 candidates and the
 smallest possible p-value of 1/3,401, the smallest q for one candidate is 0.93. What per-field families leave over
-the whole list is the false-alarm rate above: fewer than 12 per square degree, so at most about 18 over the
+the whole list is the false-alarm rate above: at most 12.2 per square degree, so at most about 18 over the
 survey's 1.47 square degrees at the 95% limit, and none were seen in the test fields.
 
 Mover candidates whose own position fit shows no significant motion (none, or below 3σ) and which sit within 9″

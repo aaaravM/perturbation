@@ -34,6 +34,8 @@ const LAYER = 10_100;
 
 const openTerms = new Set<string>();
 let lastClosedAt = Number.NEGATIVE_INFINITY;
+/** True while one explanation tells the others to close, so a focused word gives way too. */
+let handingOver = false;
 
 export interface TermProps {
   k: GlossaryKey;
@@ -55,6 +57,8 @@ interface TermState {
   dismissed: boolean;
   /** During a pointerdown on the word. */
   pressing: boolean;
+  /** A press somewhere else asked it to close. */
+  pressedOutside: boolean;
   pressType: string | null;
   openTimer: number;
   closeTimer: number;
@@ -73,6 +77,7 @@ export function Term({ k, children, className, mark = true }: TermProps) {
     pinned: false,
     dismissed: false,
     pressing: false,
+    pressedOutside: false,
     pressType: null,
     openTimer: 0,
     closeTimer: 0,
@@ -98,8 +103,14 @@ export function Term({ k, children, className, mark = true }: TermProps) {
       const s = state.current;
       if (s.open) return;
       // Any other explanation (or tooltip) closes first: one at a time.
-      document.dispatchEvent(new CustomEvent(TOOLTIP_OPEN));
+      handingOver = true;
+      try {
+        document.dispatchEvent(new CustomEvent(TOOLTIP_OPEN));
+      } finally {
+        handingOver = false;
+      }
       s.open = true;
+      s.pressedOutside = false;
       openTerms.add(id);
       setOpen(true);
     };
@@ -145,7 +156,14 @@ export function Term({ k, children, className, mark = true }: TermProps) {
       onOpenChange={(next) => {
         // Radix only ever asks to close here (Escape, a tap elsewhere, another tooltip opening, the
         // page scrolling under it). A press on the word itself is left to its click.
-        if (!next && !state.current.pressing) control.hide();
+        const s = state.current;
+        if (next || s.pressing) return;
+        // Tabbing to a word can scroll the page, and Radix closes on any scroll under the word. A
+        // word with keyboard focus keeps its explanation until focus leaves, Escape, a press
+        // elsewhere or another explanation opening.
+        const focused = s.keyboard && document.activeElement === wordRef.current;
+        if (focused && !s.dismissed && !s.pressedOutside && !handingOver) return;
+        control.hide();
       }}
     >
       <TooltipPrimitive.Trigger asChild>
@@ -267,6 +285,7 @@ export function Term({ k, children, className, mark = true }: TermProps) {
             // A tap on the word itself is handled by its click.
             const target = event.target;
             if (target instanceof Node && wordRef.current?.contains(target)) event.preventDefault();
+            else state.current.pressedOutside = true;
           }}
           onPointerEnter={(event) => {
             if (event.pointerType === "touch") return;

@@ -11,9 +11,9 @@ Before building any user interface, we checked five things: what the SPHEREx arc
 - the per-target outputs in [`docs/phase1/<target>/summary.json`](phase1/) and the figures next to them, written by [`scripts/phase1_probe.py`](../scripts/phase1_probe.py);
 - the backend modules in [`backend/src/pxh`](../backend/src/pxh) and their tests.
 
-*(From planning research)* marks facts that were checked live on the same morning but not measured again in Phase 1. A few cross-checks were computed for this report from the probe outputs, and they are labelled as such.
+*(From planning research)* marks facts that were checked live on the same morning during planning but not measured again in Phase 1. A few cross-checks were computed for this report from the probe outputs, and they are labelled as such.
 
-**How the targets were judged.** The pass/fail thresholds (fixed before the runs) were written into the probe before it ran. Where we added a measurement after seeing the data, it appears as a separate, labelled row. The rows fixed in advance remain the criteria of record.
+**How the targets were judged.** The pass/fail thresholds were set during planning and written into the probe before it ran. Where we added a measurement after seeing the data, it appears as a separate, labelled row. The rows fixed in advance remain the criteria of record.
 
 **Contents**
 1. [Summary](#1-summary)
@@ -530,7 +530,7 @@ What we learned:
 | No measurable motion (\|μ\| < 3σ) | 518 ± 65 mas/yr toward PA 78° (7.9σ). Gaia: 27.5 mas/yr | **Fail** |
 | Brightness change > 0.2 mag at > 5σ at matched wavelengths | D5 (3.83–4.40 µm) faded +0.86 ± 0.04 mag (22.9σ) between September 2025 and September 2026 | Pass |
 
-Our criteria also ask for "strong infrared excess in the spectrum". The probe did not score it. A cross-check computed for this report shows it plainly: the flux density rises from 0.10–0.20 Jy at 0.75–0.90 µm to 1.3–2.9 Jy at 4.4–5.0 µm, a factor of 7–28 depending on the epoch. A bare stellar photosphere would be fainter at 4–5 µm than at 1–2 µm. The points are saturated, but their 0.2–0.6 mag systematics (§6.6) are small next to factors of 7–28.
+The criteria set during planning also ask for "strong infrared excess in the spectrum". The probe did not score it. A cross-check computed for this report shows it plainly: the flux density rises from 0.10–0.20 Jy at 0.75–0.90 µm to 1.3–2.9 Jy at 4.4–5.0 µm, a factor of 7–28 depending on the epoch. A bare stellar photosphere would be fainter at 4–5 µm than at 1–2 µm. The points are saturated, but their 0.2–0.6 mag systematics (§6.6) are small next to factors of 7–28.
 
 | Blink, D5 (3.8–4.4 µm) | Difference, D5, Sep 2026 − Sep 2025 |
 |---|---|
@@ -606,7 +606,7 @@ What we learned:
 
 ## 7. Where the brief met the data
 
-The challenge brief and our plan made assumptions that the data partly contradict. Phase 1 tested them:
+The challenge brief and our early design choices made assumptions that the data partly contradict. Phase 1 tested them:
 
 | The brief assumed | What the data show (Phase 1) | Decision |
 |---|---|---|
@@ -625,6 +625,7 @@ Three topics remain untested by Phase 1:
 
 - asteroids, which are found within one epoch, across visits a few orbits apart;
 - the "Planet X" framing, which keeps the planet hunt as the hook and sells real finds;
+- the software and hosting choices made before Phase 1.
 
 ---
 
