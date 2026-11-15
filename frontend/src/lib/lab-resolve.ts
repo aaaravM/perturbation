@@ -45,6 +45,11 @@ const EXTRA_ALIASES: Record<string, string[]> = {
   "r-dra": ["R Dra", "R Draconis"],
 };
 
+/** Where a featured target's astrometry comes from, when it is not Gaia DR3 (see lib/targets.ts). */
+const FEATURED_ASTROMETRY: Record<string, string> = {
+  "wise-0855": "Kirkpatrick et al. 2021 (Spitzer)",
+};
+
 function aliasKey(text: string): string {
   return text
     .toLowerCase()
@@ -169,7 +174,7 @@ export async function resolveQuery(query: string, signal?: AbortSignal): Promise
       dec: featured.dec,
       kind: "featured",
       slug: featured.slug,
-      provenance: "Featured target: position today, from Gaia DR3 moved with its proper motion and parallax.",
+      provenance: `Featured target: position today, from ${FEATURED_ASTROMETRY[featured.slug] ?? "Gaia DR3"} moved with its proper motion and parallax.`,
     };
   }
 

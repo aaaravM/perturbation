@@ -4,8 +4,8 @@ import { BlinkComparator } from "@/components/landing/blink-comparator";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 
-/** Barnard's Star, "now" position (deg, ICRS); the Lab opens on its bundle, centred on it. */
-const BARNARD_HREF = "/explore?target=barnards-star&ra=269.4461&dec=4.7707&fov=10";
+/** The Lab opens Barnard's Star's prepared frames and centres the field on where it is now. */
+const BARNARD_HREF = "/explore?target=barnards-star";
 
 export default function HomePage() {
   return (

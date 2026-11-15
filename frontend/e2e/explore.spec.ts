@@ -24,7 +24,7 @@ const status = () => page.getByTestId("sky-status");
 test("loads real SPHEREx tiles for the default view with no console errors", async () => {
   const response = await page.goto("/explore");
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("heading", { level: 1, name: "Sky explorer" })).toBeAttached();
+  await expect(page.getByRole("heading", { level: 1, name: "Lab: blink SPHEREx images of any patch of sky" })).toBeAttached();
   await expect(status()).toHaveAttribute("data-state", "ready", { timeout: 45_000 });
   await pause(page, 2500); // let the first burst of tiles finish
 
@@ -126,7 +126,7 @@ test("leaving and coming back reuses the one Aladin instance", async () => {
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Discoveries" }).click();
   await expect(page).toHaveURL(/\/discoveries$/);
   await expect(page.locator(".aladin-container")).toHaveCount(0);
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Explorer" }).click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Lab" }).click();
   await expect(page).toHaveURL(/\/explore/);
   await expect(page.getByTestId("sky-viewer")).toHaveAttribute("data-instances", "1");
   await expect(page.locator(".aladin-container")).toHaveCount(1);

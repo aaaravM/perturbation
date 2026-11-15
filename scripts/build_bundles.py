@@ -1073,9 +1073,9 @@ def build_bundle(slug: str, workers: int) -> dict[str, Any]:
             fr = frames[k]
             name = f"frames/D{d}_E{k[0]}.png"
             (out / name).write_bytes(grey_png(frame_values(fr), *limits[d], stretch="asinh"))
-            wl = [fr.meta.get("wavelength_min_um"), fr.meta.get("wavelength_max_um")]
-            if None in wl:
-                wl = list(config.DETECTOR_BANDS_UM[d])
+            # The detector's band (SIA em_min/em_max of the images used): the Lab shows it as the detector range.
+            sts = fr.meta["stamps"]
+            wl = [min(st.image.em_min_um for st in sts), max(st.image.em_max_um for st in sts)]
             frames_epoch[f"D{d}"].append(
                 {
                     "epoch": k[0],

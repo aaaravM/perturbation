@@ -144,8 +144,10 @@ export function SkyPanel({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.32, ease: EASE_OUT_EXPO }}
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,black_14px)]",
-          side ? "px-5 pt-2 pb-6" : "px-4 pt-1 pb-8",
+          // Soft edges top and bottom: content that runs on below the fold fades out instead of
+          // being cut, which says "scroll for more". The bottom padding clears the fade at the end.
+          "min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,black_14px,black_calc(100%_-_36px),transparent)]",
+          side ? "px-5 pt-2 pb-10" : "px-4 pt-1 pb-11",
         )}
       >
         {children}

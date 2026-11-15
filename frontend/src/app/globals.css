@@ -14,13 +14,14 @@
 :root {
   color-scheme: dark;
 
-  /* Neutrals. Contrast on --ink: fg 17.2:1, fg-dim 7.9:1, fg-faint 4.6:1. */
+  /* Neutrals. Contrast on --ink: fg 17.2:1, fg-dim 8.3:1, fg-faint 5.3:1. fg-faint stays at or
+     above 4.5:1 (WCAG AA) on every surface up to #1a1a19: ink-2, ink-3, popovers and panels. */
   --ink: #050505;
   --ink-2: #0b0b0b;
   --ink-3: #151514;
   --fg: #ecebe7;
   --fg-dim: #a6a5a0;
-  --fg-faint: #7a7974;
+  --fg-faint: #83827d;
   --hair: #ffffff17;
   --hair-strong: #ffffff2e;
 

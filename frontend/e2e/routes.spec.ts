@@ -4,7 +4,7 @@ import { watchPage } from "./helpers";
 
 const ROUTES = [
   { path: "/", heading: "Watch the sky move." },
-  { path: "/explore", heading: "Sky explorer" },
+  { path: "/explore", heading: "Lab: blink SPHEREx images of any patch of sky" },
   { path: "/discoveries", heading: "Candidate movers and variables" },
   { path: "/help", heading: "Review candidates with us" },
   { path: "/how-it-works", heading: "From SPHEREx exposures to a blink" },
@@ -35,7 +35,7 @@ test("placeholders say so, quietly", async ({ page }) => {
 test("the landing links to Barnard's Star in the explorer", async ({ page }) => {
   await page.goto("/");
   const cta = page.getByRole("link", { name: /Try Barnard.s Star/ });
-  await expect(cta).toHaveAttribute("href", "/explore?target=barnards-star&ra=269.4461&dec=4.7707&fov=10");
+  await expect(cta).toHaveAttribute("href", "/explore?target=barnards-star");
   await expect(page.getByRole("link", { name: "Explore the sky globe" })).toHaveAttribute("href", "/sky");
   await expect(page.getByTestId("blink-hero")).toBeVisible();
   await expect(page.getByTestId("blink-hero")).toContainText(/Illustration/);

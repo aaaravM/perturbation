@@ -158,15 +158,30 @@ function parseCompact(text: string): RaDec | null {
 }
 
 /**
+ * Labels people paste along with coordinates ("RA 08h55m10.8s Dec -7d14m42s", "ra=… dec=…",
+ * "R.A. … Decl. …", "α … δ …", "(ICRS)"). Removed only where a number or the end follows, so
+ * names such as "R Aqr" are left alone.
+ */
+const COORD_LABEL =
+  /(^|\s)(?:r\.?\s?a\.?|right\s+ascension|dec(?:l(?:ination)?)?\.?|[αδ]|\(?(?:icrs|fk5|j2000(?:\.0)?)\)?)\s*[:=]?\s*(?=[+\-\d.]|$)/gi;
+
+/**
  * Parse sky coordinates typed by a person. Accepts:
  * - decimal degrees: "269.452 4.693", "269.452, -4.693", "269.452d +4.693d"
  * - sexagesimal (RA in hours): "17 57 48.5 +04 41 36", "17:57:48.5 +04:41:36",
  *   "17h57m48.5s +4d41m36s", "17h 57m 48.5s, +04° 41′ 36″"
+ * - any of these with labels: "RA 08h55m10.831s Dec -7d14m42.53s", "ra=133.795 dec=-7.245"
  * - compact designations: "J175748.49+044136.1"
  * Returns null for anything else (it may be a name).
  */
 export function parseCoordinates(input: string): RaDec | null {
-  const text = input.trim().replace(MINUS, "-").replace(/[,;]/g, " ").replace(/\s+/g, " ");
+  const text = input
+    .trim()
+    .replace(MINUS, "-")
+    .replace(/[,;]/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(COORD_LABEL, "$1")
+    .trim();
   if (!text) return null;
 
   const compact = parseCompact(text);

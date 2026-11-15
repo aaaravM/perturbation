@@ -103,12 +103,22 @@ export function DetailPanel({
           >
             <XIcon className="size-4" aria-hidden />
           </button>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {/* Content below the fold fades out at the bottom edge instead of being cut. Once
+              scrolled, text also fades out under the close button instead of running beneath it. */}
+          <div
+            onScroll={(e) => {
+              const el = e.currentTarget;
+              const scrolled = el.scrollTop > 2;
+              if ((el.dataset.scrolled === "true") !== scrolled) el.dataset.scrolled = String(scrolled);
+            }}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,black_calc(100%_-_36px),transparent)] data-[scrolled=true]:[mask-image:linear-gradient(to_bottom,transparent_0,transparent_10px,black_52px,black_calc(100%_-_36px),transparent)]"
+          >
             <motion.div
               key={contentKey}
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="pb-6"
             >
               <div ref={headingRef} tabIndex={-1} className="outline-none" data-testid="panel-focus-target">
                 {children}

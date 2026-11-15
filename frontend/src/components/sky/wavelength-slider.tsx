@@ -167,7 +167,8 @@ export function WavelengthSlider({
             <button
               type="button"
               className="-m-1 flex shrink-0 items-center gap-1 rounded-sm p-1 text-micro text-fg-faint transition-colors hover:text-fg-dim"
-              aria-label="Why some wavelengths are unavailable"
+              // Starts with the visible word, so voice control ("click Gaps") finds it (WCAG 2.5.3).
+              aria-label="Gaps: why some wavelengths are unavailable"
             >
               <InfoIcon className="size-3.5" aria-hidden />
               <span className="hidden sm:inline">Gaps</span>

@@ -70,7 +70,8 @@ function freeArea(panelOpen: boolean) {
   const h = Math.max(320, window.innerHeight - NAV_H);
   const desktop = w >= 768;
   const top = desktop ? 130 : 220;
-  const bottom = desktop ? 230 : 250;
+  // The player is about 220 px tall with a two-line note (the brief's link, pasted coordinates).
+  const bottom = desktop ? 248 : 250;
   const side = desktop ? (panelOpen ? PANEL_WIDTH + 24 : 430) : 12;
   const px = Math.max(150, Math.min(w - 2 * side, h - top - bottom));
   return { w, px, top, bottom };
@@ -502,7 +503,7 @@ export function LabWorkspace() {
 
   return (
     <div className="absolute inset-0" data-testid="lab">
-      <h1 className="sr-only">Sky explorer</h1>
+      <h1 className="sr-only">Lab: blink SPHEREx images of any patch of sky</h1>
       <AladinView
         key={viewerKey}
         view={view}

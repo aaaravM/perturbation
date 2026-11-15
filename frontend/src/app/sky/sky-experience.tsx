@@ -298,13 +298,17 @@ export function SkyExperience() {
   return (
     <div
       className="absolute inset-0"
+      // The how-to hint goes once the globe has been used in any way: drag, wheel or keys.
       onPointerDownCapture={(e) => {
         if (!touched && (e.target as HTMLElement).closest("[data-testid=sky-globe]")) setTouched(true);
       }}
+      onWheelCapture={(e) => {
+        if (!touched && (e.target as HTMLElement).closest("[data-testid=sky-globe]")) setTouched(true);
+      }}
       onKeyDownCapture={(e) => {
-        if ((e.target as HTMLElement).dataset.testid === "sky-globe" && e.key.startsWith("Arrow")) {
-          keyboardTurn.current = true;
-        }
+        if ((e.target as HTMLElement).dataset.testid !== "sky-globe") return;
+        if (!touched) setTouched(true);
+        if (e.key.startsWith("Arrow")) keyboardTurn.current = true;
       }}
     >
       {/* Quiet backdrop: a faint pool of light behind the globe, nothing more. */}
@@ -323,7 +327,7 @@ export function SkyExperience() {
           {/* A scrim behind the column, for when the globe is flown close and passes under it. */}
           <div
             aria-hidden
-            className="absolute -top-8 -bottom-7 -left-10 -z-10 w-[calc(100%+9rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.9)_0%,rgb(5_5_5/0.78)_55%,transparent_100%)]"
+            className="absolute -top-8 -bottom-7 -left-10 -z-10 w-[calc(100%+9rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.92)_0%,rgb(5_5_5/0.86)_60%,rgb(5_5_5/0.5)_80%,transparent_100%)]"
           />
           <Intro />
           <div className="pointer-events-auto">{list}</div>

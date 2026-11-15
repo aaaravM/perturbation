@@ -21,12 +21,23 @@ export const KIND_LABEL: Record<FeaturedTarget["kind"], string> = {
   "bright-star": "Bright star",
 };
 
+/** Field of view (deg) for "Look closer in the Lab": the all-sky map near its native detail. */
+const PATCH_LAB_FOV = 1.5;
+
+/**
+ * Lab link. A featured object needs only its slug: the Lab frames its prepared images itself
+ * (an explicit fov would first open the Lab at that width, then jump). A patch opens the Lab's
+ * all-sky map centred on it.
+ */
 export function labHref(slug: string | null, ra: number, dec: number): string {
   const q = new URLSearchParams();
-  if (slug) q.set("target", slug);
-  q.set("ra", ra.toFixed(4));
-  q.set("dec", dec.toFixed(4));
-  q.set("fov", "10");
+  if (slug) {
+    q.set("target", slug);
+  } else {
+    q.set("ra", ra.toFixed(4));
+    q.set("dec", dec.toFixed(4));
+    q.set("fov", String(PATCH_LAB_FOV));
+  }
   return `/explore?${q.toString()}`;
 }
 

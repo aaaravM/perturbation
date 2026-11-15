@@ -61,7 +61,7 @@ test("choosing Barnard's Star opens its panel; Escape closes it and returns focu
   await expect(page).toHaveURL(/[?&]target=barnards-star\b/);
 
   const lab = panel(page).getByRole("link", { name: /Open in the Lab/ });
-  await expect(lab).toHaveAttribute("href", "/explore?target=barnards-star&ra=269.4461&dec=4.7707&fov=10");
+  await expect(lab).toHaveAttribute("href", "/explore?target=barnards-star");
 
   // Either the real bundle's blink, the labelled dev fixture, or an honest "being prepared".
   await expect(
@@ -87,7 +87,7 @@ test("a deep link opens the object, and every object has a Lab link", async ({ p
   await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("R Draconis");
   await expect(panel(page).getByRole("link", { name: /Open in the Lab/ })).toHaveAttribute(
     "href",
-    "/explore?target=r-dra&ra=248.1672&dec=66.7550&fov=10",
+    "/explore?target=r-dra",
   );
   // "Next" walks through the five.
   await panel(page)
@@ -116,7 +116,7 @@ test("clicking empty sky describes that patch, with a Lab link", async ({ page }
   const href = await panel(page)
     .getByRole("link", { name: /Look closer in the Lab/ })
     .getAttribute("href");
-  expect(href).toMatch(/^\/explore\?ra=\d+\.\d{4}&dec=-?\d+\.\d{4}&fov=10$/);
+  expect(href).toMatch(/^\/explore\?ra=\d+\.\d{4}&dec=-?\d+\.\d{4}&fov=1\.5$/);
 });
 
 test("arrow keys turn the globe and Enter describes the centre of the view", async ({ page }) => {
