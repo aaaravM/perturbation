@@ -1,0 +1,2043 @@
+{
+  "schema": "pxh-field/1",
+  "generated_at": "2026-11-14T23:00:00Z",
+  "source": "fixture",
+  "target": {
+    "key": "_fixture",
+    "name": "Fixture mover",
+    "kind": "brown-dwarf",
+    "aliases": [],
+    "summary_plain": "A synthetic moving dot used to build and test the Lab. It is not a real object and these are not SPHEREx images.",
+    "facts": [
+      {
+        "label": "Motion",
+        "value": "12″ per year (synthetic)"
+      },
+      {
+        "label": "Epochs",
+        "value": "6 (3 partial)"
+      }
+    ],
+    "astrometry": {
+      "ra": 180,
+      "dec": 30,
+      "ref_epoch": 2026.868,
+      "pmra": 7200,
+      "pmdec": -9600,
+      "parallax": null,
+      "rv": null,
+      "source": "Synthetic (development fixture)"
+    }
+  },
+  "center": {
+    "ra": 180,
+    "dec": 30,
+    "epoch_mjd": 61358
+  },
+  "fov_arcmin": 10.04,
+  "release": {
+    "collections": [
+      "fixture"
+    ],
+    "file_tags": [
+      "fixture-v1"
+    ],
+    "latest_obs": "2026-10-12",
+    "discovered_at": "2026-11-14T23:00:00Z"
+  },
+  "grid": {
+    "width": 98,
+    "height": 98,
+    "pixscale_arcsec": 6.15,
+    "wcs": {
+      "NAXIS1": 98,
+      "NAXIS2": 98,
+      "CTYPE1": "RA---TAN",
+      "CTYPE2": "DEC--TAN",
+      "CRPIX1": 49.5,
+      "CRPIX2": 49.5,
+      "CRVAL1": 180,
+      "CRVAL2": 30,
+      "CD1_1": -0.001708333,
+      "CD1_2": 0,
+      "CD2_1": 0,
+      "CD2_2": 0.001708333,
+      "RADESYS": "ICRS",
+      "EQUINOX": 2000
+    }
+  },
+  "epochs": [
+    {
+      "index": 0,
+      "label": "May 2025",
+      "survey": "S1",
+      "year": 1,
+      "pa": 0,
+      "start": "2025-05-03",
+      "end": "2025-05-17",
+      "full": true,
+      "mjd_mid": 60805,
+      "n_exposures": 60,
+      "detectors": {
+        "1": 10,
+        "2": 10,
+        "3": 10,
+        "4": 10,
+        "5": 10,
+        "6": 10
+      }
+    },
+    {
+      "index": 1,
+      "label": "Jun 2025",
+      "survey": "S1",
+      "year": 1,
+      "pa": 0,
+      "start": "2025-06-02",
+      "end": "2025-06-06",
+      "full": false,
+      "mjd_mid": 60830,
+      "n_exposures": 18,
+      "detectors": {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3
+      }
+    },
+    {
+      "index": 2,
+      "label": "Nov 2025",
+      "survey": "S2",
+      "year": 1,
+      "pa": 180,
+      "start": "2025-11-04",
+      "end": "2025-11-18",
+      "full": true,
+      "mjd_mid": 60990,
+      "n_exposures": 60,
+      "detectors": {
+        "1": 10,
+        "2": 10,
+        "3": 10,
+        "4": 10,
+        "5": 10,
+        "6": 10
+      }
+    },
+    {
+      "index": 3,
+      "label": "Dec 2025",
+      "survey": "S2",
+      "year": 1,
+      "pa": 180,
+      "start": "2025-12-01",
+      "end": "2025-12-04",
+      "full": false,
+      "mjd_mid": 61011.5,
+      "n_exposures": 18,
+      "detectors": {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3
+      }
+    },
+    {
+      "index": 4,
+      "label": "May 2026",
+      "survey": "S3",
+      "year": 2,
+      "pa": 0,
+      "start": "2026-05-05",
+      "end": "2026-05-19",
+      "full": true,
+      "mjd_mid": 61172,
+      "n_exposures": 60,
+      "detectors": {
+        "1": 10,
+        "2": 10,
+        "3": 10,
+        "4": 10,
+        "5": 10,
+        "6": 10
+      }
+    },
+    {
+      "index": 5,
+      "label": "Oct 2026",
+      "survey": "S4",
+      "year": 2,
+      "pa": 180,
+      "start": "2026-10-06",
+      "end": "2026-10-12",
+      "full": false,
+      "mjd_mid": 61322,
+      "n_exposures": 18,
+      "detectors": {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3
+      }
+    }
+  ],
+  "frames": {
+    "epoch": {
+      "D1": [
+        {
+          "epoch": 0,
+          "url": "frames/D1_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D1_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D1_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D1_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D1_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D1_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            0.75,
+            1.11
+          ]
+        }
+      ],
+      "D2": [
+        {
+          "epoch": 0,
+          "url": "frames/D2_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D2_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D2_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D2_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D2_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D2_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            1.11,
+            1.64
+          ]
+        }
+      ],
+      "D3": [
+        {
+          "epoch": 0,
+          "url": "frames/D3_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D3_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D3_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D3_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D3_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D3_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            1.64,
+            2.42
+          ]
+        }
+      ],
+      "D4": [
+        {
+          "epoch": 0,
+          "url": "frames/D4_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D4_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D4_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D4_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D4_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D4_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            2.42,
+            3.82
+          ]
+        }
+      ],
+      "D5": [
+        {
+          "epoch": 0,
+          "url": "frames/D5_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D5_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D5_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D5_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D5_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D5_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            3.82,
+            4.42
+          ]
+        }
+      ],
+      "D6": [
+        {
+          "epoch": 0,
+          "url": "frames/D6_E0.png",
+          "mjd": 60805,
+          "n": 10,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        },
+        {
+          "epoch": 1,
+          "url": "frames/D6_E1.png",
+          "mjd": 60830,
+          "n": 3,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        },
+        {
+          "epoch": 2,
+          "url": "frames/D6_E2.png",
+          "mjd": 60990,
+          "n": 10,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        },
+        {
+          "epoch": 3,
+          "url": "frames/D6_E3.png",
+          "mjd": 61011.5,
+          "n": 3,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        },
+        {
+          "epoch": 4,
+          "url": "frames/D6_E4.png",
+          "mjd": 61172,
+          "n": 10,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        },
+        {
+          "epoch": 5,
+          "url": "frames/D6_E5.png",
+          "mjd": 61322,
+          "n": 3,
+          "wl_um": [
+            4.42,
+            5
+          ]
+        }
+      ],
+      "rgb": [
+        {
+          "epoch": 0,
+          "url": "frames/RGB_E0.png",
+          "mjd": 60805,
+          "channels": "D6/D3/D1"
+        },
+        {
+          "epoch": 1,
+          "url": "frames/RGB_E1.png",
+          "mjd": 60830,
+          "channels": "D6/D3/D1"
+        },
+        {
+          "epoch": 2,
+          "url": "frames/RGB_E2.png",
+          "mjd": 60990,
+          "channels": "D6/D3/D1"
+        },
+        {
+          "epoch": 3,
+          "url": "frames/RGB_E3.png",
+          "mjd": 61011.5,
+          "channels": "D6/D3/D1"
+        },
+        {
+          "epoch": 4,
+          "url": "frames/RGB_E4.png",
+          "mjd": 61172,
+          "channels": "D6/D3/D1"
+        },
+        {
+          "epoch": 5,
+          "url": "frames/RGB_E5.png",
+          "mjd": 61322,
+          "channels": "D6/D3/D1"
+        }
+      ]
+    },
+    "then_vs_now": [
+      {
+        "label": "WISE 2010",
+        "url": "frames/WISE_W2.png",
+        "mjd": 55400,
+        "instrument": "Synthetic stand-in for AllWISE W2 4.6 µm"
+      },
+      {
+        "label": "SPHEREx 2026",
+        "url": "frames/D6_E4.png",
+        "mjd": 61172,
+        "instrument": "Synthetic stand-in for SPHEREx D6 4.42–5.00 µm"
+      }
+    ],
+    "difference": [
+      {
+        "detector": "D1",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D1_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      },
+      {
+        "detector": "D2",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D2_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      },
+      {
+        "detector": "D3",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D3_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      },
+      {
+        "detector": "D4",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D4_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      },
+      {
+        "detector": "D5",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D5_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      },
+      {
+        "detector": "D6",
+        "a": 5,
+        "b": 0,
+        "url": "frames/DIFF_D6_E5-E0.png",
+        "units": "sigma",
+        "limits": [
+          -5,
+          5
+        ]
+      }
+    ],
+    "flags": [
+      {
+        "detector": "D1",
+        "epoch": 0,
+        "url": "frames/FLAGS_D1_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D1",
+        "epoch": 1,
+        "url": "frames/FLAGS_D1_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D1",
+        "epoch": 2,
+        "url": "frames/FLAGS_D1_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D1",
+        "epoch": 3,
+        "url": "frames/FLAGS_D1_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D1",
+        "epoch": 4,
+        "url": "frames/FLAGS_D1_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D1",
+        "epoch": 5,
+        "url": "frames/FLAGS_D1_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 0,
+        "url": "frames/FLAGS_D2_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 1,
+        "url": "frames/FLAGS_D2_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 2,
+        "url": "frames/FLAGS_D2_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 3,
+        "url": "frames/FLAGS_D2_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 4,
+        "url": "frames/FLAGS_D2_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D2",
+        "epoch": 5,
+        "url": "frames/FLAGS_D2_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 0,
+        "url": "frames/FLAGS_D3_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 1,
+        "url": "frames/FLAGS_D3_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 2,
+        "url": "frames/FLAGS_D3_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 3,
+        "url": "frames/FLAGS_D3_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 4,
+        "url": "frames/FLAGS_D3_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D3",
+        "epoch": 5,
+        "url": "frames/FLAGS_D3_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 0,
+        "url": "frames/FLAGS_D4_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 1,
+        "url": "frames/FLAGS_D4_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 2,
+        "url": "frames/FLAGS_D4_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 3,
+        "url": "frames/FLAGS_D4_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 4,
+        "url": "frames/FLAGS_D4_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D4",
+        "epoch": 5,
+        "url": "frames/FLAGS_D4_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 0,
+        "url": "frames/FLAGS_D5_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 1,
+        "url": "frames/FLAGS_D5_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 2,
+        "url": "frames/FLAGS_D5_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 3,
+        "url": "frames/FLAGS_D5_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 4,
+        "url": "frames/FLAGS_D5_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D5",
+        "epoch": 5,
+        "url": "frames/FLAGS_D5_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 0,
+        "url": "frames/FLAGS_D6_E0.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 1,
+        "url": "frames/FLAGS_D6_E1.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 2,
+        "url": "frames/FLAGS_D6_E2.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 3,
+        "url": "frames/FLAGS_D6_E3.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 4,
+        "url": "frames/FLAGS_D6_E4.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      },
+      {
+        "detector": "D6",
+        "epoch": 5,
+        "url": "frames/FLAGS_D6_E5.png",
+        "legend": {
+          "saturated": "#e3c86e",
+          "artifact": "#8f9bb3"
+        }
+      }
+    ]
+  },
+  "render": {
+    "stretch": "asinh",
+    "note": "Synthetic frames; one stretch per detector, shared by all epochs."
+  },
+  "motion": {
+    "method": "Fixture: synthetic positions with added noise (not a measurement)",
+    "epoch_positions": [
+      {
+        "epoch": 0,
+        "mjd": 60805,
+        "ra": 179.9964213,
+        "dec": 30.0040643,
+        "err_mas": 220
+      },
+      {
+        "epoch": 1,
+        "mjd": 60830,
+        "ra": 179.9965467,
+        "dec": 30.0037063,
+        "err_mas": 420
+      },
+      {
+        "epoch": 2,
+        "mjd": 60990,
+        "ra": 179.9977483,
+        "dec": 30.0026216,
+        "err_mas": 220
+      },
+      {
+        "epoch": 3,
+        "mjd": 61011.5,
+        "ra": 179.9979022,
+        "dec": 30.0024831,
+        "err_mas": 420
+      },
+      {
+        "epoch": 4,
+        "mjd": 61172,
+        "ra": 179.9989163,
+        "dec": 30.0013779,
+        "err_mas": 220
+      },
+      {
+        "epoch": 5,
+        "mjd": 61322,
+        "ra": 179.9998311,
+        "dec": 29.9999964,
+        "err_mas": 420
+      }
+    ],
+    "fit": {
+      "pmra": 7135,
+      "pmdec": -9558,
+      "pmra_err": 240,
+      "pmdec_err": 260,
+      "total_arcsec_yr": 11.927,
+      "total_err": 0.25,
+      "pa_deg": 143.3
+    },
+    "catalog": {
+      "pmra": 7200,
+      "pmdec": -9600,
+      "total_arcsec_yr": 12,
+      "pa_deg": 143.1,
+      "source": "Fixture catalogue"
+    },
+    "predicted_path": [
+      [
+        179.9965034,
+        30.0040374
+      ],
+      [
+        179.9966614,
+        30.0038549
+      ],
+      [
+        179.9976731,
+        30.0026867
+      ],
+      [
+        179.9978091,
+        30.0025298
+      ],
+      [
+        179.9988239,
+        30.001358
+      ],
+      [
+        179.9997724,
+        30.0002628
+      ]
+    ],
+    "verdict": "pass",
+    "verdict_text": "The synthetic motion is recovered within 1%. Fixture only: this is not a measurement."
+  },
+  "spectrum": {
+    "points": [
+      {
+        "wl_um": 0.78,
+        "bw_um": 0.019,
+        "flux_ujy": 23.99,
+        "err_ujy": 6.88,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 0.84,
+        "bw_um": 0.0205,
+        "flux_ujy": 20.26,
+        "err_ujy": 6.91,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 0.9,
+        "bw_um": 0.022,
+        "flux_ujy": 30.24,
+        "err_ujy": 6.94,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 0.96,
+        "bw_um": 0.0234,
+        "flux_ujy": 23.75,
+        "err_ujy": 6.98,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.02,
+        "bw_um": 0.0249,
+        "flux_ujy": 44.71,
+        "err_ujy": 7.02,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.08,
+        "bw_um": 0.0263,
+        "flux_ujy": 26.54,
+        "err_ujy": 7.06,
+        "epoch": 4,
+        "detector": 1,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.1542,
+        "bw_um": 0.0282,
+        "flux_ujy": 21.55,
+        "err_ujy": 7.12,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.2425,
+        "bw_um": 0.0303,
+        "flux_ujy": 27.33,
+        "err_ujy": 7.19,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.3308,
+        "bw_um": 0.0325,
+        "flux_ujy": 21.48,
+        "err_ujy": 7.28,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.4192,
+        "bw_um": 0.0346,
+        "flux_ujy": 33.23,
+        "err_ujy": 7.37,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.5075,
+        "bw_um": 0.0368,
+        "flux_ujy": 39.64,
+        "err_ujy": 7.47,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.5958,
+        "bw_um": 0.0389,
+        "flux_ujy": 39.99,
+        "err_ujy": 7.58,
+        "epoch": 4,
+        "detector": 2,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.705,
+        "bw_um": 0.0416,
+        "flux_ujy": 39.87,
+        "err_ujy": 7.73,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.835,
+        "bw_um": 0.0448,
+        "flux_ujy": 44.06,
+        "err_ujy": 7.93,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 1.965,
+        "bw_um": 0.0479,
+        "flux_ujy": 49.26,
+        "err_ujy": 8.14,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 2.095,
+        "bw_um": 0.0511,
+        "flux_ujy": 61.97,
+        "err_ujy": 8.38,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 2.225,
+        "bw_um": 0.0543,
+        "flux_ujy": 64.68,
+        "err_ujy": 8.64,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 2.355,
+        "bw_um": 0.0574,
+        "flux_ujy": 59.29,
+        "err_ujy": 8.92,
+        "epoch": 4,
+        "detector": 3,
+        "saturated": false
+      },
+      {
+        "wl_um": 2.5367,
+        "bw_um": 0.0619,
+        "flux_ujy": 87.03,
+        "err_ujy": 9.35,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 2.77,
+        "bw_um": 0.0676,
+        "flux_ujy": 103.44,
+        "err_ujy": 9.94,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.0033,
+        "bw_um": 0.0733,
+        "flux_ujy": 116.9,
+        "err_ujy": 10.1,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.2367,
+        "bw_um": 0.0789,
+        "flux_ujy": 82.1,
+        "err_ujy": 9,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.47,
+        "bw_um": 0.0846,
+        "flux_ujy": 98.84,
+        "err_ujy": 10.33,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.7033,
+        "bw_um": 0.0903,
+        "flux_ujy": 162.6,
+        "err_ujy": 12.94,
+        "epoch": 4,
+        "detector": 4,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.87,
+        "bw_um": 0.0944,
+        "flux_ujy": 215.83,
+        "err_ujy": 13.94,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 3.97,
+        "bw_um": 0.0968,
+        "flux_ujy": 219.56,
+        "err_ujy": 14.41,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.07,
+        "bw_um": 0.0993,
+        "flux_ujy": 224.5,
+        "err_ujy": 14.89,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.17,
+        "bw_um": 0.1017,
+        "flux_ujy": 237.72,
+        "err_ujy": 15.38,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.27,
+        "bw_um": 0.1041,
+        "flux_ujy": 221.24,
+        "err_ujy": 15.89,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.37,
+        "bw_um": 0.1066,
+        "flux_ujy": 258.37,
+        "err_ujy": 16.41,
+        "epoch": 4,
+        "detector": 5,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.4683,
+        "bw_um": 0.109,
+        "flux_ujy": 276.25,
+        "err_ujy": 16.95,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.565,
+        "bw_um": 0.1113,
+        "flux_ujy": 321.36,
+        "err_ujy": 17.48,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.6617,
+        "bw_um": 0.1137,
+        "flux_ujy": 308.93,
+        "err_ujy": 18.04,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.7583,
+        "bw_um": 0.1161,
+        "flux_ujy": 303.79,
+        "err_ujy": 18.61,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": false
+      },
+      {
+        "wl_um": 4.855,
+        "bw_um": 0.1184,
+        "flux_ujy": 316.85,
+        "err_ujy": 19.2,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": true
+      },
+      {
+        "wl_um": 4.9517,
+        "bw_um": 0.1208,
+        "flux_ujy": 356.55,
+        "err_ujy": 19.8,
+        "epoch": 4,
+        "detector": 6,
+        "saturated": true
+      }
+    ],
+    "quicklook": {
+      "wl_um": [
+        0.753,
+        0.7672,
+        0.7818,
+        0.7966,
+        0.8116,
+        0.827,
+        0.8426,
+        0.8586,
+        0.8748,
+        0.8914,
+        0.9082,
+        0.9254,
+        0.9429,
+        0.9608,
+        0.9789,
+        0.9975,
+        1.0163,
+        1.0356,
+        1.0552,
+        1.0751,
+        1.0955,
+        1.1162,
+        1.1373,
+        1.1588,
+        1.1808,
+        1.2031,
+        1.2259,
+        1.2491,
+        1.2727,
+        1.2968,
+        1.3213,
+        1.3463,
+        1.3718,
+        1.3977,
+        1.4242,
+        1.4511,
+        1.4786,
+        1.5066,
+        1.5351,
+        1.5641,
+        1.5937,
+        1.6239,
+        1.6546,
+        1.6859,
+        1.7178,
+        1.7503,
+        1.7834,
+        1.8172,
+        1.8515,
+        1.8866,
+        1.9223,
+        1.9586,
+        1.9957,
+        2.0334,
+        2.0719,
+        2.1111,
+        2.1511,
+        2.1918,
+        2.2332,
+        2.2755,
+        2.3185,
+        2.3624,
+        2.4071,
+        2.4527,
+        2.4991,
+        2.5463,
+        2.5945,
+        2.6436,
+        2.6936,
+        2.7446,
+        2.7965,
+        2.8494,
+        2.9034,
+        2.9583,
+        3.0143,
+        3.0713,
+        3.1294,
+        3.1886,
+        3.2489,
+        3.3104,
+        3.373,
+        3.4369,
+        3.5019,
+        3.5682,
+        3.6357,
+        3.7045,
+        3.7745,
+        3.846,
+        3.9187,
+        3.9929,
+        4.0684,
+        4.1454,
+        4.2238,
+        4.3038,
+        4.3852,
+        4.4682,
+        4.5527,
+        4.6388,
+        4.7266,
+        4.816,
+        4.9072,
+        5
+      ],
+      "flux_ujy": [
+        20.95,
+        14.43,
+        8.62,
+        22.79,
+        15.24,
+        33.4,
+        19.59,
+        37.83,
+        28.61,
+        23.3,
+        18.63,
+        16.85,
+        23.55,
+        34.21,
+        10.39,
+        19.11,
+        26.93,
+        25.72,
+        31.41,
+        38.61,
+        24.16,
+        24.87,
+        25.22,
+        24.07,
+        18.71,
+        23.61,
+        36.61,
+        23.14,
+        41.87,
+        20.8,
+        41.06,
+        40.11,
+        43.02,
+        26.15,
+        38.4,
+        45.44,
+        22.13,
+        51.87,
+        22.04,
+        37.51,
+        64.27,
+        43.57,
+        59.99,
+        53.66,
+        47.09,
+        41.28,
+        47.07,
+        42.26,
+        60.77,
+        68.76,
+        null,
+        null,
+        61.6,
+        67.34,
+        68.25,
+        54.84,
+        58.91,
+        83.62,
+        53.4,
+        82.01,
+        61.4,
+        58.49,
+        82.65,
+        91.03,
+        91.09,
+        90.52,
+        104.72,
+        101.48,
+        86.53,
+        94.31,
+        88.62,
+        126.08,
+        119.61,
+        133.76,
+        116.04,
+        110.96,
+        79.6,
+        83.03,
+        73.97,
+        87.28,
+        100.36,
+        112.85,
+        132.54,
+        164.25,
+        167.03,
+        207.96,
+        197,
+        216.15,
+        227.69,
+        247.15,
+        248.58,
+        249.53,
+        260.39,
+        252.99,
+        284.86,
+        286.62,
+        321.07,
+        305.61,
+        343.17,
+        356.2,
+        366.16,
+        375.85
+      ],
+      "label": "Quick-look cube spectrum (synthetic)"
+    },
+    "notes": [
+      "Saturated points are shown hollow and excluded from fits.",
+      "Synthetic values from the development fixture."
+    ]
+  },
+  "lightcurve": {
+    "epoch_photometry": [
+      {
+        "epoch": 0,
+        "detector": 1,
+        "mjd": 60805,
+        "flux_ujy": 23.92,
+        "err_ujy": 3.49,
+        "mag_ab": 20.453,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 0,
+        "detector": 2,
+        "mjd": 60805,
+        "flux_ujy": 30.32,
+        "err_ujy": 3.68,
+        "mag_ab": 20.196,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 0,
+        "detector": 3,
+        "mjd": 60805,
+        "flux_ujy": 50.12,
+        "err_ujy": 4.13,
+        "mag_ab": 19.65,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 0,
+        "detector": 4,
+        "mjd": 60805,
+        "flux_ujy": 92.27,
+        "err_ujy": 4.76,
+        "mag_ab": 18.987,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 0,
+        "detector": 5,
+        "mjd": 60805,
+        "flux_ujy": 228.44,
+        "err_ujy": 7.46,
+        "mag_ab": 18.003,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 0,
+        "detector": 6,
+        "mjd": 60805,
+        "flux_ujy": 317.1,
+        "err_ujy": 9.12,
+        "mag_ab": 17.647,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      },
+      {
+        "epoch": 1,
+        "detector": 1,
+        "mjd": 60830,
+        "flux_ujy": 20.34,
+        "err_ujy": 6.28,
+        "mag_ab": 20.629,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 1,
+        "detector": 2,
+        "mjd": 60830,
+        "flux_ujy": 33.28,
+        "err_ujy": 6.59,
+        "mag_ab": 20.094,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 1,
+        "detector": 3,
+        "mjd": 60830,
+        "flux_ujy": 65.5,
+        "err_ujy": 7.39,
+        "mag_ab": 19.359,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 1,
+        "detector": 4,
+        "mjd": 60830,
+        "flux_ujy": 79.71,
+        "err_ujy": 8.57,
+        "mag_ab": 19.146,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 1,
+        "detector": 5,
+        "mjd": 60830,
+        "flux_ujy": 223.74,
+        "err_ujy": 13.63,
+        "mag_ab": 18.026,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 1,
+        "detector": 6,
+        "mjd": 60830,
+        "flux_ujy": 323.83,
+        "err_ujy": 16.73,
+        "mag_ab": 17.624,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      },
+      {
+        "epoch": 2,
+        "detector": 1,
+        "mjd": 60990,
+        "flux_ujy": 22.8,
+        "err_ujy": 3.47,
+        "mag_ab": 20.505,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 2,
+        "detector": 2,
+        "mjd": 60990,
+        "flux_ujy": 28.37,
+        "err_ujy": 3.65,
+        "mag_ab": 20.268,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 2,
+        "detector": 3,
+        "mjd": 60990,
+        "flux_ujy": 57.39,
+        "err_ujy": 4.11,
+        "mag_ab": 19.503,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 2,
+        "detector": 4,
+        "mjd": 60990,
+        "flux_ujy": 90.65,
+        "err_ujy": 4.81,
+        "mag_ab": 19.007,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 2,
+        "detector": 5,
+        "mjd": 60990,
+        "flux_ujy": 236.8,
+        "err_ujy": 7.68,
+        "mag_ab": 17.964,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 2,
+        "detector": 6,
+        "mjd": 60990,
+        "flux_ujy": 310.72,
+        "err_ujy": 9.27,
+        "mag_ab": 17.669,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      },
+      {
+        "epoch": 3,
+        "detector": 1,
+        "mjd": 61011.5,
+        "flux_ujy": 14.03,
+        "err_ujy": 6.24,
+        "mag_ab": 21.032,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 3,
+        "detector": 2,
+        "mjd": 61011.5,
+        "flux_ujy": 36.5,
+        "err_ujy": 6.58,
+        "mag_ab": 19.994,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 3,
+        "detector": 3,
+        "mjd": 61011.5,
+        "flux_ujy": 77.16,
+        "err_ujy": 7.46,
+        "mag_ab": 19.182,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 3,
+        "detector": 4,
+        "mjd": 61011.5,
+        "flux_ujy": 89.38,
+        "err_ujy": 8.72,
+        "mag_ab": 19.022,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 3,
+        "detector": 5,
+        "mjd": 61011.5,
+        "flux_ujy": 243.17,
+        "err_ujy": 13.72,
+        "mag_ab": 17.935,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 3,
+        "detector": 6,
+        "mjd": 61011.5,
+        "flux_ujy": 298.02,
+        "err_ujy": 16.36,
+        "mag_ab": 17.714,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      },
+      {
+        "epoch": 4,
+        "detector": 1,
+        "mjd": 61172,
+        "flux_ujy": 27.54,
+        "err_ujy": 3.48,
+        "mag_ab": 20.3,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 4,
+        "detector": 2,
+        "mjd": 61172,
+        "flux_ujy": 31.45,
+        "err_ujy": 3.68,
+        "mag_ab": 20.156,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 4,
+        "detector": 3,
+        "mjd": 61172,
+        "flux_ujy": 58.13,
+        "err_ujy": 4.16,
+        "mag_ab": 19.489,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 4,
+        "detector": 4,
+        "mjd": 61172,
+        "flux_ujy": 86.18,
+        "err_ujy": 4.81,
+        "mag_ab": 19.061,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 4,
+        "detector": 5,
+        "mjd": 61172,
+        "flux_ujy": 231.93,
+        "err_ujy": 7.49,
+        "mag_ab": 17.987,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 4,
+        "detector": 6,
+        "mjd": 61172,
+        "flux_ujy": 291.57,
+        "err_ujy": 9.01,
+        "mag_ab": 17.738,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      },
+      {
+        "epoch": 5,
+        "detector": 1,
+        "mjd": 61322,
+        "flux_ujy": 10.77,
+        "err_ujy": 6.28,
+        "mag_ab": 21.32,
+        "wl_um": 0.93,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 5,
+        "detector": 2,
+        "mjd": 61322,
+        "flux_ujy": 40.46,
+        "err_ujy": 6.62,
+        "mag_ab": 19.882,
+        "wl_um": 1.375,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 5,
+        "detector": 3,
+        "mjd": 61322,
+        "flux_ujy": 58.59,
+        "err_ujy": 7.43,
+        "mag_ab": 19.48,
+        "wl_um": 2.03,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 5,
+        "detector": 4,
+        "mjd": 61322,
+        "flux_ujy": 80.01,
+        "err_ujy": 8.57,
+        "mag_ab": 19.142,
+        "wl_um": 3.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 5,
+        "detector": 5,
+        "mjd": 61322,
+        "flux_ujy": 216.67,
+        "err_ujy": 13.44,
+        "mag_ab": 18.061,
+        "wl_um": 4.12,
+        "saturated_frac": 0
+      },
+      {
+        "epoch": 5,
+        "detector": 6,
+        "mjd": 61322,
+        "flux_ujy": 312.74,
+        "err_ujy": 16.47,
+        "mag_ab": 17.662,
+        "wl_um": 4.71,
+        "saturated_frac": 0.04
+      }
+    ],
+    "same_channel": [],
+    "variability": {
+      "chi2_dof": 1.3,
+      "max_delta_mag": 0.06,
+      "significant": false
+    }
+  },
+  "checks": [
+    {
+      "name": "Proper motion vs catalogue",
+      "value": "11.93 ± 0.25 ″/yr vs 12.00",
+      "pass": true
+    },
+    {
+      "name": "Frames share one grid",
+      "value": "98 × 98 px at 6.15″",
+      "pass": true
+    },
+    {
+      "name": "Partial epochs marked",
+      "value": "3 of 6",
+      "pass": true
+    }
+  ],
+  "warnings": [
+    "Development fixture: synthetic frames and numbers, not SPHEREx data."
+  ],
+  "links": [],
+  "credits": "Synthetic development fixture (generate-fixture.mjs). Contains no SPHEREx, WISE or Gaia data."
+}

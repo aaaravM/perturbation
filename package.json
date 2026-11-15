@@ -1,0 +1,10 @@
+{
+  "name": "planet-x-hunter",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --dir frontend dev",
+    "build": "pnpm --dir frontend build",
+    "lint": "pnpm --dir frontend lint"
+  },
+  "packageManager": "pnpm@12.18.0"
+}

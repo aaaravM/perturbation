@@ -1,0 +1,16 @@
+SIMPLE  =                    T / conforms to FITS standard
+BITPIX  =                    8 / array data type
+NAXIS   =                    0 / number of array dimensions
+EXTEND  =                    T
+VERSION = '7.2.0   '           / SSDC Pipelines software version
+TIMESYS = 'UTC     '           / Time scale
+MJD-BEG =      60899.535352025 / [d] MJD at start of earliest input
+MJD-END =      61168.614019624 / [d] MJD at end of latest input
+DATE-BEG= '2025-08-12T12:50:54.415' / Start of earliest input, ISO-8601
+DATE-END= '2026-05-08T14:44:11.296' / End of latest input, ISO-8601
+ORIGIN  = 'SSDC    '           / Organization responsible for data
+TELESCOP= 'SPHEREx '           / Telescope name
+INSTRUME= 'SPHEREx '           / Instrument Name
+BLANKCH = 'D3:17,D4:01'        / Channels written as all-NaN planes
+DATE    = '2026-10-28T12:03:06.541' / HDU creation time (UTC)
+END

@@ -1,0 +1,790 @@
+{
+ "generated_utc": "2026-11-14T23:41:09Z",
+ "targets": {
+  "barnards-star": {
+   "name": "Barnard's Star",
+   "verdict": {
+    "n_criteria": 4,
+    "n_pass": 4,
+    "n_fail": 0,
+    "all_pass": true
+   },
+   "criteria": [
+    {
+     "name": "D5/D6 proper motion total within 5% of catalog",
+     "pass": true,
+     "threshold": "|ratio - 1| <= 0.05",
+     "value": {
+      "pm_total_masyr": 10545.894465751864,
+      "pm_err_masyr": 118.9002889543927,
+      "catalog_masyr": 10406.47685868512,
+      "ratio": 1.013397195704172,
+      "pa_deg": 349.35918743330575,
+      "pa_cat_deg": 355.5766804518124,
+      "pa_diff_deg": -6.217493018506673,
+      "n_used": 75,
+      "chi2_red": 10.695145489479973
+     }
+    },
+    {
+     "name": "D5/D6 proper-motion PA within 10 deg",
+     "pass": true,
+     "threshold": "|dPA| <= 10.0 deg",
+     "value": -6.217493018506673
+    },
+    {
+     "name": "blink/difference: first-to-last full-epoch shift is ~10 arcsec/yr northward",
+     "pass": true,
+     "threshold": "shift within 20% and 10 deg of the predicted apparent shift, PA within 20 deg of north",
+     "value": {
+      "rate_arcsec_yr": 10.454798167376376,
+      "sep_arcsec": 10.359329311802327,
+      "pa_deg": 350.058162296144,
+      "dt_days": 361.9146893665311,
+      "ratio_to_prediction": 1.0035490244078396,
+      "pa_diff_deg": -5.605042896652662,
+      "diff_snr_at_old_new": {
+       "D1": [
+        null,
+        null
+       ],
+       "D2": [
+        null,
+        null
+       ],
+       "D3": [
+        null,
+        null
+       ],
+       "D4": [
+        null,
+        null
+       ],
+       "D5": [
+        null,
+        null
+       ],
+       "D6": [
+        null,
+        222.04843139648438
+       ]
+      }
+     }
+    },
+    {
+     "name": "saturated core masked in co-adds and flagged",
+     "pass": true,
+     "threshold": "every frame has its target core masked (weight 0) or in the saturation overlay; saturated exposures carry saturated=True",
+     "value": {
+      "exposures_saturated": 357,
+      "exposures_measured": 358,
+      "frames": 24,
+      "frames_core_saturated_overlay": 24,
+      "frames_core_masked_or_flagged": 24
+     }
+    }
+   ],
+   "n_images": 358,
+   "n_epochs": 6,
+   "n_full": 3,
+   "baseline_days": 402.765,
+   "seconds": 65.2,
+   "range_bytes": 248006,
+   "issues": [],
+   "files": [
+    "barnards-star/blink_D1.gif",
+    "barnards-star/blink_D2.gif",
+    "barnards-star/blink_D3.gif",
+    "barnards-star/blink_D4.gif",
+    "barnards-star/blink_D5.gif",
+    "barnards-star/blink_D6.gif",
+    "barnards-star/diff_D1.png",
+    "barnards-star/diff_D2.png",
+    "barnards-star/diff_D3.png",
+    "barnards-star/diff_D4.png",
+    "barnards-star/diff_D5.png",
+    "barnards-star/diff_D6.png",
+    "barnards-star/lightcurve.png",
+    "barnards-star/motion.png",
+    "barnards-star/spectrum.png",
+    "barnards-star/summary.json"
+   ]
+  },
+  "eps-indi-b": {
+   "name": "Epsilon Indi B",
+   "verdict": {
+    "n_criteria": 5,
+    "n_pass": 5,
+    "n_fail": 0,
+    "all_pass": true
+   },
+   "criteria": [
+    {
+     "name": "all detectors proper motion total within 5% of catalog",
+     "pass": true,
+     "threshold": "|ratio - 1| <= 0.05",
+     "value": {
+      "pm_total_masyr": 4699.275649046731,
+      "pm_err_masyr": 16.4092178792462,
+      "catalog_masyr": 4685.213770558536,
+      "ratio": 1.003001331246945,
+      "pa_deg": 121.50505210114757,
+      "pa_cat_deg": 121.76126627685069,
+      "pa_diff_deg": -0.2562141757031213,
+      "n_used": 417,
+      "chi2_red": 2.2937320096597693
+     }
+    },
+    {
+     "name": "all detectors proper-motion PA within 3 deg",
+     "pass": true,
+     "threshold": "|dPA| <= 3.0 deg",
+     "value": -0.2562141757031213
+    },
+    {
+     "name": "per-exposure position scatter < 0.5 arcsec (radial RMS of residuals)",
+     "pass": true,
+     "threshold": "radial RMS < 500 mas (per-axis values also reported)",
+     "value": {
+      "ra": 197.68319489410277,
+      "dec": 164.71775798409453,
+      "radial": 257.314176327008
+     }
+    },
+    {
+     "name": "T-dwarf H2O 1.4um absorption dip >= 5 sigma",
+     "pass": true,
+     "threshold": "continuum (interpolated from flanking bands) minus dip >= 5 sigma",
+     "value": {
+      "continuum_ujy": 32907.589363497456,
+      "dip_ujy": 6574.176672741399,
+      "depth": 0.8002230853155787,
+      "significance": 26.782856392452654,
+      "left": {
+       "band_um": [
+        1.2,
+        1.31
+       ],
+       "flux_ujy": 31974.554599896575,
+       "err_ujy": 1388.1230671818028,
+       "n": 19,
+       "chi2_red": 26.656739770078048,
+       "lambda_um": 1.2523805191032538
+      },
+      "dip": {
+       "band_um": [
+        1.36,
+        1.48
+       ],
+       "flux_ujy": 6574.176672741399,
+       "err_ujy": 569.9484202528145,
+       "n": 13,
+       "chi2_red": 98.11984585432845,
+       "lambda_um": 1.413403510076464
+      },
+      "right": {
+       "band_um": [
+        1.53,
+        1.68
+       ],
+       "flux_ujy": 34030.93277395256,
+       "err_ujy": 569.9240174695578,
+       "n": 28,
+       "chi2_red": 9.807379724913332,
+       "lambda_um": 1.6072699370287018
+      }
+     }
+    },
+    {
+     "name": "T-dwarf CH4 3.3um absorption dip >= 5 sigma",
+     "pass": true,
+     "threshold": "continuum (interpolated from flanking bands) minus dip >= 5 sigma",
+     "value": {
+      "continuum_ujy": 44408.30466237504,
+      "dip_ujy": 10651.93780971734,
+      "depth": 0.760136355334857,
+      "significance": 65.61769761386763,
+      "left": {
+       "band_um": [
+        2.05,
+        2.25
+       ],
+       "flux_ujy": 23893.678202861593,
+       "err_ujy": 826.2822305765192,
+       "n": 21,
+       "chi2_red": 44.70706457168346,
+       "lambda_um": 2.146713040975383
+      },
+      "dip": {
+       "band_um": [
+        3.2,
+        3.4
+       ],
+       "flux_ujy": 10651.93780971734,
+       "err_ujy": 327.17979525774547,
+       "n": 5,
+       "chi2_red": 8.269841598937301,
+       "lambda_um": 3.288803562388604
+      },
+      "right": {
+       "band_um": [
+        3.95,
+        4.15
+       ],
+       "flux_ujy": 58056.59580518219,
+       "err_ujy": 367.24485881852996,
+       "n": 28,
+       "chi2_red": 1.5009646784234496,
+       "lambda_um": 4.048631384671932
+      }
+     }
+    }
+   ],
+   "n_images": 461,
+   "n_epochs": 4,
+   "n_full": 2,
+   "baseline_days": 525.624,
+   "seconds": 79.6,
+   "range_bytes": 248058,
+   "issues": [],
+   "files": [
+    "eps-indi-b/blink_D1.gif",
+    "eps-indi-b/blink_D2.gif",
+    "eps-indi-b/blink_D3.gif",
+    "eps-indi-b/blink_D4.gif",
+    "eps-indi-b/blink_D5.gif",
+    "eps-indi-b/blink_D6.gif",
+    "eps-indi-b/diff_D1.png",
+    "eps-indi-b/diff_D2.png",
+    "eps-indi-b/diff_D3.png",
+    "eps-indi-b/diff_D4.png",
+    "eps-indi-b/diff_D5.png",
+    "eps-indi-b/diff_D6.png",
+    "eps-indi-b/lightcurve.png",
+    "eps-indi-b/motion.png",
+    "eps-indi-b/spectrum.png",
+    "eps-indi-b/summary.json"
+   ]
+  },
+  "wise-0855": {
+   "name": "WISE 0855-0714",
+   "verdict": {
+    "n_criteria": 8,
+    "n_pass": 5,
+    "n_fail": 3,
+    "all_pass": false
+   },
+   "criteria": [
+    {
+     "name": "detected at S/N >= 10 in D5+D6 co-adds of each main DR1 epoch",
+     "pass": false,
+     "threshold": "co-add aperture S/N (r = 2 px, noise from random apertures) >= 10 in every full DR1 epoch",
+     "value": {
+      "coadd_aperture_snr": {
+       "1": 5.823469441123092,
+       "3": 6.880127173049913
+      },
+      "forced_ivw_snr": {
+       "1": 20.137589136494732,
+       "3": 30.426465005260443
+      }
+     }
+    },
+    {
+     "name": "not detected in D1-D4 (main DR1 epochs)",
+     "pass": false,
+     "threshold": "|co-add aperture S/N| < 5 for D1, D2, D3, D4 and D1-D4 stacks (forced IVW S/N listed second)",
+     "value": {
+      "E1 D1": [
+       8.693842332429444,
+       2.4468548741499716
+      ],
+      "E1 D2": [
+       7.607682233551423,
+       2.787870187725241
+      ],
+      "E1 D3": [
+       5.32191599283172,
+       3.1253516901703957
+      ],
+      "E1 D4": [
+       2.9759289048953277,
+       5.312890517399369
+      ],
+      "E1 D1-D4": [
+       5.513047913268962,
+       7.171581083354732
+      ],
+      "E3 D1": [
+       13.488606099307042,
+       15.279374070580438
+      ],
+      "E3 D2": [
+       11.127595024729112,
+       14.792146967229646
+      ],
+      "E3 D3": [
+       6.5102509500570465,
+       20.406257657748004
+      ],
+      "E3 D4": [
+       3.7537773124784874,
+       16.10664559760944
+      ],
+      "E3 D1-D4": [
+       7.5558545560905355,
+       32.22477157646404
+      ]
+     }
+    },
+    {
+     "name": "detected at S/N >= 10 in D5+D6 co-adds of each main DR1 epoch [PSF photometry, neighbour modelled]",
+     "pass": false,
+     "threshold": "bootstrap S/N of the forced PSF flux >= 10 in every full DR1 epoch",
+     "value": {
+      "psf_snr": {
+       "1": 8.718445635292795,
+       "3": 7.850861198234178
+      },
+      "flux": {
+       "1": 0.34115114356392134,
+       "3": 0.402722762744234
+      }
+     }
+    },
+    {
+     "name": "not detected in D1-D4 (main DR1 epochs) [PSF photometry, neighbour modelled]",
+     "pass": true,
+     "threshold": "|bootstrap S/N of the forced PSF flux| < 5 for D1-D4",
+     "value": {
+      "E1 D1": -0.16553937970772392,
+      "E1 D2": 0.29507028745264824,
+      "E1 D3": 0.21909516710270313,
+      "E1 D4": 1.8179303126861566,
+      "E1 D1-D4": 0.6865793186998504,
+      "E3 D1": -0.44184712711695634,
+      "E3 D2": -1.5079385583086171,
+      "E3 D3": 0.24599985002441702,
+      "E3 D4": 0.13671448327243926,
+      "E3 D1-D4": -0.3018583122545788
+     }
+    },
+    {
+     "name": "shift rejects a static source at > 4 sigma [neighbour modelled (primary)]",
+     "pass": true,
+     "threshold": "n_sigma > 4",
+     "value": {
+      "sep_arcsec": 7.979406736571755,
+      "sep_err_arcsec": 0.7724780176108001,
+      "n_sigma_vs_static": 10.330174659271252,
+      "pa_deg": 274.4679529371338,
+      "predicted_sep_arcsec": 8.04178893521288,
+      "predicted_pa_deg": 274.63427886518593,
+      "ratio": 0.9922427460924808,
+      "pa_diff_deg": -0.16632592805211743,
+      "from": "epoch 0",
+      "to": "epoch 3"
+     }
+    },
+    {
+     "name": "shift within 25 deg and 30% of the prediction [neighbour modelled (primary)]",
+     "pass": true,
+     "threshold": "|dPA| <= 25 deg and |ratio - 1| <= 0.30",
+     "value": {
+      "sep_arcsec": 7.979406736571755,
+      "sep_err_arcsec": 0.7724780176108001,
+      "n_sigma_vs_static": 10.330174659271252,
+      "pa_deg": 274.4679529371338,
+      "predicted_sep_arcsec": 8.04178893521288,
+      "predicted_pa_deg": 274.63427886518593,
+      "ratio": 0.9922427460924808,
+      "pa_diff_deg": -0.16632592805211743,
+      "from": "epoch 0",
+      "to": "epoch 3"
+     }
+    },
+    {
+     "name": "shift rejects a static source at > 4 sigma [single-source fit (neighbour ignored)]",
+     "pass": true,
+     "threshold": "n_sigma > 4",
+     "value": {
+      "sep_arcsec": 6.592795463549049,
+      "sep_err_arcsec": 0.8825634166905916,
+      "n_sigma_vs_static": 7.489588462954818,
+      "pa_deg": 275.1022793809587,
+      "predicted_sep_arcsec": 8.04178893521288,
+      "predicted_pa_deg": 274.63427886518593,
+      "ratio": 0.8198170228866528,
+      "pa_diff_deg": 0.4680005157727578,
+      "from": "epoch 0",
+      "to": "epoch 3"
+     }
+    },
+    {
+     "name": "shift within 25 deg and 30% of the prediction [single-source fit (neighbour ignored)]",
+     "pass": true,
+     "threshold": "|dPA| <= 25 deg and |ratio - 1| <= 0.30",
+     "value": {
+      "sep_arcsec": 6.592795463549049,
+      "sep_err_arcsec": 0.8825634166905916,
+      "n_sigma_vs_static": 7.489588462954818,
+      "pa_deg": 275.1022793809587,
+      "predicted_sep_arcsec": 8.04178893521288,
+      "predicted_pa_deg": 274.63427886518593,
+      "ratio": 0.8198170228866528,
+      "pa_diff_deg": 0.4680005157727578,
+      "from": "epoch 0",
+      "to": "epoch 3"
+     }
+    }
+   ],
+   "n_images": 258,
+   "n_epochs": 4,
+   "n_full": 2,
+   "baseline_days": 373.589,
+   "seconds": 74.2,
+   "range_bytes": 248032,
+   "issues": [],
+   "files": [
+    "wise-0855/blink_D1.gif",
+    "wise-0855/blink_D2.gif",
+    "wise-0855/blink_D3.gif",
+    "wise-0855/blink_D4.gif",
+    "wise-0855/blink_D5.gif",
+    "wise-0855/blink_D56.gif",
+    "wise-0855/blink_D6.gif",
+    "wise-0855/diff_D1.png",
+    "wise-0855/diff_D2.png",
+    "wise-0855/diff_D3.png",
+    "wise-0855/diff_D4.png",
+    "wise-0855/diff_D5.png",
+    "wise-0855/diff_D56.png",
+    "wise-0855/diff_D6.png",
+    "wise-0855/lightcurve.png",
+    "wise-0855/motion.png",
+    "wise-0855/spectrum.png",
+    "wise-0855/summary.json"
+   ]
+  },
+  "rw-aur": {
+   "name": "RW Aurigae",
+   "verdict": {
+    "n_criteria": 2,
+    "n_pass": 1,
+    "n_fail": 1,
+    "all_pass": false
+   },
+   "criteria": [
+    {
+     "name": "proper-motion null test |mu| < 3 sigma",
+     "pass": false,
+     "threshold": "|mu|/sigma < 3",
+     "value": {
+      "pm_total_masyr": 518.2154826007088,
+      "pm_err_masyr": 65.45383731558627,
+      "n_sigma_from_zero": 7.917266639419904,
+      "pmra": 507.1658050130484,
+      "pmdec": 106.44309574863077,
+      "pa_deg": 78.14689955493458,
+      "catalog_masyr": 27.524620896770426,
+      "n_sigma_from_catalog": 8.58848288964561,
+      "n_used": 316,
+      "zero_point_mas": {
+       "ra": 763.0145617074046,
+       "dec": 276.75623012482464
+      },
+      "companion_rw_aur_b": {
+       "sep_mas": 1523.0996257825764,
+       "pa_deg": 73.58824925738622
+      }
+     }
+    },
+    {
+     "name": "brightness change > 0.2 mag at > 5 sigma at matched wavelengths (first vs last epoch)",
+     "pass": true,
+     "threshold": "some detector: |weighted mean dmag| > 0.2 and |dmag|/err > 5 (err scaled by sqrt(chi2_red))",
+     "value": {
+      "best": {
+       "dmag": 0.8556570578459209,
+       "err": 0.03743017526946462,
+       "n_sigma": 22.860086860025003,
+       "n": 18,
+       "chi2_red": 3.251947206936071,
+       "lambda_um": [
+        3.8270978380103338,
+        4.401476588041472
+       ],
+       "n_saturated_a": 18,
+       "n_saturated_b": 19,
+       "detector": "D5"
+      },
+      "barnard_control_dmag": {
+       "D1": {
+        "dmag": -0.4351442287353691,
+        "err": 0.0885531612723852
+       },
+       "D2": {
+        "dmag": -0.6064280141288296,
+        "err": 0.1235489450112221
+       },
+       "D3": {
+        "dmag": -0.507937064675774,
+        "err": 0.1344708573531461
+       },
+       "D4": {
+        "dmag": -0.4589190238794475,
+        "err": 0.10078928147502317
+       },
+       "D5": {
+        "dmag": -0.21214408847632574,
+        "err": 0.05848015892177176
+       },
+       "D6": {
+        "dmag": -0.0338922678395561,
+        "err": 0.04244344696550386
+       }
+      }
+     }
+    }
+   ],
+   "n_images": 335,
+   "n_epochs": 3,
+   "n_full": 3,
+   "baseline_days": 380.478,
+   "seconds": 35.4,
+   "range_bytes": 248032,
+   "issues": [],
+   "files": [
+    "rw-aur/blink_D1.gif",
+    "rw-aur/blink_D2.gif",
+    "rw-aur/blink_D3.gif",
+    "rw-aur/blink_D4.gif",
+    "rw-aur/blink_D5.gif",
+    "rw-aur/blink_D6.gif",
+    "rw-aur/diff_D1.png",
+    "rw-aur/diff_D2.png",
+    "rw-aur/diff_D3.png",
+    "rw-aur/diff_D4.png",
+    "rw-aur/diff_D5.png",
+    "rw-aur/diff_D6.png",
+    "rw-aur/lightcurve.png",
+    "rw-aur/motion.png",
+    "rw-aur/spectrum.png",
+    "rw-aur/summary.json"
+   ]
+  },
+  "r-dra": {
+   "name": "R Draconis",
+   "verdict": {
+    "n_criteria": 5,
+    "n_pass": 5,
+    "n_fail": 0,
+    "all_pass": true
+   },
+   "criteria": [
+    {
+     "name": "100% of exposures flagged saturated",
+     "pass": true,
+     "threshold": "every measured exposure has saturated=True",
+     "value": {
+      "saturated": 842,
+      "measured": 842,
+      "per_detector": {
+       "D1": {
+        "n": 177,
+        "n_saturated": 177,
+        "median_snr": 5.478264736068791,
+        "methods": {
+         "wing-fit": 175,
+         "epsf": 2
+        }
+       },
+       "D2": {
+        "n": 89,
+        "n_saturated": 89,
+        "median_snr": 3.669350049269914,
+        "methods": {
+         "wing-fit": 89
+        }
+       },
+       "D3": {
+        "n": 158,
+        "n_saturated": 158,
+        "median_snr": 3.7464049802339945,
+        "methods": {
+         "wing-fit": 158
+        }
+       },
+       "D4": {
+        "n": 174,
+        "n_saturated": 174,
+        "median_snr": 3.5915271733930663,
+        "methods": {
+         "wing-fit": 174
+        }
+       },
+       "D5": {
+        "n": 88,
+        "n_saturated": 88,
+        "median_snr": 7.081426971386995,
+        "methods": {
+         "wing-fit": 88
+        }
+       },
+       "D6": {
+        "n": 156,
+        "n_saturated": 156,
+        "median_snr": 8.825749578946958,
+        "methods": {
+         "wing-fit": 156
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "brightness of the wide-survey epochs ordered as the Mira phase predicts [3-6 px annulus]",
+     "pass": true,
+     "threshold": "rank order of epoch-mean brightness (annulus index) equals rank order of <cos 2 pi phase> over the epoch's exposures",
+     "value": [
+      {
+       "epoch": 0,
+       "start": "2025-05-16",
+       "end": "2025-07-22",
+       "n": 5,
+       "mean_phase": 0.21064728572694646,
+       "expected_brightness_cos": 0.24309635674520105,
+       "mean_dmag": -0.492746642514747,
+       "dmag_err": 0.09260209055374506
+      },
+      {
+       "epoch": 1,
+       "start": "2025-10-17",
+       "end": "2026-01-13",
+       "n": 13,
+       "mean_phase": 0.6693151739766547,
+       "expected_brightness_cos": -0.46851588269207056,
+       "mean_dmag": 0.11897724170015143,
+       "dmag_err": 0.10519287226107117
+      },
+      {
+       "epoch": 3,
+       "start": "2026-05-16",
+       "end": "2026-07-16",
+       "n": 6,
+       "mean_phase": 0.6940834784875602,
+       "expected_brightness_cos": -0.34360422281360514,
+       "mean_dmag": 0.07314480935436125,
+       "dmag_err": 0.16100526875385926
+      }
+     ]
+    },
+    {
+     "name": "full light curve: P = 246.12 d sinusoid detected, maximum within 0.25 cycle of the VSX visual maximum [3-6 px annulus]",
+     "pass": true,
+     "threshold": "amplitude > 5 sigma and |phase of max| <= 0.25",
+     "value": {
+      "amplitude_mag": 0.6771173611512437,
+      "amp_err": 0.10834552460653647,
+      "amp_snr": 6.249610804047861,
+      "phase_max": 0.03965949102347012,
+      "offset": -0.2266075517992107,
+      "rms_mag": 0.35074668501457235,
+      "n_points": 51
+     }
+    },
+    {
+     "name": "brightness of the wide-survey epochs ordered as the Mira phase predicts [8-12 px annulus, robustness variant]",
+     "pass": true,
+     "threshold": "rank order of epoch-mean brightness (annulus index) equals rank order of <cos 2 pi phase> over the epoch's exposures",
+     "value": [
+      {
+       "epoch": 0,
+       "start": "2025-05-16",
+       "end": "2025-07-22",
+       "n": 148,
+       "mean_phase": 0.1230302582250957,
+       "expected_brightness_cos": 0.6478005801808547,
+       "mean_dmag": -0.30599124778146924,
+       "dmag_err": 0.026023171705064397
+      },
+      {
+       "epoch": 1,
+       "start": "2025-10-17",
+       "end": "2026-01-13",
+       "n": 210,
+       "mean_phase": 0.7767507731313497,
+       "expected_brightness_cos": 0.132890601703291,
+       "mean_dmag": 0.018897101777395262,
+       "dmag_err": 0.023065266503247975
+      },
+      {
+       "epoch": 2,
+       "start": "2026-04-22",
+       "end": "2026-05-13",
+       "n": 48,
+       "mean_phase": 0.4118989695580374,
+       "expected_brightness_cos": -0.8286429264148031,
+       "mean_dmag": 0.4379965211240373,
+       "dmag_err": 0.05198289011168575
+      },
+      {
+       "epoch": 3,
+       "start": "2026-05-16",
+       "end": "2026-07-16",
+       "n": 125,
+       "mean_phase": 0.615948711784406,
+       "expected_brightness_cos": -0.6649994401293057,
+       "mean_dmag": 0.3779650464252847,
+       "dmag_err": 0.04060600998844097
+      }
+     ]
+    },
+    {
+     "name": "full light curve: P = 246.12 d sinusoid detected, maximum within 0.25 cycle of the VSX visual maximum [8-12 px annulus, robustness variant]",
+     "pass": true,
+     "threshold": "amplitude > 5 sigma and |phase of max| <= 0.25",
+     "value": {
+      "amplitude_mag": 0.35480463090337516,
+      "amp_err": 0.01847873613543707,
+      "amp_snr": 19.200697942916058,
+      "phase_max": 0.03152623365598708,
+      "offset": 0.0333506687538364,
+      "rms_mag": 0.368046485890707,
+      "n_points": 839
+     }
+    }
+   ],
+   "n_images": 847,
+   "n_epochs": 17,
+   "n_full": 11,
+   "baseline_days": 520.413,
+   "seconds": 149.2,
+   "range_bytes": 248058,
+   "issues": [],
+   "files": [
+    "r-dra/blink_D1.gif",
+    "r-dra/blink_D2.gif",
+    "r-dra/blink_D3.gif",
+    "r-dra/blink_D4.gif",
+    "r-dra/blink_D5.gif",
+    "r-dra/blink_D6.gif",
+    "r-dra/diff_D1.png",
+    "r-dra/diff_D2.png",
+    "r-dra/diff_D3.png",
+    "r-dra/diff_D4.png",
+    "r-dra/diff_D5.png",
+    "r-dra/diff_D6.png",
+    "r-dra/lightcurve.png",
+    "r-dra/motion.png",
+    "r-dra/spectrum.png",
+    "r-dra/summary.json"
+   ]
+  }
+ },
+ "totals": {
+  "range_bytes": 1561431160,
+  "range_requests": 13884,
+  "note": "network bytes downloaded by every probe run so far (byte ranges only; cached re-runs cost almost nothing)"
+ }
+}

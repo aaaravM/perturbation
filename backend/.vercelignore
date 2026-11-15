@@ -1,0 +1,9 @@
+# Not uploaded to Vercel (the project's root directory is backend/): local environments, caches, tests.
+.venv
+.pytest_cache
+.ruff_cache
+__pycache__
+tests
+data
+*.fits
+*.fits.gz

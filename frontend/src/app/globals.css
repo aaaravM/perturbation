@@ -1,0 +1,248 @@
+/* Planet X Hunter design system. Dark only. IBM Plex Sans for all text, IBM Plex Mono only for
+   numeric readouts (coordinates, dates, wavelengths, frame counters). */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* `dark:` utilities (used by some third-party components) apply under <html class="dark">. */
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ */
+/* Tokens                                                              */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+
+  /* Neutrals. Contrast on --ink: fg 17.2:1, fg-dim 7.9:1, fg-faint 4.6:1. */
+  --ink: #050505;
+  --ink-2: #0b0b0b;
+  --ink-3: #151514;
+  --fg: #ecebe7;
+  --fg-dim: #a6a5a0;
+  --fg-faint: #7a7974;
+  --hair: #ffffff17;
+  --hair-strong: #ffffff2e;
+
+  /* Accent: a warm, softened orange (was #ff5b1f). 8.2:1 on --ink. Used sparingly: the selected
+     object and its motion path, the active control and focus ring, one key data highlight, and
+     the signature graphics. Never large fills, never body text. */
+  --accent: #f0885a;
+  --accent-strong: #f49a70;
+  --accent-muted: rgb(240 136 90 / 0.42);
+  --accent-faint: rgb(240 136 90 / 0.12);
+
+  /* Translucent surface for panels that sit over the sky. */
+  --panel: rgb(9 9 9 / 0.86);
+
+  --nav-h: 3.25rem;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* shadcn semantic variables, mapped onto the palette */
+  --background: var(--ink);
+  --foreground: var(--fg);
+  --card: var(--ink-2);
+  --card-foreground: var(--fg);
+  --popover: #111110;
+  --popover-foreground: var(--fg);
+  --primary: var(--fg);
+  --primary-foreground: var(--ink);
+  --secondary: var(--ink-3);
+  --secondary-foreground: var(--fg);
+  --muted: var(--ink-3);
+  --muted-foreground: var(--fg-dim);
+  --accent-foreground: var(--ink);
+  --destructive: #f2665e;
+  --border: var(--hair);
+  --input: var(--hair-strong);
+  --ring: var(--accent);
+  --radius: 0.375rem;
+
+  --chart-1: var(--accent);
+  --chart-2: #b3b2ad;
+  --chart-3: #7e7d79;
+  --chart-4: #52524f;
+  --chart-5: #2c2c2a;
+
+  --sidebar: var(--ink-2);
+  --sidebar-foreground: var(--fg);
+  --sidebar-primary: var(--fg);
+  --sidebar-primary-foreground: var(--ink);
+  --sidebar-accent: var(--ink-3);
+  --sidebar-accent-foreground: var(--fg);
+  --sidebar-border: var(--hair);
+  --sidebar-ring: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Tailwind theme bridge                                               */
+/* ------------------------------------------------------------------ */
+@theme inline {
+  /* Fonts come from next/font/google (see src/app/layout.tsx). */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-fg: var(--fg);
+  --color-fg-dim: var(--fg-dim);
+  --color-fg-faint: var(--fg-faint);
+  --color-hair: var(--hair);
+  --color-hair-strong: var(--hair-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-muted: var(--accent-muted);
+  --color-accent-faint: var(--accent-faint);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-panel: var(--panel);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* shadcn colour utilities */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Type scale (IBM Plex Sans). Each step sets size, line height, tracking and weight together:
+   text-display 56-76px hero only; text-title 30-40px page titles; text-heading 22px section
+   heads; text-lead 18px intro prose; text-body 16px; text-ui 14px controls and nav;
+   text-meta 13px captions and secondary labels; text-micro 12px dense panel labels. */
+@theme {
+  --text-display: clamp(2.9rem, 1.6rem + 4.2vw, 4.75rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.032em;
+  --text-display--font-weight: 500;
+
+  --text-title: clamp(1.875rem, 1.45rem + 1.4vw, 2.5rem);
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.022em;
+  --text-title--font-weight: 500;
+
+  --text-heading: 1.375rem;
+  --text-heading--line-height: 1.3;
+  --text-heading--letter-spacing: -0.012em;
+  --text-heading--font-weight: 500;
+
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.62;
+  --text-lead--letter-spacing: -0.003em;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.62;
+
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.43;
+
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.46;
+
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.34;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    background-color: var(--ink);
+    font-feature-settings: "kern";
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-color: var(--ink);
+  }
+  ::selection {
+    background-color: var(--accent-muted);
+    color: var(--fg);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities                                                           */
+/* ------------------------------------------------------------------ */
+
+/* Numeric readout: IBM Plex Mono, tabular figures, normal case and tracking. */
+@utility readout {
+  font-family: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: "tnum", "zero";
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Comfortable measure for prose. */
+@utility measure {
+  max-width: 34rem;
+}
+
+/* Panel over the sky: restrained translucent surface, hairline border, no blur stack. */
+@utility panel {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hair);
+  background-color: var(--panel);
+  box-shadow: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
+}
+
+/* Aladin Lite injects its own unlayered CSS (e.g. `.aladin-container { position: relative }`),
+   which overrides Tailwind's layered utilities on the same element. Size its host div with
+   inline styles (see src/components/sky/aladin-view.tsx). */
+.aladin-host.aladin-container {
+  background-color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

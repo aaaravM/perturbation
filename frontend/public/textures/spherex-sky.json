@@ -1,0 +1,755 @@
+{
+  "title": "SPHEREx all-sky globe textures",
+  "credit": "SPHEREx DR1 all-sky cube, Caltech/IPAC/NASA; IRSA",
+  "files": {
+    "rgb_4k": {
+      "path": "spherex-sky-rgb-4k.webp",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 1011444
+    },
+    "rgb_2k": {
+      "path": "spherex-sky-rgb-2k.webp",
+      "width": 2048,
+      "height": 1024,
+      "bytes": 246294
+    },
+    "mono_4k": {
+      "path": "spherex-sky-mono-4k.webp",
+      "width": 4096,
+      "height": 2048,
+      "bytes": 665150
+    },
+    "rgb_8k": {
+      "path": "spherex-sky-rgb-8k.webp",
+      "width": 8192,
+      "height": 4096,
+      "bytes": 5053880,
+      "tiles_used": "Norder1 PNG tiles (HEALPix NESTED nside 1024, means of the deeper orders)",
+      "note": "same frames, gap fill, artefact clamp, mapping and stretch as rgb_4k; twice the angular detail, a little more pixel noise",
+      "mapping_check": {
+        "wcs_vs_formula_max_deg": 0.0,
+        "reproject_vs_direct_bilinear_max_q": 5.762833296785175e-06,
+        "seam_mean_abs_diff_q": 0.1629806011915207,
+        "adjacent_column_mean_abs_diff_q": 0.22408470511436462
+      }
+    }
+  },
+  "projection": "plate carree (equirectangular), equatorial ICRS",
+  "mapping": {
+    "summary": "RA = 0 deg at the LEFT edge, increasing to the RIGHT; Dec = +90 at the TOP row, -90 at the bottom row. Like longitude/latitude on a terrestrial map: correct for a globe seen from OUTSIDE.",
+    "uv": "u = RA_deg / 360; v_from_top = (90 - Dec_deg) / 180 (three.js uv.y = 1 - v_from_top = (Dec + 90) / 180)",
+    "pixel_centre": "RA = (x + 0.5) * 360 / W, Dec = 90 - (y + 0.5) * 180 / H, x and y 0-based, y from the top",
+    "threejs": {
+      "geometry": "new THREE.SphereGeometry(r, 128, 64) with default UVs; side: THREE.FrontSide; no mesh rotation",
+      "texture": "TextureLoader (flipY = true, the default); colorSpace = THREE.SRGBColorSpace; anisotropy = renderer.capabilities.getMaxAnisotropy(); material MeshBasicMaterial({ map, toneMapped: false })",
+      "marker_position": "a = RA in radians, d = Dec in radians: x = -r cos(d) cos(a), y = r sin(d), z = r cos(d) sin(a)",
+      "orientation": "north celestial pole at +Y; RA 0 faces -X, RA 90 faces +Z, RA 180 faces +X, RA 270 faces -Z; seen from a camera on +Z, RA increases to the right",
+      "rotation": "put markers in the same group as the sphere; group.rotation.y = PI/2 - a0 turns RA a0 to face a camera on +Z"
+    },
+    "seen_from_outside": "a celestial globe seen from outside is the mirror image of the sky seen from Earth (east is to the right here, to the left on a star chart)"
+  },
+  "source": {
+    "hips": "https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube",
+    "obs_title": "SPHEREx DR1 all-sky data cube",
+    "hips_release_date": "2026-11-01T01:58Z",
+    "tiles_used": "Norder0 PNG tiles (HEALPix NESTED nside 512, 8x8 means of the deeper orders)",
+    "pixel_cut": "0 40",
+    "pixel_function": "asinh",
+    "linearisation": "PNG grey -> linear level q via the inverse of HipsGen's asinh LUT; 1 q ~ 0.1569 MJy/sr",
+    "reprojection": "reproject.reproject_from_healpix (bilinear, nested=True) onto RA---CAR/DEC--CAR, CRVAL 180/0, CDELT +360/W, -180/H"
+  },
+  "channels": {
+    "rgb": {
+      "red": {
+        "frames": [
+          {
+            "frame": 73,
+            "detector": 5,
+            "channel": 6,
+            "wavelength_um": 4.005
+          },
+          {
+            "frame": 74,
+            "detector": 5,
+            "channel": 7,
+            "wavelength_um": 4.04
+          },
+          {
+            "frame": 75,
+            "detector": 5,
+            "channel": 8,
+            "wavelength_um": 4.076
+          },
+          {
+            "frame": 76,
+            "detector": 5,
+            "channel": 9,
+            "wavelength_um": 4.112
+          },
+          {
+            "frame": 77,
+            "detector": 5,
+            "channel": 10,
+            "wavelength_um": 4.148
+          },
+          {
+            "frame": 78,
+            "detector": 5,
+            "channel": 11,
+            "wavelength_um": 4.184
+          },
+          {
+            "frame": 79,
+            "detector": 5,
+            "channel": 12,
+            "wavelength_um": 4.22
+          },
+          {
+            "frame": 80,
+            "detector": 5,
+            "channel": 13,
+            "wavelength_um": 4.257
+          },
+          {
+            "frame": 81,
+            "detector": 5,
+            "channel": 14,
+            "wavelength_um": 4.294
+          },
+          {
+            "frame": 82,
+            "detector": 5,
+            "channel": 15,
+            "wavelength_um": 4.331
+          },
+          {
+            "frame": 83,
+            "detector": 5,
+            "channel": 16,
+            "wavelength_um": 4.368
+          },
+          {
+            "frame": 84,
+            "detector": 5,
+            "channel": 17,
+            "wavelength_um": 4.405
+          },
+          {
+            "frame": 85,
+            "detector": 6,
+            "channel": 1,
+            "wavelength_um": 4.435
+          },
+          {
+            "frame": 86,
+            "detector": 6,
+            "channel": 2,
+            "wavelength_um": 4.467
+          },
+          {
+            "frame": 87,
+            "detector": 6,
+            "channel": 3,
+            "wavelength_um": 4.5
+          },
+          {
+            "frame": 88,
+            "detector": 6,
+            "channel": 4,
+            "wavelength_um": 4.533
+          },
+          {
+            "frame": 89,
+            "detector": 6,
+            "channel": 5,
+            "wavelength_um": 4.566
+          },
+          {
+            "frame": 90,
+            "detector": 6,
+            "channel": 6,
+            "wavelength_um": 4.6
+          },
+          {
+            "frame": 91,
+            "detector": 6,
+            "channel": 7,
+            "wavelength_um": 4.635
+          },
+          {
+            "frame": 92,
+            "detector": 6,
+            "channel": 8,
+            "wavelength_um": 4.669
+          },
+          {
+            "frame": 93,
+            "detector": 6,
+            "channel": 9,
+            "wavelength_um": 4.704
+          },
+          {
+            "frame": 94,
+            "detector": 6,
+            "channel": 10,
+            "wavelength_um": 4.739
+          },
+          {
+            "frame": 95,
+            "detector": 6,
+            "channel": 11,
+            "wavelength_um": 4.773
+          },
+          {
+            "frame": 96,
+            "detector": 6,
+            "channel": 12,
+            "wavelength_um": 4.808
+          },
+          {
+            "frame": 97,
+            "detector": 6,
+            "channel": 13,
+            "wavelength_um": 4.843
+          },
+          {
+            "frame": 98,
+            "detector": 6,
+            "channel": 14,
+            "wavelength_um": 4.879
+          },
+          {
+            "frame": 99,
+            "detector": 6,
+            "channel": 15,
+            "wavelength_um": 4.915
+          }
+        ],
+        "range_um": [
+          4.005,
+          4.915
+        ]
+      },
+      "green": {
+        "frames": [
+          {
+            "frame": 35,
+            "detector": 3,
+            "channel": 2,
+            "wavelength_um": 1.695
+          },
+          {
+            "frame": 36,
+            "detector": 3,
+            "channel": 3,
+            "wavelength_um": 1.735
+          },
+          {
+            "frame": 37,
+            "detector": 3,
+            "channel": 4,
+            "wavelength_um": 1.775
+          },
+          {
+            "frame": 38,
+            "detector": 3,
+            "channel": 5,
+            "wavelength_um": 1.818
+          },
+          {
+            "frame": 39,
+            "detector": 3,
+            "channel": 6,
+            "wavelength_um": 1.861
+          },
+          {
+            "frame": 40,
+            "detector": 3,
+            "channel": 7,
+            "wavelength_um": 1.905
+          },
+          {
+            "frame": 41,
+            "detector": 3,
+            "channel": 8,
+            "wavelength_um": 1.949
+          },
+          {
+            "frame": 42,
+            "detector": 3,
+            "channel": 9,
+            "wavelength_um": 1.995
+          },
+          {
+            "frame": 43,
+            "detector": 3,
+            "channel": 10,
+            "wavelength_um": 2.041
+          },
+          {
+            "frame": 44,
+            "detector": 3,
+            "channel": 11,
+            "wavelength_um": 2.089
+          },
+          {
+            "frame": 45,
+            "detector": 3,
+            "channel": 12,
+            "wavelength_um": 2.139
+          },
+          {
+            "frame": 46,
+            "detector": 3,
+            "channel": 13,
+            "wavelength_um": 2.189
+          }
+        ],
+        "range_um": [
+          1.695,
+          2.189
+        ]
+      },
+      "blue": {
+        "frames": [
+          {
+            "frame": 3,
+            "detector": 1,
+            "channel": 4,
+            "wavelength_um": 0.809
+          },
+          {
+            "frame": 4,
+            "detector": 1,
+            "channel": 5,
+            "wavelength_um": 0.828
+          },
+          {
+            "frame": 5,
+            "detector": 1,
+            "channel": 6,
+            "wavelength_um": 0.848
+          },
+          {
+            "frame": 6,
+            "detector": 1,
+            "channel": 7,
+            "wavelength_um": 0.868
+          },
+          {
+            "frame": 7,
+            "detector": 1,
+            "channel": 8,
+            "wavelength_um": 0.889
+          },
+          {
+            "frame": 8,
+            "detector": 1,
+            "channel": 9,
+            "wavelength_um": 0.91
+          },
+          {
+            "frame": 9,
+            "detector": 1,
+            "channel": 10,
+            "wavelength_um": 0.932
+          },
+          {
+            "frame": 10,
+            "detector": 1,
+            "channel": 11,
+            "wavelength_um": 0.955
+          },
+          {
+            "frame": 11,
+            "detector": 1,
+            "channel": 12,
+            "wavelength_um": 0.978
+          }
+        ],
+        "range_um": [
+          0.809,
+          0.978
+        ]
+      },
+      "combination": "mean of the linear frames per detector, frame-weighted mean across detectors"
+    },
+    "mono": {
+      "frames": [
+        {
+          "frame": 21,
+          "detector": 2,
+          "channel": 5,
+          "wavelength_um": 1.224
+        },
+        {
+          "frame": 22,
+          "detector": 2,
+          "channel": 6,
+          "wavelength_um": 1.254
+        },
+        {
+          "frame": 23,
+          "detector": 2,
+          "channel": 7,
+          "wavelength_um": 1.284
+        }
+      ],
+      "centre_um": 1.254,
+      "range_um": [
+        1.224,
+        1.284
+      ],
+      "label": "1.25 um",
+      "combination": "mean of 3 adjacent spectral channels (lower noise, fewer single-channel streaks)"
+    },
+    "skipped_frames": {
+      "0": "edge channel",
+      "50": "blank (dichroic)",
+      "51": "blank (dichroic)"
+    }
+  },
+  "artifact_clamp": {
+    "rule": "channel = min(channel, k * green + c) on the HEALPix maps, q units",
+    "params": {
+      "blue": {
+        "k": 5.0,
+        "c": 0.35
+      },
+      "mono": {
+        "k": 3.5,
+        "c": 0.35
+      }
+    },
+    "why": "degree-long streaks at fixed sky positions in every D1 frame and in D2; no real source is 5x (0.9 um) or 3.5x (1.25 um) brighter than at 2 um"
+  },
+  "stretch": {
+    "rgb": {
+      "black_q": {
+        "red": 0.22,
+        "green": 0.25,
+        "blue": 0.35
+      },
+      "gain": {
+        "red": 2.4,
+        "green": 1.0,
+        "blue": 1.15
+      },
+      "soft_q": 2.2,
+      "white_q": 400.0,
+      "saturation": 0.95,
+      "luma_weights_rgb": [
+        0.3,
+        0.5,
+        0.2
+      ],
+      "floor_srgb": [
+        6,
+        7,
+        10
+      ],
+      "formula": "y_c = asinh(gain_c * max(q_c - black_c, 0) / soft) / asinh(white / soft); out = floor + (1 - floor) * clip(luma + saturation * (y - luma), 0, 1)"
+    },
+    "mono": {
+      "black_q": 0.8,
+      "soft_q": 1.2,
+      "white_q": 300.0,
+      "floor_srgb": 6,
+      "formula": "y = asinh(max(q - black, 0) / soft) / asinh(white / soft); out = floor + (1 - floor) * y"
+    },
+    "encoding": "sRGB 8 bit with +-0.5 LSB dither, WebP quality 85"
+  },
+  "gap_fill": {
+    "note": "SPHEREx deep fields at the ecliptic poles are blank in D1/D3/D4/D6 frames of the DR1 cube; filled from the partner detector (shared field of view) scaled to match",
+    "fills": [
+      {
+        "channel": "blue",
+        "detector": 1,
+        "filled_from_detector": 2,
+        "hemisphere": "north",
+        "pixels": 954,
+        "area_deg2": 12.5,
+        "centre_ra_dec": [
+          270.0,
+          66.57
+        ],
+        "scale": 1.0028,
+        "offset_q": -0.0064
+      },
+      {
+        "channel": "blue",
+        "detector": 1,
+        "filled_from_detector": 2,
+        "hemisphere": "south",
+        "pixels": 966,
+        "area_deg2": 12.7,
+        "centre_ra_dec": [
+          90.02,
+          -66.11
+        ],
+        "scale": 0.3194,
+        "offset_q": 0.6751
+      },
+      {
+        "channel": "green",
+        "detector": 3,
+        "filled_from_detector": 2,
+        "hemisphere": "north",
+        "pixels": 1034,
+        "area_deg2": 13.6,
+        "centre_ra_dec": [
+          269.99,
+          66.57
+        ],
+        "scale": 0.7115,
+        "offset_q": -0.057
+      },
+      {
+        "channel": "green",
+        "detector": 3,
+        "filled_from_detector": 2,
+        "hemisphere": "south",
+        "pixels": 1029,
+        "area_deg2": 13.5,
+        "centre_ra_dec": [
+          90.0,
+          -66.57
+        ],
+        "scale": 0.9343,
+        "offset_q": 0.0423
+      },
+      {
+        "channel": "red",
+        "detector": 6,
+        "filled_from_detector": 5,
+        "hemisphere": "north",
+        "pixels": 1028,
+        "area_deg2": 13.5,
+        "centre_ra_dec": [
+          270.0,
+          66.57
+        ],
+        "scale": 0.9816,
+        "offset_q": 0.0014
+      },
+      {
+        "channel": "red",
+        "detector": 6,
+        "filled_from_detector": 5,
+        "hemisphere": "south",
+        "pixels": 1025,
+        "area_deg2": 13.4,
+        "centre_ra_dec": [
+          90.0,
+          -66.57
+        ],
+        "scale": 0.924,
+        "offset_q": 0.0149
+      }
+    ]
+  },
+  "checks": {
+    "pixel_convention": {
+      "row->ix, col->iy (adopted)": {
+        "median_offset_deg": 0.0459,
+        "within_2px": 20,
+        "n": 20
+      },
+      "col->ix, row->iy": {
+        "median_offset_deg": 0.5027,
+        "within_2px": 4,
+        "n": 20
+      },
+      "flip rows": {
+        "median_offset_deg": 0.3853,
+        "within_2px": 7,
+        "n": 20
+      },
+      "flip cols": {
+        "median_offset_deg": 0.4683,
+        "within_2px": 4,
+        "n": 20
+      },
+      "flip both": {
+        "median_offset_deg": 0.4666,
+        "within_2px": 3,
+        "n": 20
+      },
+      "transpose + flip rows": {
+        "median_offset_deg": 0.2906,
+        "within_2px": 8,
+        "n": 20
+      },
+      "transpose + flip cols": {
+        "median_offset_deg": 0.3605,
+        "within_2px": 7,
+        "n": 20
+      },
+      "transpose + flip both": {
+        "median_offset_deg": 0.4839,
+        "within_2px": 3,
+        "n": 20
+      }
+    },
+    "mapping": {
+      "wcs_vs_formula_max_deg": 0.0,
+      "reproject_vs_direct_bilinear_max_q": 5.106976573188149e-06,
+      "seam_mean_abs_diff_q": 0.12128233909606934,
+      "adjacent_column_mean_abs_diff_q": 0.16743454337120056
+    },
+    "samples": [
+      {
+        "kind": "reference",
+        "name": "Galactic centre",
+        "ra": 266.4,
+        "dec": -28.94,
+        "pixel_4k": [
+          3030.5,
+          1352.8
+        ],
+        "rgb_at_position": [
+          255,
+          216,
+          96
+        ]
+      },
+      {
+        "kind": "reference",
+        "name": "LMC",
+        "ra": 80.89,
+        "dec": -69.76,
+        "pixel_4k": [
+          919.8,
+          1817.2
+        ],
+        "rgb_at_position": [
+          92,
+          105,
+          105
+        ]
+      },
+      {
+        "kind": "reference",
+        "name": "SMC",
+        "ra": 13.19,
+        "dec": -72.83,
+        "pixel_4k": [
+          149.6,
+          1852.1
+        ],
+        "rgb_at_position": [
+          58,
+          70,
+          78
+        ]
+      },
+      {
+        "kind": "reference",
+        "name": "Betelgeuse",
+        "ra": 88.79,
+        "dec": 7.41,
+        "pixel_4k": [
+          1009.7,
+          939.2
+        ],
+        "rgb_at_position": [
+          238,
+          241,
+          251
+        ]
+      },
+      {
+        "kind": "reference",
+        "name": "Antares",
+        "ra": 247.35,
+        "dec": -26.43,
+        "pixel_4k": [
+          2813.8,
+          1324.2
+        ],
+        "rgb_at_position": [
+          249,
+          238,
+          246
+        ]
+      },
+      {
+        "kind": "target",
+        "name": "Barnard's Star",
+        "ra": 269.4461,
+        "dec": 4.7707,
+        "pixel_4k": [
+          3065.2,
+          969.2
+        ],
+        "rgb_at_position": [
+          63,
+          57,
+          61
+        ]
+      },
+      {
+        "kind": "target",
+        "name": "eps Indi B",
+        "ra": 331.0984,
+        "dec": -56.8013,
+        "pixel_4k": [
+          3766.7,
+          1669.8
+        ],
+        "rgb_at_position": [
+          66,
+          72,
+          81
+        ]
+      },
+      {
+        "kind": "target",
+        "name": "WISE 0855-0714",
+        "ra": 133.7578,
+        "dec": -7.242,
+        "pixel_4k": [
+          1521.4,
+          1105.9
+        ],
+        "rgb_at_position": [
+          7,
+          11,
+          15
+        ]
+      },
+      {
+        "kind": "target",
+        "name": "RW Aur",
+        "ra": 76.9561,
+        "dec": 30.4011,
+        "pixel_4k": [
+          875.1,
+          677.6
+        ],
+        "rgb_at_position": [
+          46,
+          36,
+          42
+        ]
+      },
+      {
+        "kind": "target",
+        "name": "R Dra",
+        "ra": 248.1672,
+        "dec": 66.755,
+        "pixel_4k": [
+          2823.1,
+          264.0
+        ],
+        "rgb_at_position": [
+          118,
+          94,
+          86
+        ]
+      }
+    ]
+  },
+  "generator": "scripts/make_sky_texture.py"
+}

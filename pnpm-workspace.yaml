@@ -1,0 +1,7 @@
+packages:
+  - "frontend"
+
+# Build scripts are opt-in (pnpm 10+). Both ship prebuilt binaries via optional deps.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
