@@ -105,7 +105,7 @@ export function SpotStory({
             <p className="text-meta text-fg-dim" data-testid="spot-constellation">
               {conName ? (
                 <>
-                  In the <Term k="constellation" mark={false}>constellation</Term> {conName}
+                  In the constellation {conName}
                   <span className="text-fg-faint">
                     {exactCon ? " (IAU boundaries)" : " (from the catalogue stars around it)"}
                   </span>
@@ -129,7 +129,7 @@ export function SpotStory({
                 {formatDecDms(dec)}
               </span>
             </Fact>
-            <Fact label={<Term k="galactic">Galactic longitude</Term>}>
+            <Fact label="Galactic longitude">
               <span className="readout">{formatDeg(gal.l, 2)}</span>
             </Fact>
             <Fact label="Galactic latitude">
@@ -170,7 +170,7 @@ export function SpotStory({
                     />
                     <span className="min-w-0 flex-1 truncate text-ui text-fg">{starTitle(n.star)}</span>
                     <span className="readout text-micro text-fg-faint">V {n.star.vmag.toFixed(1).replace("-", "−")}</span>
-                    <span className="readout w-12 text-right text-micro text-fg-dim">{formatSep(n.sep)}</span>
+                    <span className="readout min-w-12 text-right text-micro whitespace-nowrap text-fg-dim">{formatSep(n.sep)}</span>
                   </button>
                 </li>
               ))}
@@ -210,12 +210,12 @@ export function SpotStory({
         ) : null}
 
         {live.starsCount.state === "ok" || live.brightest.state === "ok" ? (
-          <Section title={<Term k="gaia">Gaia DR3</Term>} source="ESA Gaia, via IRSA" testId="spot-gaia">
+          <Section title="Gaia DR3" source="ESA Gaia, via IRSA" testId="spot-gaia">
             {live.starsCount.state === "ok" ? (
               <p className="text-ui text-pretty text-fg">
                 {live.starsCount.value.method === "estimate" ? "About " : ""}
                 <Roll value={live.starsCount.value.count} digits={0} reducedMotion={reducedMotion} /> stars down to{" "}
-                <Term k="magnitude" mark={false}>magnitude</Term>{" "}
+                magnitude{" "}
                 <span className="readout">{live.starsCount.value.gLimit ?? 18}</span> within{" "}
                 <span className="readout">{live.starsCount.value.radiusArcmin ?? 20}′</span>
                 <span className="text-fg-dim">: far fainter stars than Hipparcos reaches.</span>
@@ -243,7 +243,7 @@ export function SpotStory({
         <Section
           title={
             <>
-              What <Term k="spherex" /> has seen here
+              What SPHEREx has seen here
             </>
           }
           source="SPHEREx DR1 and QR3, IRSA"

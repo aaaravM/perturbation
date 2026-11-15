@@ -1,7 +1,9 @@
 // Sky mode (/sky): the globe of real stars loads with the full catalogue, a star chosen from the
 // lists or the search opens its panel with the catalogue's numbers, the 3D space view unfolds and
-// folds back, empty sky (by keyboard) is described specifically, the challenge targets still open
-// their bundles, phones get a bottom sheet, and a browser without WebGL gets the flat map.
+// folds back, a star selected in 3D space is in focus (the rest dim) until Esc, the explanation
+// words over the globe take the pointer, empty sky (by keyboard) is described specifically, the
+// challenge targets still open their bundles, phones get a bottom sheet, and a browser without
+// WebGL gets the flat map.
 // Design-review screenshots are opt-in: UI_REVIEW_DIR=/some/dir pnpm test:e2e sky
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
@@ -20,7 +22,8 @@ async function openSky(page: Page, url = "/sky") {
   expect(response?.status()).toBe(200);
   await expect(globe(page).locator("canvas")).toBeVisible();
   // The full Hipparcos catalogue: 117,955 stars in three tiers.
-  await expect(rail(page).getByTestId("stars-loaded")).toContainText("117,955", { timeout: 30_000 });
+  // While tiers load it reads "8,870 of 117,955 stars from Hipparcos, loading".
+  await expect(rail(page).getByTestId("stars-loaded")).toHaveText(/^117,955 stars from/, { timeout: 30_000 });
 }
 
 test("/sky draws the stars and lists the challenge targets", async ({ page }) => {
@@ -106,6 +109,72 @@ test("3D space: the stars unfold around the Sun and fold back", async ({ page })
   await expect(globe(page)).toHaveAttribute("data-mode", "sphere", { timeout: 10_000 });
   await expect(page).not.toHaveURL(/mode=3d/);
 });
+
+test("3D space: a selected star stays lit while the rest dim, with its distance on the line from the Sun", async ({
+  page,
+}) => {
+  await openSky(page, "/sky?star=32349&mode=3d");
+  await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Sirius");
+  await expect(globe(page)).toHaveAttribute("data-arrived", /^s:\d+$/, { timeout: 15_000 });
+  await expect(globe(page)).toHaveAttribute("data-dim", "on");
+  // Hipparcos parallax 379.21 mas: 8.6 light-years, as in the panel. (The line and its label are
+  // placed every frame; their anchors have no size, so visibility is what says they are shown.)
+  const line = page.getByTestId("space-line");
+  const lineLabel = page.getByTestId("space-line-label");
+  await expect(lineLabel).toHaveText("8.6 light-years");
+  await expect(lineLabel).toHaveCSS("visibility", "visible");
+  await expect(line).toHaveCSS("visibility", "visible");
+
+  // Esc clears the selection and the stars come back.
+  await page.keyboard.press("Escape");
+  await expect(panel(page)).toHaveCount(0);
+  await expect(globe(page)).toHaveAttribute("data-dim", "off");
+  await expect(line).toHaveCSS("visibility", "hidden");
+});
+
+// The globe's canvas lies under the rail, the intro and the panel: every explanation word over it
+// must take the pointer itself (not the canvas below), and open its explanation on screen.
+for (const url of ["/sky", "/sky?star=32349"]) {
+  test(`explanation words over the globe take the pointer (${url})`, async ({ page }) => {
+    await openSky(page, url);
+    if (url.includes("star=")) await expect(panel(page).getByRole("heading", { level: 2 })).toHaveText("Sirius");
+    await hideDevOverlay(page);
+    await page.waitForTimeout(800); // the panel has slid in
+    const terms = await page.evaluate(() => {
+      // Seen: inside the window and inside every scrolling box round it.
+      const seen = (el: Element, x: number, y: number) => {
+        if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return false;
+        for (let a = el.parentElement; a; a = a.parentElement) {
+          const s = getComputedStyle(a);
+          if (s.overflowX === "visible" && s.overflowY === "visible") continue;
+          const r = a.getBoundingClientRect();
+          if (x < r.left || x > r.right || y < r.top || y > r.bottom) return false;
+        }
+        return true;
+      };
+      return [...document.querySelectorAll<HTMLElement>("[data-term]")].flatMap((el) => {
+        const r = el.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        if (!r.width || !r.height || getComputedStyle(el).visibility === "hidden" || !seen(el, x, y)) return [];
+        const hit = document.elementFromPoint(x, y);
+        const on = hit ? `${hit.tagName.toLowerCase()}.${String(hit.className).split(" ")[0]}` : "nothing";
+        return [{ k: el.dataset.term!, text: el.textContent ?? "", x, y, hit: !!hit && el.contains(hit), on }];
+      });
+    });
+    expect(terms.length, "explanation words on the page").toBeGreaterThan(0);
+    for (const t of terms) {
+      expect(t.hit, `"${t.text}" (${t.k}) lies under ${t.on}`).toBe(true);
+      await page.mouse.move(t.x, t.y);
+      const tip = page.locator(`[data-term-tip="${t.k}"]:not([data-state=closed])`);
+      await expect(tip, `the explanation of "${t.text}" opens`).toBeVisible();
+      await expect(tip, `the explanation of "${t.text}" is on screen`).toBeInViewport({ ratio: 1 });
+      // Away to empty sky, so the next word opens on its own.
+      await page.mouse.move(760, 120);
+      await expect(tip).toHaveCount(0);
+    }
+  });
+}
 
 test("empty sky by keyboard: Enter describes the spot at the centre, specifically", async ({ page }) => {
   await openSky(page);

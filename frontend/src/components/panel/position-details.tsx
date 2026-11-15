@@ -3,13 +3,16 @@
 // backend's DR1 cube reader (when the backend is connected), "Watch this patch" and links out.
 
 import { useEffect, useState } from "react";
-import { ScanSearchIcon } from "lucide-react";
+import Link from "next/link";
+import { GlobeIcon, ScanSearchIcon } from "lucide-react";
 import { API_URL } from "@/lib/manifest";
 import { featuredNear } from "@/lib/lab-resolve";
 import { formatDecDms, formatDeg, formatRaHms, separationDeg } from "@/lib/lab-coords";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Term } from "@/components/ui/term";
 import { PanelSection, Row, Rows } from "@/components/panel/detail-panel";
+import { skyHrefFor } from "@/components/panel/star-details";
 import { SpectrumChart } from "@/components/panel/spectrum-chart";
 import { defaultLinks, LinkList } from "@/components/panel/links";
 
@@ -66,29 +69,40 @@ export function PositionDetails({
           <span className="block">{formatDecDms(dec, 0)}</span>
         </h2>
         <p className="readout text-meta text-fg-dim">
-          {formatDeg(ra)} {formatDeg(dec, 5, true)} ICRS
+          {formatDeg(ra)} {formatDeg(dec, 5, true)}{" "}
+          <Term k="icrs" mark={false} className="font-sans">
+            ICRS
+          </Term>
         </p>
       </header>
 
       <div className="flex flex-col gap-2 px-5 pb-5">
-        <Button
-          variant="outline"
-          onClick={onWatch}
-          className="h-9 w-fit border-hair-strong text-ui"
-          data-testid="watch-patch"
-        >
-          <ScanSearchIcon aria-hidden />
-          Watch this patch
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={onWatch}
+            className="h-9 w-fit border-hair-strong text-ui"
+            data-testid="watch-patch"
+          >
+            <ScanSearchIcon aria-hidden />
+            Watch this patch
+          </Button>
+          <Button asChild variant="ghost" className="h-9 w-fit px-2 text-meta text-fg-dim hover:text-fg">
+            <Link href={skyHrefFor(ra, dec)} data-testid="position-on-globe">
+              <GlobeIcon aria-hidden />
+              Show on the sky globe
+            </Link>
+          </Button>
+        </div>
         <p className="text-micro text-fg-faint">
-          Centres the view here and asks for SPHEREx epoch frames of a{" "}
+          Centres the view here and asks for SPHEREx <Term k="epoch">epoch</Term> frames of a{" "}
           <span className="readout">{watchFieldArcmin.toFixed(0)}′</span> field.
           {API_URL ? "" : " Live frames need the backend, which is not connected to this site yet."}
         </p>
       </div>
 
       {nearby.length > 0 && (
-        <PanelSection title="Featured targets nearby">
+        <PanelSection index={0} title="Featured targets nearby">
           <ul className="flex flex-col gap-1">
             {nearby.map(({ t, sep }) => (
               <li key={t.slug} className="flex items-baseline justify-between gap-3 text-meta">
@@ -106,7 +120,16 @@ export function PositionDetails({
         </PanelSection>
       )}
 
-      <PanelSection title="Quick-look spectrum" testId="panel-quicklook">
+      <PanelSection
+        index={1}
+        title={
+          <>
+            Quick-look spectrum
+          </>
+        }
+        aside="SPHEREx DR1 cube, IRSA"
+        testId="panel-quicklook"
+      >
         {quick.state === "off" && (
           <p className="text-meta text-fg-dim" data-testid="quicklook-off">
             A spectrum for any point comes from the SPHEREx DR1 all-sky cube, read by the Planet X Hunter backend in about
@@ -130,7 +153,7 @@ export function PositionDetails({
         )}
       </PanelSection>
 
-      <PanelSection title="Look it up elsewhere">
+      <PanelSection index={2} title="Look it up elsewhere">
         <Rows>
           <Row label="Search radius">
             <span className="readout">2′</span> around this point

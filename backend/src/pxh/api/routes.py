@@ -22,7 +22,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import Response, StreamingResponse
 
 from pxh import __version__, config
-from pxh.api import catalogs, field, lookup
+from pxh.api import candidates, catalogs, field, lookup
 from pxh.api.caching import CDN_DAY, CDN_SHORT, NO_STORE
 from pxh.api.errors import ApiProblem, archive_unavailable, invalid
 from pxh.sky import propagate
@@ -297,3 +297,15 @@ def catalog_wise(
 ) -> Response:
     """AllWISE sources in a cone (IRSA Gator allwise_p3as_psd), positions at the AllWISE epoch."""
     return respond(catalogs.wise_sources(ra, dec, radius_arcmin))
+
+
+@router.get("/candidates")
+def field_candidates(
+    ra: float = Query(..., description="deg, ICRS"),
+    dec: float = Query(..., description="deg, ICRS"),
+    fov: float = Query(candidates.FOV_DEFAULT_DEG, description="degrees, 0.05-0.25 (0.1667 = 10 arcmin)"),
+    dets: str = Query("4,5,6", description="comma list of detectors, e.g. 4,5,6"),
+) -> Response:
+    """Automatic mover and variable candidates in one field, with classifier scores and FDR q-values."""
+    doc = candidates.find_field_candidates(ra, dec, fov, candidates.parse_dets(dets))
+    return respond(doc, CDN_DAY if doc["field"]["complete"] else NO_STORE)

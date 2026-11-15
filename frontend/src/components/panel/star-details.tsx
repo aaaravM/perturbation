@@ -4,8 +4,10 @@
 // its catalogue; anything an archive does not answer is said plainly, never filled in.
 
 import { useEffect, useState } from "react";
-import { ArrowUpRightIcon, ScanSearchIcon } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRightIcon, GlobeIcon, ScanSearchIcon } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { riseProps } from "@/lib/motion";
 import type { GaiaSource, ObjectSpot, QuickSpectrum, SimbadInfo, SpherexCoverage } from "@/lib/lab-catalog";
 import { loadCoverage, loadObjectSpot, loadQuickSpectrum, parallaxDistanceLy, simbadForGaia, totalProperMotion } from "@/lib/lab-catalog";
 import { API_URL, type FieldManifest } from "@/lib/manifest";
@@ -39,14 +41,13 @@ function useAsync<T>(key: string, enabled: boolean, load: (signal: AbortSignal) 
   return entry.key === key ? entry.value : { state: "loading" };
 }
 
-const stagger = (i: number, reduce: boolean | null) =>
-  reduce
-    ? {}
-    : {
-        initial: { opacity: 0, y: 8 },
-        animate: { opacity: 1, y: 0 },
-        transition: { delay: 0.05 + i * 0.06, duration: 0.42, ease: [0.16, 1, 0.3, 1] as const },
-      };
+/** Same timing as the Sky panels (lib/motion). */
+const stagger = riseProps;
+
+/** The Sky globe at this position: its panel there lists the catalogue stars nearby. */
+export function skyHrefFor(ra: number, dec: number): string {
+  return `/sky?ra=${ra.toFixed(5)}&dec=${dec.toFixed(5)}`;
+}
 
 /** Rough temperature class from Gaia's BP-RP colour (main-sequence, unreddened). */
 function colourWord(bpRp: number | null): string | null {
@@ -145,20 +146,26 @@ export function StarDetails({
         )}
         {where?.constellation && (
           <p className="text-micro text-fg-dim" data-testid="star-where">
-            In <Term k="constellation">{where.constellation}</Term>
+            In {where.constellation}
             {where.sentence ? `. ${where.sentence}` : ""}
           </p>
         )}
       </motion.header>
 
-      <motion.div {...stagger(1, reduce)} className="flex flex-col gap-2 px-4 pb-4">
+      <motion.div {...stagger(1, reduce)} className="flex flex-wrap items-center gap-2 px-4 pb-4">
         <Button variant="outline" onClick={onWatch} className="h-8 w-fit border-hair-strong text-meta" data-testid="watch-star">
           <ScanSearchIcon aria-hidden />
           {watchLabel}
         </Button>
+        <Button asChild variant="ghost" className="h-8 w-fit px-2 text-meta text-fg-dim hover:text-fg">
+          <Link href={skyHrefFor(source.ra, source.dec)} data-testid="star-on-globe">
+            <GlobeIcon aria-hidden />
+            Show on the sky globe
+          </Link>
+        </Button>
       </motion.div>
 
-      <Section i={2} title="Gaia DR3" aside={<span className="readout">epoch {epoch.toFixed(2)}</span>} testId="star-gaia">
+      <Section i={2} title="Gaia DR3" aside={`ESA Gaia, via ${via.startsWith("VizieR") ? "VizieR" : "IRSA"}`} testId="star-gaia">
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-meta">
           <Dt>Position</Dt>
           <dd className="readout text-fg">
@@ -172,7 +179,7 @@ export function StarDetails({
           </Dt>
           <dd className="readout text-fg">{source.g !== null ? source.g.toFixed(3) : "–"}</dd>
           <Dt>
-            <Term k="colourIndex">BP − RP</Term>
+            <Term k="bpRp">BP − RP</Term>
           </Dt>
           <dd className="text-fg">
             <span className="readout">{source.bpRp !== null ? source.bpRp.toFixed(3) : "–"}</span>
@@ -188,7 +195,7 @@ export function StarDetails({
             {ly !== null && (
               <span className="block text-fg-dim">
                 about <span className="readout text-fg">{ly < 100 ? ly.toFixed(1) : Math.round(ly).toLocaleString("en-US")}</span>{" "}
-                <Term k="lightYear">light-years</Term> away
+                light-years away
               </span>
             )}
           </dd>
@@ -211,7 +218,9 @@ export function StarDetails({
           </dd>
           {source.rv !== null && (
             <>
-              <Dt>Radial velocity</Dt>
+              <Dt>
+                <Term k="radialVelocity">Radial velocity</Term>
+              </Dt>
               <dd className="readout text-fg">{source.rv.toFixed(2)} km/s</dd>
             </>
           )}
@@ -220,13 +229,18 @@ export function StarDetails({
               <Dt>Temperature</Dt>
               <dd className="text-fg">
                 <span className="readout">{Math.round(source.teff).toLocaleString("en-US")} K</span>
-                <span className="text-fg-dim"> (GSP-Phot)</span>
+                <span className="text-fg-dim">
+                  {" "}
+                  (GSP-Phot)
+                </span>
               </dd>
             </>
           )}
           {source.ruwe !== null && (
             <>
-              <Dt>RUWE</Dt>
+              <Dt>
+                <Term k="ruwe" />
+              </Dt>
               <dd className="text-fg">
                 <span className="readout">{source.ruwe.toFixed(2)}</span>
                 <span className="text-fg-dim">{source.ruwe > 1.4 ? " · the fit is poor; maybe a binary" : " · a clean single-star fit"}</span>
@@ -236,18 +250,19 @@ export function StarDetails({
           {source.variable && source.variable !== "NOT_AVAILABLE" && (
             <>
               <Dt>
-                <Term k="variableStar">Variability</Term>
+                Variability
               </Dt>
               <dd className="text-fg">{source.variable === "VARIABLE" ? "Flagged variable by Gaia" : source.variable.toLowerCase()}</dd>
             </>
           )}
         </dl>
         <p className="text-micro text-fg-faint">
-          From {via}. Gaia measures positions for 2016.0; this one is moved to {epoch.toFixed(2)} with its proper motion.
+          From {via}. Gaia measures positions for 2016.0; this one is moved to <span className="readout">{epoch.toFixed(2)}</span>{" "}
+          with its proper motion.
         </p>
       </Section>
 
-      <Section i={3} title="SIMBAD" testId="star-simbad">
+      <Section i={3} title="SIMBAD" aside="CDS, Strasbourg (CfA mirror)" testId="star-simbad">
         {simbad.state === "loading" && <Skeleton className="h-10 w-full bg-ink-3" />}
         {simbad.state === "error" && <p className="text-meta text-fg-dim">SIMBAD (CfA mirror) did not answer ({simbad.message}).</p>}
         {simbad.state === "ready" &&
@@ -286,12 +301,17 @@ export function StarDetails({
           ))}
       </Section>
 
-      <Section i={4} title="SPHEREx here" testId="star-spherex">
+      <Section
+        i={4}
+        title="SPHEREx here"
+        aside="SPHEREx DR1 and QR3, IRSA"
+        testId="star-spherex"
+      >
         {fieldCoverage && (
           <p className="text-meta text-fg">
             In the loaded field: <span className="readout">{fieldCoverage.length}</span>{" "}
             <Term k="epoch">epochs</Term>, <span className="readout">{fieldCoverage.reduce((n, e) => n + e.n_exposures, 0)}</span>{" "}
-            exposures across the six <Term k="detector">detectors</Term>.
+            exposures across the six detectors.
           </p>
         )}
         {coverage.state === "off" && !fieldCoverage && (
@@ -306,7 +326,16 @@ export function StarDetails({
         )}
       </Section>
 
-      <Section i={5} title="Quick-look spectrum" testId="panel-quicklook">
+      <Section
+        i={5}
+        title={
+          <>
+            Quick-look spectrum
+          </>
+        }
+        aside="SPHEREx DR1 cube, IRSA"
+        testId="panel-quicklook"
+      >
         {spectrum.state === "off" && (
           <p className="text-meta text-fg-dim" data-testid="quicklook-off">
             The spectrum at any point is read from the SPHEREx DR1 all-sky cube by the Planet X Hunter backend. It is not
@@ -332,7 +361,7 @@ export function StarDetails({
             />
             <p className="text-micro text-fg-faint">
               SPHEREx DR1 cube, {spectrum.value.pixel_arcsec ? `${spectrum.value.pixel_arcsec.toFixed(1)}″` : "12.9″"} pixels: close
-              neighbours blend into this <Term k="spectrum">spectrum</Term>.
+              neighbours blend into this spectrum.
             </p>
           </>
         )}
@@ -341,13 +370,15 @@ export function StarDetails({
   );
 }
 
+const DETECTORS = ["D1", "D2", "D3", "D4", "D5", "D6"] as const;
+
 function CoverageRows({ coverage }: { coverage: SpherexCoverage }) {
   if (coverage.nImages === 0) return <p className="text-meta text-fg-dim">SPHEREx has not released any images of this point yet.</p>;
   return (
     <div className="flex flex-col gap-1.5">
       <p className="text-meta text-fg">
         <span className="readout">{coverage.nImages}</span> images in <span className="readout">{coverage.nEpochs}</span>{" "}
-        <Term k="epoch">epochs</Term>
+        epochs
         {coverage.deepField ? (
           <>
             , in a <Term k="deepField">deep field</Term>
@@ -355,13 +386,15 @@ function CoverageRows({ coverage }: { coverage: SpherexCoverage }) {
         ) : null}
         .
       </p>
-      <div className="flex items-end gap-1" aria-label="Images per detector">
-        {["D1", "D2", "D3", "D4", "D5", "D6"].map((d) => {
+      <div className="flex items-end gap-1" role="img" aria-label={`Images per detector: ${DETECTORS.map((d) => `${d} ${coverage.detectors[d] ?? 0}`).join(", ")}`}>
+        {DETECTORS.map((d) => {
           const n = coverage.detectors[d] ?? 0;
+          // Bars relative to the busiest detector, so differences show.
+          const most = Math.max(1, ...DETECTORS.map((x) => coverage.detectors[x] ?? 0));
           return (
             <div key={d} className="flex w-8 flex-col items-center gap-0.5">
               <span className="readout text-micro text-fg-dim">{n}</span>
-              <span aria-hidden className="block w-full rounded-[1px] bg-fg-dim/60" style={{ height: Math.max(2, Math.min(24, Math.sqrt(n) * 4)) }} />
+              <span aria-hidden className="block w-full rounded-[1px] bg-fg-dim/60" style={{ height: n ? 3 + Math.round((21 * n) / most) : 1 }} />
               <span className="text-micro text-fg-faint">{d}</span>
             </div>
           );
@@ -376,13 +409,14 @@ function Dt({ children }: { children: React.ReactNode }) {
   return <dt className="text-fg-dim">{children}</dt>;
 }
 
-function Section({ i, title, aside, children, testId }: { i: number; title: string; aside?: React.ReactNode; children: React.ReactNode; testId?: string }) {
+/** A section with the Sky panels' header: title on the left, data source on the right. */
+function Section({ i, title, aside, children, testId }: { i: number; title: React.ReactNode; aside?: React.ReactNode; children: React.ReactNode; testId?: string }) {
   const reduce = useReducedMotion();
   return (
     <motion.section {...stagger(i, reduce)} className="flex flex-col gap-2.5 border-t border-hair px-4 py-3.5" data-testid={testId}>
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-ui font-medium text-fg">{title}</h3>
-        {aside && <div className="text-micro text-fg-faint">{aside}</div>}
+        {aside && <div className="shrink-0 text-right text-micro text-fg-faint">{aside}</div>}
       </div>
       {children}
     </motion.section>

@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { PagePlaceholder } from "@/components/site/page-placeholder";
+import { HelpView } from "@/components/help/help-view";
 
-export const metadata: Metadata = { title: "Help the search" };
+export const metadata: Metadata = {
+  title: "Help the search",
+  description:
+    "Look at blinking SPHEREx images and say what you see: real candidates from the automatic search, with known objects mixed in as checks.",
+};
 
 export default function HelpPage() {
-  return (
-    <PagePlaceholder phase="8" kicker="Help the search" title="Review candidates with us">
-      <p>
-        A citizen-science review loop (vote real, artifact or unsure on candidate blinks) will live
-        here.
-      </p>
-    </PagePlaceholder>
-  );
+  return <HelpView />;
 }

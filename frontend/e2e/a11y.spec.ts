@@ -34,8 +34,8 @@ for (const vp of [
 
     test(`/ has no serious or critical violations (${vp.name})`, async ({ page }) => {
       await page.goto("/");
-      await expect(page.getByTestId("blink-hero")).toBeVisible();
-      await page.waitForTimeout(1500); // hero entrance done
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Watch the sky move.");
+      await page.waitForTimeout(1500); // the globe has taken over from its still
       await audit(page, `/ ${vp.name}`);
     });
 
@@ -45,7 +45,9 @@ for (const vp of [
       await page.waitForTimeout(1200);
       await audit(page, `/sky ${vp.name}`);
 
-      // With Barnard's Star's panel open.
+      // With Barnard's Star's panel open. On phones the star lists fold away under "Browse stars".
+      const browse = page.getByRole("button", { name: "Browse stars" });
+      if (await browse.isVisible()) await browse.click();
       await page.getByTestId("target-list").getByRole("button", { name: /Barnard.s Star/ }).click();
       const panel = page.getByTestId("sky-panel");
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText("Barnard's Star");
@@ -70,11 +72,12 @@ for (const vp of [
       test.skip(!(await hasBundle(page, "barnards-star")), "Barnard's Star bundle not built yet");
       await page.goto("/explore?target=barnards-star");
       await expect(page.getByTestId("blink-player")).toHaveAttribute("data-ready", "true", { timeout: 45_000 });
-      if (vp.name === "phone") await page.getByTestId("open-details").click();
-      await expect(page.getByTestId("detail-panel").getByTestId("panel-title")).toHaveText("Barnard's Star");
-      // Pause the blink: axe is far slower on a page whose DOM changes twice a second.
+      // Pause the blink first: axe is far slower on a page whose DOM changes twice a second (and on
+      // phones the analysis pane, once open, covers the player).
       await page.getByTestId("blink-play").click();
       await expect(page.getByTestId("blink-play")).toHaveAttribute("data-playing", "false");
+      if (vp.name === "phone") await page.getByTestId("open-details").click();
+      await expect(page.getByTestId("detail-panel").getByTestId("panel-title")).toHaveText("Barnard's Star");
       await page.waitForTimeout(1200);
       await audit(page, `/explore?target=barnards-star ${vp.name}`);
 
@@ -85,6 +88,12 @@ for (const vp of [
       const box = await viewer.boundingBox();
       if (!box) throw new Error("no sky viewer");
       await page.mouse.click(box.x + box.width * 0.62, box.y + box.height * 0.4);
+      if (vp.name === "phone") {
+        // Phones show a small card over the viewer; Details opens the analysis pane.
+        const details = page.getByTestId("open-details");
+        await details.waitFor({ timeout: 10_000 }).catch(() => {});
+        if (await details.isVisible()) await details.click();
+      }
       await expect(page.getByTestId("position-details")).toBeVisible();
       await page.waitForTimeout(900);
       await audit(page, `/explore position panel ${vp.name}`);
@@ -95,9 +104,10 @@ for (const vp of [
 test("keyboard: the skip order reaches the Sky controls and the panel in a sensible order", async ({ page }) => {
   await page.goto("/sky");
   await expect(page.getByTestId("sky-globe")).toHaveAttribute("data-texture", "ready", { timeout: 30_000 });
-  // Nav first, then the object list, then the globe and its controls.
+  // Nav first, then the rail (intro links, search, list tabs, the objects), then the globe and its
+  // controls.
   const order: string[] = [];
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 30; i++) {
     await page.keyboard.press("Tab");
     order.push(
       await page.evaluate(() => {
@@ -121,6 +131,12 @@ test("keyboard: the skip order reaches the Sky controls and the panel in a sensi
   await expect(heading).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByTestId("sky-panel").locator(":focus")).toHaveCount(1);
+  // If focus landed on an explained word, its explanation is open: Escape closes that first.
+  const tip = page.locator("[data-slot=tooltip-content]");
+  if (await tip.count()) {
+    await page.keyboard.press("Escape");
+    await expect(tip).toHaveCount(0);
+  }
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("target-list").getByRole("button", { name: /Epsilon Indi B/ })).toBeFocused();
 });

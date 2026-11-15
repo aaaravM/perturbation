@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PauseIcon, PlayIcon } from "lucide-react";
 import type { FieldManifest } from "@/lib/manifest";
 import { cn } from "@/lib/utils";
+import { Term } from "@/components/ui/term";
 import { blinkFrames, catalogPosition, skyToFrame } from "@/components/sky-panel/bundle-frames";
 
 const SPEEDS = [
@@ -261,7 +262,7 @@ export function MiniBlink({
           {watchFor}
         </p>
         <p className="text-fg-faint">
-          Each image is {Math.round(manifest.fov_arcmin)} arcminutes across,{" "}
+          Each image is {Math.round(manifest.fov_arcmin)} <Term k="arcminute">arcminutes</Term> across,{" "}
           {moonComparison(manifest.fov_arcmin)}. North is up, east is left.
           {tick && (
             <>

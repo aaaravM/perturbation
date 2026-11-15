@@ -25,6 +25,8 @@ async function openFixture(page: Page, query = "") {
 }
 
 const counter = (page: Page) => page.getByTestId("frame-counter");
+// The frame label cross-fades: while one label leaves, the new one is already in place.
+const frameLabel = (page: Page) => page.locator("[data-testid=frame-label]:not([data-motion-pop-id])");
 const param = (page: Page, name: string) => new URL(page.url()).searchParams.get(name);
 
 test.describe.configure({ mode: "serial" });
@@ -46,11 +48,11 @@ test("the fixture is labelled and the blink cycles through every frame", async (
   }
   expect([...seen].sort()).toEqual(["1 / 6", "2 / 6", "3 / 6", "4 / 6", "5 / 6", "6 / 6"]);
   await expect(page.getByTestId("loop-cue")).toBeAttached({ timeout: 6000 });
-  // On a wide screen the epochs are labelled with date and survey under the scrubber, as many
-  // as fit (the fixture's pairs of epochs a month apart share one label).
-  await expect(page.getByTestId("scrubber-label").first()).toHaveText(/May 2025\s*S1/);
-  expect(await page.getByTestId("scrubber-label").count()).toBeGreaterThanOrEqual(3);
-  await expect(page.getByTestId("scrubber-label").last()).toHaveText(/Oct 2026/);
+  // The epochs sit on a real time axis under the scrubber, labelled by month, with each new year
+  // named (as many labels as fit).
+  const labels = page.getByTestId("scrubber-label");
+  expect(await labels.count()).toBeGreaterThanOrEqual(3);
+  await expect(labels.filter({ hasText: /^20\d\d$/ }).first()).toHaveText("2026");
   await page.waitForTimeout(1200); // let the sky tiles settle for the screenshot
   await shot(page, "lab-fixture-1440x900");
 
@@ -66,7 +68,7 @@ test("Space pauses, the arrow keys step, and the scrubber seeks", async ({ page 
   await expect(page.getByTestId("blink-play")).toHaveAttribute("data-playing", "false");
   await page.getByTestId("scrubber-tick").first().click();
   await expect(counter(page)).toHaveText("1 / 6");
-  await expect(page.getByTestId("frame-label")).toContainText("May 2025");
+  await expect(frameLabel(page)).toContainText("May 2025");
   await page.locator("body").press("ArrowRight");
   await expect(counter(page)).toHaveText("2 / 6");
   await page.locator("body").press("ArrowLeft");
@@ -91,7 +93,7 @@ test("mode tabs and the detector picker switch the frames", async ({ page }) => 
   await expect(player).toHaveAttribute("data-mode", "then-now");
   await expect(player).toHaveAttribute("data-ready", "true", { timeout: 20_000 });
   await expect(counter(page)).toHaveText("1 / 2");
-  await expect(page.getByTestId("frame-label")).toContainText("WISE 2010");
+  await expect(frameLabel(page)).toContainText("WISE 2010");
   await expect(page.getByTestId("then-now-row")).toContainText("years apart");
   await expect.poll(() => param(page, "mode")).toBe("then-now");
   await shot(page, "lab-then-now-1440x900");
@@ -99,7 +101,7 @@ test("mode tabs and the detector picker switch the frames", async ({ page }) => 
   await page.getByTestId("mode-difference").click();
   await expect(player).toHaveAttribute("data-mode", "difference");
   await expect(page.getByTestId("difference-legend")).toBeVisible();
-  await expect(page.getByTestId("frame-label")).toContainText("Oct 2026 minus May 2025");
+  await expect(frameLabel(page)).toContainText("Oct 2026 minus May 2025");
   // One image: no timeline or transport to pretend otherwise.
   await expect(page.getByTestId("blink-scrubber")).toHaveCount(0);
   await expect.poll(() => param(page, "mode")).toBe("difference");
@@ -112,7 +114,8 @@ test("mode tabs and the detector picker switch the frames", async ({ page }) => 
   await expect(page.getByTestId("det-range")).toContainText("False colour");
   await page.getByTestId("det-D6").click();
   await page.getByTestId("layer-toggle-flags").click();
-  await expect.poll(() => param(page, "layers")).toBe("path,flags");
+  // Gaia stars and the motion path are on by default; the flags join them.
+  await expect.poll(() => (param(page, "layers") ?? "").split(",").sort().join(",")).toBe("flags,gaia,path");
   await page.waitForTimeout(600);
   await shot(page, "lab-flags-1440x900");
 });

@@ -38,6 +38,7 @@ import type {
 } from "@/components/globe/sky-globe";
 import { FlatSkyMap } from "@/components/globe/flat-sky-map";
 import { LayersControl } from "@/components/globe/layers-control";
+import { usePreference } from "@/lib/preferences";
 import { formatDec, formatRa } from "@/components/globe/globe-math";
 import { SkyPanel } from "@/components/sky-panel/sky-panel";
 import { KIND_LABEL, TargetStory } from "@/components/sky-panel/target-story";
@@ -71,6 +72,7 @@ const MARKERS: GlobeMarker[] = FEATURED_TARGETS.map((t) => ({
   ra: t.ra,
   dec: t.dec,
   distancePc: targetDistancePc(t),
+  distanceText: t.facts.find((x) => x.label === "Distance")?.value,
 }));
 
 const urlKeys = {
@@ -127,6 +129,26 @@ function useSize<T extends HTMLElement>() {
   return [ref, size] as const;
 }
 
+/** The site's Motion setting, mirrored on <html> as data-motion ("system", "reduce" or "full"). */
+function useMotionSetting(): string | null {
+  return useSyncExternalStore(
+    (cb) => {
+      const observer = new MutationObserver(cb);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
+      return () => observer.disconnect();
+    },
+    () => document.documentElement.getAttribute("data-motion"),
+    () => null,
+  );
+}
+
+/** Reduced motion: the Motion setting when it says "reduce" or "full", the system's otherwise. */
+function useSiteReducedMotion(): boolean {
+  const system = useReducedMotion() ?? false;
+  const setting = useMotionSetting();
+  return setting === "reduce" || (setting !== "full" && system);
+}
+
 function useCatalogue(): Catalogue | null {
   useEffect(() => ensureCatalogue(), []);
   return useSyncExternalStore(subscribeCatalogue, getCatalogue, () => null);
@@ -154,10 +176,13 @@ export function SkyExperience() {
         : null;
   const pendingStar = q.star !== null && starId === null && !target && !(catalogue?.complete ?? false);
 
-  const mode: SkyMode = q.mode === "3d" ? "space" : "sphere";
+  // A link with mode=3d opens 3D space; otherwise the Settings choice, until the visitor picks here.
+  const startIn = usePreference("skyStartIn");
+  const [modeChoice, setModeChoice] = useState<SkyMode | null>(null);
+  const mode: SkyMode = q.mode === "3d" ? "space" : (modeChoice ?? (startIn === "3d" ? "space" : "sphere"));
   const canSpace = catalogue?.source === "hipparcos";
 
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const isLarge = useMedia("(min-width: 1024px)", true);
   const isTablet = useMedia("(min-width: 768px)", true);
   const coarse = useMedia("(pointer: coarse)", false);
@@ -172,7 +197,14 @@ export function SkyExperience() {
 
   const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
   const [railStar, setRailStar] = useState<number | null>(null);
-  const [layers, setLayers] = useState<SkyLayerToggles>(DEFAULT_LAYERS);
+  // Constellation lines and the SPHEREx map start as chosen in Settings, until changed here.
+  const startConstellations = usePreference("skyConstellations");
+  const startInfrared = usePreference("skyInfraredMap");
+  const [layerChoice, setLayers] = useState<SkyLayerToggles | null>(null);
+  const layers = useMemo(
+    () => layerChoice ?? { ...DEFAULT_LAYERS, constellations: startConstellations, spherex: startInfrared },
+    [layerChoice, startConstellations, startInfrared],
+  );
   const [view, setView] = useState<GlobeView>("colour");
   const [imagery, setImagery] = useState(1);
   const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
@@ -238,6 +270,7 @@ export function SkyExperience() {
   }, [setQ]);
   const setMode = useCallback(
     (m: SkyMode) => {
+      setModeChoice(m);
       void setQ({ mode: m === "space" ? "3d" : null });
       setAnnouncement(m === "space" ? "3D space: the stars move out to their distances from the Sun." : "Back on the sky sphere.");
     },
@@ -317,17 +350,17 @@ export function SkyExperience() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_60%_50%,#0b0b0a_0%,var(--ink)_70%)]"
       />
 
+      {/* The rail sits above the globe and takes the pointer itself, so its words, links and
+          explanations work with a mouse; only the shading that fades it into the sky lets drags
+          through to the globe. */}
       {isLarge ? (
-        <div
-          ref={columnRef}
-          className="pointer-events-none absolute top-7 bottom-6 left-8 z-10 flex w-[20rem] flex-col gap-6 xl:left-10"
-        >
+        <div ref={columnRef} className="absolute top-7 bottom-6 left-8 z-10 flex w-[20rem] flex-col gap-6 xl:left-10">
           <div
             aria-hidden
-            className="absolute -top-7 -bottom-6 -left-10 -z-10 w-[calc(100%+8rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.94)_0%,rgb(5_5_5/0.88)_62%,rgb(5_5_5/0.45)_82%,transparent_100%)]"
+            className="pointer-events-none absolute -top-7 -bottom-6 -left-10 -z-10 w-[calc(100%+8rem)] bg-[linear-gradient(to_right,rgb(5_5_5/0.94)_0%,rgb(5_5_5/0.88)_62%,rgb(5_5_5/0.45)_82%,transparent_100%)]"
           />
           <Intro mode={mode} />
-          <div className="pointer-events-auto flex min-h-0 flex-1 flex-col">{rail}</div>
+          <div className="flex min-h-0 flex-1 flex-col">{rail}</div>
         </div>
       ) : (
         <div ref={topRef} className="absolute inset-x-3 top-3 z-10 flex flex-col gap-2 sm:inset-x-5">
@@ -338,13 +371,12 @@ export function SkyExperience() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="pointer-events-none"
               >
                 <Intro compact mode={mode} />
               </motion.div>
             )}
           </AnimatePresence>
-          <div className="pointer-events-auto rounded-lg border border-hair bg-ink/85 p-2">{rail}</div>
+          <div className="rounded-lg border border-hair bg-ink/85 p-2">{rail}</div>
         </div>
       )}
 
@@ -371,6 +403,7 @@ export function SkyExperience() {
           onSelectTarget={(slug) => selectTarget(slug)}
           onSelectStar={(id) => selectStar(id)}
           onSelectSpot={selectSpot}
+          onClearSelection={close}
           mode={canSpace ? mode : "sphere"}
           layers={layers}
           view={view}
@@ -536,8 +569,8 @@ function Intro({ compact = false, mode }: { compact?: boolean; mode: SkyMode }) 
             </>
           ) : (
             <>
-              About 118,000 stars from the <Term k="hipparcos" /> catalogue, in their true colours. Click one to see
-              what is known about it, and what <Term k="spherex" /> has seen there.
+              About 118,000 stars from the Hipparcos catalogue, in their true colours. Click one to see
+              what is known about it, and what SPHEREx has seen there.
             </>
           )}
         </p>

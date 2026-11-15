@@ -1,0 +1,153 @@
+{
+ "model": "specclass-v1",
+ "description": "A small 1D convolutional neural network that reads a SPHEREx quick-look spectrum (102 channels, 0.75-5.0 um) and says which of seven kinds of object it looks most like.",
+ "classes": [
+  {
+   "key": "hot_star",
+   "name": "hot star",
+   "long": "Hot star (types O, B and A, hotter than 7,500 K)"
+  },
+  {
+   "key": "sunlike_star",
+   "name": "Sun-like star",
+   "long": "Sun-like star (types F, G and K, 3,900 to 7,500 K)"
+  },
+  {
+   "key": "cool_star",
+   "name": "cool star",
+   "long": "Cool star (type M, cooler than 3,900 K)"
+  },
+  {
+   "key": "brown_dwarf",
+   "name": "brown dwarf",
+   "long": "Brown dwarf (types L, T and Y)"
+  },
+  {
+   "key": "young_dusty",
+   "name": "young or dusty star",
+   "long": "Young or dusty star (young stellar objects, T Tauri and Herbig Ae/Be stars)"
+  },
+  {
+   "key": "galaxy",
+   "name": "galaxy",
+   "long": "Galaxy"
+  },
+  {
+   "key": "quasar",
+   "name": "quasar",
+   "long": "Quasar"
+  }
+ ],
+ "test_accuracy": 0.7615,
+ "test_macro_f1": 0.6384,
+ "test_accuracy_ci90": [
+  0.6878,
+  0.835
+ ],
+ "test_macro_f1_ci90": [
+  0.5511,
+  0.7019
+ ],
+ "confusion_matrix": [
+  [
+   271,
+   38,
+   5,
+   0,
+   19,
+   0,
+   0
+  ],
+  [
+   498,
+   3360,
+   333,
+   1,
+   103,
+   20,
+   1
+  ],
+  [
+   31,
+   40,
+   365,
+   1,
+   64,
+   6,
+   1
+  ],
+  [
+   1,
+   0,
+   1,
+   12,
+   0,
+   0,
+   0
+  ],
+  [
+   135,
+   31,
+   12,
+   1,
+   272,
+   1,
+   2
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   14,
+   1
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   6
+  ]
+ ],
+ "confusion_order": [
+  "hot_star",
+  "sunlike_star",
+  "cool_star",
+  "brown_dwarf",
+  "young_dusty",
+  "galaxy",
+  "quasar"
+ ],
+ "n_train": 10376,
+ "n_test": 5647,
+ "n_test_by_class": {
+  "hot_star": 333,
+  "sunlike_star": 4316,
+  "cool_star": 508,
+  "brown_dwarf": 14,
+  "young_dusty": 454,
+  "galaxy": 15,
+  "quasar": 7
+ },
+ "test_recall_by_class": {
+  "hot_star": 0.8138138138138138,
+  "sunlike_star": 0.7784986098239111,
+  "cool_star": 0.718503937007874,
+  "brown_dwarf": 0.8571428571428571,
+  "young_dusty": 0.5991189427312775,
+  "galaxy": 0.9333333333333333,
+  "quasar": 0.8571428571428571
+ },
+ "unusual": {
+  "method": "Mahalanobis distance in the network's penultimate layer, conformal p-value",
+  "threshold_p": 0.01,
+  "n_calibration": 3078,
+  "test_fraction_flagged": 0.0028
+ },
+ "split": "Held-out sky tiles: no tile used for training appears in the test set.",
+ "data": "SPHEREx DR1 spectral cube; labels from SIMBAD and Gaia DR3."
+}

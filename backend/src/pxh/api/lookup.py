@@ -42,6 +42,7 @@ from pxh import config
 from pxh.api import catalogs, field
 from pxh.api.caching import TTLCache
 from pxh.api.errors import invalid
+from pxh.ml import specclass
 from pxh.sky.resolve import display_name
 from pxh.spherex import cube, rangeio, sia
 from pxh.spherex import epochs as ep
@@ -983,7 +984,21 @@ def spectrum_doc(res: dict[str, Any], ra: float, dec: float) -> dict[str, Any]:
         "n_finite": int(res["n_finite"]),
         "pixel_arcsec": round(float(res["pixel_arcsec"]), 3),
         "notes": res["notes"],
+        "classification": spectrum_classification(res),
     }
+
+
+def spectrum_classification(res: dict[str, Any]) -> dict[str, Any]:
+    """The spectral class of a ``cube.cube_spectrum`` result (``pxh.ml.specclass``, cube plane order).
+
+    Never raises: a failure gives ``status: "none"`` so the spectrum itself is always served.
+    """
+    try:
+        return specclass.classify(res["flux_ujy"], res["flux_err_ujy"], res.get("lower_limit"))
+    except Exception as exc:  # noqa: BLE001 - the classification is an extra; the spectrum must not fail
+        log.warning("spectral classification failed: %s", exc)
+        return {"status": "none", "reason": "The spectral classifier could not read this spectrum.",
+                "model": specclass.MODEL_NAME}
 
 
 def spectrum_part(ra: float, dec: float) -> dict[str, Any]:

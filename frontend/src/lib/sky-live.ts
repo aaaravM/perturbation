@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/manifest";
+import { parseClassification, type SpectralClassification } from "@/lib/spectral-class";
 
 /**
  * The API base. Production builds use NEXT_PUBLIC_API_URL only; a development build may also
@@ -89,6 +90,8 @@ export interface QuickSpectrum {
   err: (number | null)[];
   label: string;
   pixelArcsec: number | null;
+  /** What kind of object the spectrum looks like (backend classifier); null from older backends. */
+  classification: SpectralClassification | null;
 }
 
 export interface StarsCount {
@@ -264,6 +267,7 @@ function parseSpectrum(o: Raw | null): QuickSpectrum | null {
     err,
     label: str(o.label) ?? "SPHEREx DR1 quick-look spectrum",
     pixelArcsec: fin(o.pixel_arcsec),
+    classification: parseClassification(o.classification),
   };
 }
 

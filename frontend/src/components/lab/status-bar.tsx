@@ -55,9 +55,10 @@ export function StatusBar({
   const level = px && frameRaw ? levelAt(frameRaw, px.col, px.row) : null;
   const flagged = px && flags ? flagsAt(flags.image, px.col, px.row, flags.legend) : null;
 
+  // Wrapped rows sit 8px apart so the explained labels keep a 24px touch circle each (WCAG 2.5.8).
   return (
     <div
-      className="flex min-h-8 shrink-0 flex-wrap items-center gap-x-4 gap-y-0.5 border-t border-hair bg-ink-2 px-3 py-1 text-micro"
+      className="flex min-h-8 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-t border-hair bg-ink-2 px-3 py-1 text-micro"
       data-testid="status-bar"
       aria-label="Readouts"
     >
@@ -95,16 +96,16 @@ export function StatusBar({
           stretch per detector). Calibrated values in MJy/sr live in the SPHEREx FITS images at IRSA.
         </TooltipContent>
       </Tooltip>
-      <Cell label={<Term k="flags" mark={false}>Flags</Term>} testId="readout-flags">
+      <Cell label="Flags" testId="readout-flags">
         <span className={cn(flagged && flagged.length > 0 && "text-accent")}>
           {!flags ? (grid ? "n/a" : "–") : !px ? "–" : flagged && flagged.length ? flagged.join(", ") : "none"}
         </span>
       </Cell>
       <span aria-hidden className="hidden h-3 w-px bg-hair lg:block" />
-      <Cell label={<Term k="wavelength" mark={false}>λ</Term>} testId="readout-wavelength">
+      <Cell label="λ" testId="readout-wavelength">
         {wavelength ?? "–"}
       </Cell>
-      <Cell label={<Term k="fieldOfView" mark={false}>FoV</Term>} testId="readout-fov">
+      <Cell label="FoV" testId="readout-fov">
         {formatFov(fov)}
       </Cell>
       <Cell label={<Term k="epoch" mark={false}>Epoch</Term>} testId="readout-epoch">

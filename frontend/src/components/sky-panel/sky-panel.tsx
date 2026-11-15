@@ -81,7 +81,9 @@ export function SkyPanel({
         }
       : {
           initial: { y: "100%" },
-          animate: { y: 0, transition: { duration: 0.5, ease: EASE_OUT_EXPO } },
+          // A deep link opens the panel before the layout is known, with the side panel's start
+          // (faded, shifted right); the sheet clears that as well as rising.
+          animate: { y: 0, opacity: 1, x: 0, transition: { duration: 0.5, ease: EASE_OUT_EXPO } },
           exit: { y: "100%", transition: { duration: 0.28, ease: [0.4, 0, 1, 1] as const } },
         };
 

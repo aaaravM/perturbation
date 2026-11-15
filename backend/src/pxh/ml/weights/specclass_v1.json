@@ -1,0 +1,587 @@
+{
+ "model": "specclass-v1",
+ "description": "A small 1D convolutional neural network that reads a SPHEREx quick-look spectrum (102 channels, 0.75-5.0 um) and says which of seven kinds of object it looks most like.",
+ "classes": [
+  "hot_star",
+  "sunlike_star",
+  "cool_star",
+  "brown_dwarf",
+  "young_dusty",
+  "galaxy",
+  "quasar"
+ ],
+ "plain_names": {
+  "hot_star": "hot star",
+  "sunlike_star": "Sun-like star",
+  "cool_star": "cool star",
+  "brown_dwarf": "brown dwarf",
+  "young_dusty": "young or dusty star",
+  "galaxy": "galaxy",
+  "quasar": "quasar"
+ },
+ "plain_long": {
+  "hot_star": "Hot star (types O, B and A, hotter than 7,500 K)",
+  "sunlike_star": "Sun-like star (types F, G and K, 3,900 to 7,500 K)",
+  "cool_star": "Cool star (type M, cooler than 3,900 K)",
+  "brown_dwarf": "Brown dwarf (types L, T and Y)",
+  "young_dusty": "Young or dusty star (young stellar objects, T Tauri and Herbig Ae/Be stars)",
+  "galaxy": "Galaxy",
+  "quasar": "Quasar"
+ },
+ "inputs": {
+  "channels": 102,
+  "order": "DR1 cube plane order (ascending wavelength)",
+  "blank_planes": [
+   50,
+   51
+  ],
+  "wavelength_um": [
+   0.753,
+   0.771,
+   0.79,
+   0.809,
+   0.828,
+   0.848,
+   0.868,
+   0.889,
+   0.91,
+   0.932,
+   0.955,
+   0.978,
+   1.001,
+   1.025,
+   1.05,
+   1.075,
+   1.102,
+   1.113,
+   1.139,
+   1.167,
+   1.195,
+   1.224,
+   1.254,
+   1.284,
+   1.315,
+   1.346,
+   1.378,
+   1.412,
+   1.446,
+   1.481,
+   1.517,
+   1.554,
+   1.592,
+   1.631,
+   1.656,
+   1.695,
+   1.735,
+   1.775,
+   1.818,
+   1.861,
+   1.905,
+   1.949,
+   1.995,
+   2.041,
+   2.089,
+   2.139,
+   2.189,
+   2.24,
+   2.292,
+   2.345,
+   2.399,
+   2.445,
+   2.506,
+   2.575,
+   2.646,
+   2.719,
+   2.794,
+   2.871,
+   2.951,
+   3.033,
+   3.118,
+   3.204,
+   3.293,
+   3.383,
+   3.476,
+   3.57,
+   3.667,
+   3.768,
+   3.833,
+   3.867,
+   3.901,
+   3.935,
+   3.97,
+   4.005,
+   4.04,
+   4.076,
+   4.112,
+   4.148,
+   4.184,
+   4.22,
+   4.257,
+   4.294,
+   4.331,
+   4.368,
+   4.405,
+   4.435,
+   4.467,
+   4.5,
+   4.533,
+   4.566,
+   4.6,
+   4.635,
+   4.669,
+   4.704,
+   4.739,
+   4.773,
+   4.808,
+   4.843,
+   4.879,
+   4.915,
+   4.951,
+   4.988
+  ],
+  "normalisation": "flux / median(|flux| of valid channels), then asinh; second input = validity mask",
+  "valid": "finite flux and finite positive error, excluding the blank planes",
+  "min_valid_channels": 60,
+  "min_snr5_channels": 20,
+  "photometry": "pxh.spherex.cube: 1.5-pixel aperture, 3-5 pixel background annulus, 12.9-arcsec pixels"
+ },
+ "architecture": {
+  "blocks": [
+   "conv1",
+   "conv2",
+   "pool",
+   "conv3",
+   "conv4",
+   "pool",
+   "conv5"
+  ],
+  "conv": {
+   "conv1": [
+    2,
+    32,
+    5
+   ],
+   "conv2": [
+    32,
+    32,
+    5
+   ],
+   "conv3": [
+    32,
+    64,
+    5
+   ],
+   "conv4": [
+    64,
+    64,
+    3
+   ],
+   "conv5": [
+    64,
+    64,
+    3
+   ]
+  },
+  "hidden": 64,
+  "activation": "relu",
+  "batch_norm": "folded into the convolutions"
+ },
+ "temperature": 1.0324474493312077,
+ "anomaly": {
+  "method": "mahalanobis",
+  "score": "smallest squared Mahalanobis distance of the penultimate features from the training-class means (Ledoit-Wolf shared covariance)",
+  "unusual_p": 0.01,
+  "validation": {
+   "mahalanobis": {
+    "val_auroc_vs_other": 0.8701619821164345,
+    "n_val": 6016,
+    "n_other": 417
+   },
+   "pca_reconstruction": {
+    "val_auroc_vs_other": 0.6562687350119905,
+    "n_val": 6016,
+    "n_other": 417
+   },
+   "softmax_confidence": {
+    "val_auroc_vs_other": 0.7206205115694678,
+    "n_val": 6016,
+    "n_other": 417
+   }
+  },
+  "n_calibration": 3078,
+  "test_fraction_unusual": 0.0028333628475296618,
+  "test_n_q_below_0.1": 0,
+  "other_fraction_unusual": 0.017077798861480076,
+  "n_other": 527,
+  "test_auroc_vs_other_test_tiles": 0.7780639760452049,
+  "test_auroc_vs_all_other": 0.8543395445315458,
+  "other_types": {
+   "LP?": 305,
+   "LP*": 130,
+   "AB?": 24,
+   "RR*": 23,
+   "C*": 18,
+   "Mi*": 13,
+   "Ce*": 3,
+   "BD*": 2,
+   "WD*": 2,
+   "WD?": 2,
+   "Bla": 1,
+   "s*b": 1,
+   "cC*": 1,
+   "HXB": 1,
+   "PoC": 1
+  }
+ },
+ "training": {
+  "best_epoch": 50,
+  "best_val_macro_f1": 0.6498763822387902,
+  "n_train_by_class": {
+   "hot_star": 913,
+   "sunlike_star": 6000,
+   "cool_star": 2148,
+   "brown_dwarf": 64,
+   "young_dusty": 1131,
+   "galaxy": 78,
+   "quasar": 42
+  },
+  "class_weights": {
+   "hot_star": 1.6235330934126115,
+   "sunlike_star": 0.24704761904761904,
+   "cool_star": 0.6900771481777068,
+   "brown_dwarf": 23.160714285714285,
+   "young_dusty": 1.310597448528483,
+   "galaxy": 19.003663003663004,
+   "quasar": 35.29251700680272
+  },
+  "seconds": 174.13055610656738
+ },
+ "metrics": {
+  "test_accuracy": 0.7614662652735966,
+  "test_macro_f1": 0.6383834025948624,
+  "test_accuracy_ci90": [
+   0.6877832652275168,
+   0.8349918393610227
+  ],
+  "test_macro_f1_ci90": [
+   0.551109017374467,
+   0.7018552906839338
+  ],
+  "test_f1_by_class": {
+   "hot_star": 0.42710795902285265,
+   "sunlike_star": 0.8631984585741811,
+   "cool_star": 0.5964052287581699,
+   "brown_dwarf": 0.8275862068965517,
+   "young_dusty": 0.5964912280701754,
+   "galaxy": 0.49122807017543857,
+   "quasar": 0.6666666666666666
+  },
+  "test_recall_by_class": {
+   "hot_star": 0.8138138138138138,
+   "sunlike_star": 0.7784986098239111,
+   "cool_star": 0.718503937007874,
+   "brown_dwarf": 0.8571428571428571,
+   "young_dusty": 0.5991189427312775,
+   "galaxy": 0.9333333333333333,
+   "quasar": 0.8571428571428571
+  },
+  "test_precision_by_class": {
+   "hot_star": 0.28952991452991456,
+   "sunlike_star": 0.9685788411646008,
+   "cool_star": 0.5097765363128491,
+   "brown_dwarf": 0.8,
+   "young_dusty": 0.5938864628820961,
+   "galaxy": 0.3333333333333333,
+   "quasar": 0.5454545454545454
+  },
+  "test_nll": 0.628686785697937,
+  "ece_before": 0.02449354559990585,
+  "ece_after": 0.024562113560974985,
+  "confusion_matrix": [
+   [
+    271,
+    38,
+    5,
+    0,
+    19,
+    0,
+    0
+   ],
+   [
+    498,
+    3360,
+    333,
+    1,
+    103,
+    20,
+    1
+   ],
+   [
+    31,
+    40,
+    365,
+    1,
+    64,
+    6,
+    1
+   ],
+   [
+    1,
+    0,
+    1,
+    12,
+    0,
+    0,
+    0
+   ],
+   [
+    135,
+    31,
+    12,
+    1,
+    272,
+    1,
+    2
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    14,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    6
+   ]
+  ],
+  "confusion_order": [
+   "hot_star",
+   "sunlike_star",
+   "cool_star",
+   "brown_dwarf",
+   "young_dusty",
+   "galaxy",
+   "quasar"
+  ],
+  "n_by_split_class": {
+   "train": {
+    "hot_star": 913,
+    "sunlike_star": 15979,
+    "cool_star": 2148,
+    "brown_dwarf": 64,
+    "young_dusty": 1131,
+    "galaxy": 78,
+    "quasar": 42
+   },
+   "val": {
+    "hot_star": 368,
+    "sunlike_star": 4355,
+    "cool_star": 549,
+    "brown_dwarf": 7,
+    "young_dusty": 697,
+    "galaxy": 23,
+    "quasar": 17
+   },
+   "cal": {
+    "hot_star": 351,
+    "sunlike_star": 2053,
+    "cool_star": 306,
+    "brown_dwarf": 4,
+    "young_dusty": 336,
+    "galaxy": 17,
+    "quasar": 11
+   },
+   "test": {
+    "hot_star": 333,
+    "sunlike_star": 4316,
+    "cool_star": 508,
+    "brown_dwarf": 14,
+    "young_dusty": 454,
+    "galaxy": 15,
+    "quasar": 7
+   }
+  },
+  "n_tiles_by_split": {
+   "cal": 28,
+   "test": 43,
+   "train": 169,
+   "val": 43
+  },
+  "n_train_used": 10376,
+  "n_test": 5647,
+  "reliability": {
+   "bins": [
+    {
+     "lo": 0.2,
+     "hi": 0.30000000000000004,
+     "n": 3,
+     "confidence": 0.27397218346595764,
+     "accuracy": 0.0
+    },
+    {
+     "lo": 0.30000000000000004,
+     "hi": 0.4,
+     "n": 139,
+     "confidence": 0.36145108938217163,
+     "accuracy": 0.2805755395683453
+    },
+    {
+     "lo": 0.4,
+     "hi": 0.5,
+     "n": 475,
+     "confidence": 0.4553263783454895,
+     "accuracy": 0.44842105263157894
+    },
+    {
+     "lo": 0.5,
+     "hi": 0.6000000000000001,
+     "n": 709,
+     "confidence": 0.5509549975395203,
+     "accuracy": 0.5260930888575458
+    },
+    {
+     "lo": 0.6000000000000001,
+     "hi": 0.7000000000000001,
+     "n": 732,
+     "confidence": 0.6507387161254883,
+     "accuracy": 0.6092896174863388
+    },
+    {
+     "lo": 0.7000000000000001,
+     "hi": 0.8,
+     "n": 768,
+     "confidence": 0.7499184608459473,
+     "accuracy": 0.7408854166666666
+    },
+    {
+     "lo": 0.8,
+     "hi": 0.9,
+     "n": 1006,
+     "confidence": 0.8534438014030457,
+     "accuracy": 0.8846918489065606
+    },
+    {
+     "lo": 0.9,
+     "hi": 1.0,
+     "n": 1815,
+     "confidence": 0.9548110961914062,
+     "accuracy": 0.9752066115702479
+    }
+   ],
+   "ece": 0.024562113560974985
+  },
+  "reliability_before": {
+   "bins": [
+    {
+     "lo": 0.2,
+     "hi": 0.30000000000000004,
+     "n": 3,
+     "confidence": 0.2753432095050812,
+     "accuracy": 0.0
+    },
+    {
+     "lo": 0.30000000000000004,
+     "hi": 0.4,
+     "n": 127,
+     "confidence": 0.36113426089286804,
+     "accuracy": 0.29133858267716534
+    },
+    {
+     "lo": 0.4,
+     "hi": 0.5,
+     "n": 451,
+     "confidence": 0.4554361402988434,
+     "accuracy": 0.43458980044345896
+    },
+    {
+     "lo": 0.5,
+     "hi": 0.6000000000000001,
+     "n": 691,
+     "confidence": 0.5511964559555054,
+     "accuracy": 0.5224312590448625
+    },
+    {
+     "lo": 0.6000000000000001,
+     "hi": 0.7000000000000001,
+     "n": 729,
+     "confidence": 0.6519920825958252,
+     "accuracy": 0.607681755829904
+    },
+    {
+     "lo": 0.7000000000000001,
+     "hi": 0.8,
+     "n": 755,
+     "confidence": 0.751785159111023,
+     "accuracy": 0.7271523178807947
+    },
+    {
+     "lo": 0.8,
+     "hi": 0.9,
+     "n": 967,
+     "confidence": 0.8538535833358765,
+     "accuracy": 0.8655635987590486
+    },
+    {
+     "lo": 0.9,
+     "hi": 1.0,
+     "n": 1924,
+     "confidence": 0.956277072429657,
+     "accuracy": 0.9755717255717256
+    }
+   ],
+   "ece": 0.02449354559990585
+  },
+  "numpy_vs_torch_max_abs_logit_diff": 7.056590701104426e-06,
+  "test_by_snr5_channels": {
+   "20-39": {
+    "n": 559,
+    "accuracy": 0.7262969588550984,
+    "macro_f1": 0.49976282946069667
+   },
+   "40-69": {
+    "n": 2063,
+    "accuracy": 0.7862336403296171,
+    "macro_f1": 0.4838619717414184
+   },
+   "70-102": {
+    "n": 3025,
+    "accuracy": 0.7510743801652893,
+    "macro_f1": 0.6806185205940556
+   }
+  },
+  "test_by_label_source": {
+   "Gaia DR3": {
+    "n": 5030,
+    "accuracy": 0.7793240556660039
+   },
+   "SIMBAD spectral": {
+    "n": 141,
+    "accuracy": 0.624113475177305
+   },
+   "SIMBAD type": {
+    "n": 476,
+    "accuracy": 0.6134453781512605
+   }
+  },
+  "label_agreement_simbad_sptype_vs_gaia_teff": {
+   "n": 512,
+   "agree": 0.82421875
+  }
+ },
+ "data": {
+  "source": "SPHEREx DR1 spectral cube (IRSA spherex_dr1_cube), measured by pxh.spherex.cube",
+  "labels": "SIMBAD object and spectral types (CfA TAP mirror); Gaia DR3 GSP-Phot Teff and DSC-Combmod probabilities (IRSA Gator)",
+  "selection": "isolated (no Gaia source brighter than target + 2 mag within 20 arcsec), unsaturated (no lower-limit channel), >= 20 channels at S/N >= 5",
+  "split": "by HEALPix order-5 cube tile: no tile in two splits"
+ },
+ "seed": 20261114,
+ "created": "2026-11-14"
+}

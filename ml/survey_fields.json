@@ -1,0 +1,2105 @@
+{
+ "schema": "pxh-survey-fields/1",
+ "generated_at": "2026-11-15T03:28:12Z",
+ "generator": "scripts/survey_fields.py",
+ "seed": 20261114,
+ "fov_deg": 0.1667,
+ "centre_epoch_jyear": 2026.0,
+ "min_epochs": 3,
+ "complete": true,
+ "counts": {
+  "target": 5,
+  "known-mover": 22,
+  "brown-dwarf": 10,
+  "variable": 6,
+  "control": 16
+ },
+ "fields": [
+  {
+   "id": "barnards-star",
+   "name": "Barnard's Star",
+   "ra": 269.44627,
+   "dec": 4.76822,
+   "fov_deg": 0.1667,
+   "kind": "target",
+   "why": "Challenge target (high-pm-star); astrometry Gaia DR3 4472832130942575872",
+   "b_deg": 14.1,
+   "astrometry_source": "Gaia DR3 4472832130942575872",
+   "simbad_id": "NAME Barnard's star",
+   "coverage": {
+    "n_epochs": 6,
+    "n_full": 3,
+    "n_images": 358,
+    "images_per_detector": {
+     "D1": 60,
+     "D2": 61,
+     "D3": 59,
+     "D4": 59,
+     "D5": 61,
+     "D6": 58
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "eps-indi-b",
+   "name": "Epsilon Indi B",
+   "ra": 331.09666,
+   "dec": -56.80066,
+   "fov_deg": 0.1667,
+   "kind": "target",
+   "why": "Challenge target (brown-dwarf); astrometry Gaia DR3 6412596012146801152 (Ba+Bb photocentre; RV assumed equal to eps Ind A)",
+   "b_deg": -48.16,
+   "astrometry_source": "Gaia DR3 6412596012146801152 (Ba+Bb photocentre; RV assumed equal to eps Ind A)",
+   "simbad_id": "* eps Ind B",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 458,
+    "images_per_detector": {
+     "D1": 46,
+     "D2": 93,
+     "D3": 96,
+     "D4": 46,
+     "D5": 84,
+     "D6": 93
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "wise-0855",
+   "name": "WISE 0855-0714",
+   "ra": 133.75976,
+   "dec": -7.24219,
+   "fov_deg": 0.1667,
+   "kind": "target",
+   "why": "Challenge target (brown-dwarf); astrometry Kirkpatrick et al. 2021, ApJS 253, 7 (Spitzer; position at MJD 57633.39)",
+   "b_deg": 23.32,
+   "astrometry_source": "Kirkpatrick et al. 2021, ApJS 253, 7 (Spitzer; position at MJD 57633.39)",
+   "simbad_id": "WISEA J085510.74-071442.5",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 258,
+    "images_per_detector": {
+     "D1": 36,
+     "D2": 48,
+     "D3": 45,
+     "D4": 36,
+     "D5": 48,
+     "D6": 45
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S1",
+     "S2"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "rw-aur",
+   "name": "RW Aurigae",
+   "ra": 76.95609,
+   "dec": 30.40113,
+   "fov_deg": 0.1667,
+   "kind": "target",
+   "why": "Challenge target (young-variable); astrometry Gaia DR3 156430822114424576 (RW Aur A)",
+   "b_deg": -6.0,
+   "astrometry_source": "Gaia DR3 156430822114424576 (RW Aur A)",
+   "simbad_id": "V* RW Aur A",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 335,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 55,
+     "D3": 56,
+     "D4": 56,
+     "D5": 56,
+     "D6": 56
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "r-dra",
+   "name": "R Draconis",
+   "ra": 248.16723,
+   "dec": 66.75502,
+   "fov_deg": 0.1667,
+   "kind": "target",
+   "why": "Challenge target (mira-variable); astrometry Gaia DR3 1648328016354496384",
+   "b_deg": 38.23,
+   "astrometry_source": "Gaia DR3 1648328016354496384",
+   "simbad_id": "V* R Dra",
+   "coverage": {
+    "n_epochs": 17,
+    "n_full": 11,
+    "n_images": 847,
+    "images_per_detector": {
+     "D1": 177,
+     "D2": 89,
+     "D3": 158,
+     "D4": 177,
+     "D5": 89,
+     "D6": 157
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S2",
+     "S1",
+     "S1",
+     "S1",
+     "S1",
+     "S1",
+     "S1",
+     "S1",
+     "S2",
+     "S2",
+     "S4",
+     "S4",
+     "S4",
+     "S4",
+     "S3"
+    ],
+    "deep_field": true
+   }
+  },
+  {
+   "id": "pm-l-750-42",
+   "name": "L 750-42",
+   "ra": 145.93158,
+   "dec": -17.78345,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 5684037136313018368: proper motion 1.44 arcsec/yr, G = 12.16 (SIMBAD type LM*)",
+   "b_deg": 26.07,
+   "gaia_source_id": "5684037136313018368",
+   "pm_masyr": 1437.9,
+   "pmra_masyr": -1419.97,
+   "pmdec_masyr": 226.09,
+   "parallax_mas": 74.5845,
+   "g_mag": 12.157,
+   "astrometry_source": "Gaia DR3 5684037136313018368 (IRSA Gator)",
+   "simbad_id": "L  750-42",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 304,
+    "images_per_detector": {
+     "D1": 68,
+     "D2": 37,
+     "D3": 48,
+     "D4": 64,
+     "D5": 38,
+     "D6": 49
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-249-28",
+   "name": "G 249-28",
+   "ra": 90.21439,
+   "dec": 68.14841,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 1105454458063448448: proper motion 1.18 arcsec/yr, G = 11.71 (SIMBAD type PM*)",
+   "b_deg": 20.53,
+   "gaia_source_id": "1105454458063448448",
+   "pm_masyr": 1175.8,
+   "pmra_masyr": 417.02,
+   "pmdec_masyr": -1099.37,
+   "parallax_mas": 50.4078,
+   "g_mag": 11.713,
+   "astrometry_source": "Gaia DR3 1105454458063448448 (IRSA Gator)",
+   "simbad_id": "G 249-28",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 445,
+    "images_per_detector": {
+     "D1": 94,
+     "D2": 56,
+     "D3": 72,
+     "D4": 94,
+     "D5": 57,
+     "D6": 72
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-bdp66-34a",
+   "name": "BD+66  34A",
+   "ra": 8.15558,
+   "dec": 67.23336,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 527956488340229632: proper motion 1.78 arcsec/yr, G = 9.57 (SIMBAD type **)",
+   "b_deg": 4.43,
+   "gaia_source_id": "527956488340229632",
+   "pm_masyr": 1782.5,
+   "pmra_masyr": 1748.32,
+   "pmdec_masyr": -347.59,
+   "parallax_mas": 101.0864,
+   "g_mag": 9.567,
+   "astrometry_source": "Gaia DR3 527956488340229632 (IRSA Gator)",
+   "simbad_id": "BD+66    34A",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 3,
+    "n_images": 438,
+    "images_per_detector": {
+     "D1": 70,
+     "D2": 62,
+     "D3": 87,
+     "D4": 70,
+     "D5": 62,
+     "D6": 87
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S2",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-lp-732-35",
+   "name": "LP 732-35",
+   "ra": 172.78798,
+   "dec": -14.96583,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 3560746351897773952: proper motion 1.43 arcsec/yr, G = 12.56 (SIMBAD type PM*)",
+   "b_deg": 43.62,
+   "gaia_source_id": "3560746351897773952",
+   "pm_masyr": 1433.1,
+   "pmra_masyr": 405.82,
+   "pmdec_masyr": -1374.42,
+   "parallax_mas": 86.9,
+   "g_mag": 12.563,
+   "astrometry_source": "Gaia DR3 3560746351897773952 (IRSA Gator)",
+   "simbad_id": "LP  732-35",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 337,
+    "images_per_detector": {
+     "D1": 61,
+     "D2": 57,
+     "D3": 51,
+     "D4": 59,
+     "D5": 57,
+     "D6": 52
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-wolf-1040",
+   "name": "Wolf 1040",
+   "ra": 354.22432,
+   "dec": 1.16381,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 2646192130603302400: proper motion 1.20 arcsec/yr, G = 12.17 (SIMBAD type PM*)",
+   "b_deg": -56.5,
+   "gaia_source_id": "2646192130603302400",
+   "pm_masyr": 1195.1,
+   "pmra_masyr": 1190.02,
+   "pmdec_masyr": -109.68,
+   "parallax_mas": 40.4238,
+   "g_mag": 12.172,
+   "astrometry_source": "Gaia DR3 2646192130603302400 (IRSA Gator)",
+   "simbad_id": "Wolf 1040",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 379,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 77,
+     "D3": 56,
+     "D4": 56,
+     "D5": 77,
+     "D6": 57
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-10-17",
+   "name": "G 10-17",
+   "ra": 170.40483,
+   "dec": 6.12913,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 3814369840081992448: proper motion 1.76 arcsec/yr, G = 12.45 (SIMBAD type PM*)",
+   "b_deg": 60.05,
+   "gaia_source_id": "3814369840081992448",
+   "pm_masyr": 1758.4,
+   "pmra_masyr": -766.23,
+   "pmdec_masyr": -1582.67,
+   "parallax_mas": 50.129,
+   "g_mag": 12.453,
+   "astrometry_source": "Gaia DR3 3814369840081992448 (IRSA Gator)",
+   "simbad_id": "G  10-17",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 375,
+    "images_per_detector": {
+     "D1": 77,
+     "D2": 64,
+     "D3": 48,
+     "D4": 75,
+     "D5": 63,
+     "D6": 48
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-266-89",
+   "name": "G 266-89",
+   "ra": 4.90186,
+   "dec": -28.17247,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 2322020952722679168: proper motion 1.38 arcsec/yr, G = 12.72 (SIMBAD type PM*)",
+   "b_deg": -82.88,
+   "gaia_source_id": "2322020952722679168",
+   "pm_masyr": 1378.1,
+   "pmra_masyr": -290.59,
+   "pmdec_masyr": -1347.13,
+   "parallax_mas": 27.409,
+   "g_mag": 12.72,
+   "astrometry_source": "Gaia DR3 2322020952722679168 (IRSA Gator)",
+   "simbad_id": "G 266-89",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 344,
+    "images_per_detector": {
+     "D1": 55,
+     "D2": 58,
+     "D3": 57,
+     "D4": 56,
+     "D5": 60,
+     "D6": 58
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-170-12",
+   "name": "G 170-12",
+   "ra": 256.09408,
+   "dec": 16.92393,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 4547881191164080768: proper motion 1.14 arcsec/yr, G = 11.24 (SIMBAD type PM*)",
+   "b_deg": 31.08,
+   "gaia_source_id": "4547881191164080768",
+   "pm_masyr": 1140.0,
+   "pmra_masyr": 133.49,
+   "pmdec_masyr": -1132.19,
+   "parallax_mas": 60.7341,
+   "g_mag": 11.237,
+   "astrometry_source": "Gaia DR3 4547881191164080768 (IRSA Gator)",
+   "simbad_id": "G 170-12",
+   "coverage": {
+    "n_epochs": 6,
+    "n_full": 3,
+    "n_images": 350,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 56,
+     "D3": 63,
+     "D4": 56,
+     "D5": 57,
+     "D6": 62
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-32-7",
+   "name": "G 32-7",
+   "ra": 4.07274,
+   "dec": 19.85861,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 2797745549200773120: proper motion 1.03 arcsec/yr, G = 11.89 (SIMBAD type PM*)",
+   "b_deg": -42.25,
+   "gaia_source_id": "2797745549200773120",
+   "pm_masyr": 1030.7,
+   "pmra_masyr": 708.14,
+   "pmdec_masyr": -748.88,
+   "parallax_mas": 65.0491,
+   "g_mag": 11.887,
+   "astrometry_source": "Gaia DR3 2797745549200773120 (IRSA Gator)",
+   "simbad_id": "G  32-7",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 383,
+    "images_per_detector": {
+     "D1": 57,
+     "D2": 79,
+     "D3": 55,
+     "D4": 57,
+     "D5": 80,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-lp-817-26",
+   "name": "LP 817-26",
+   "ra": 320.39048,
+   "dec": -19.06721,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 6834238105555168768: proper motion 1.07 arcsec/yr, G = 14.63 (SIMBAD type PM*)",
+   "b_deg": -41.41,
+   "gaia_source_id": "6834238105555168768",
+   "pm_masyr": 1070.6,
+   "pmra_masyr": -585.3,
+   "pmdec_masyr": -896.42,
+   "parallax_mas": 13.9974,
+   "g_mag": 14.626,
+   "astrometry_source": "Gaia DR3 6834238105555168768 (IRSA Gator)",
+   "simbad_id": "LP  817-26",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 2,
+    "n_images": 279,
+    "images_per_detector": {
+     "D1": 55,
+     "D2": 42,
+     "D3": 43,
+     "D4": 55,
+     "D5": 42,
+     "D6": 42
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S2",
+     "S1",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-193-27",
+   "name": "G 193-27",
+   "ra": 105.99026,
+   "dec": 52.69517,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 981548637301374336: proper motion 1.14 arcsec/yr, G = 11.70 (SIMBAD type **)",
+   "b_deg": 23.09,
+   "gaia_source_id": "981548637301374336",
+   "pm_masyr": 1143.0,
+   "pmra_masyr": 675.77,
+   "pmdec_masyr": -921.88,
+   "parallax_mas": 110.8263,
+   "g_mag": 11.699,
+   "astrometry_source": "Gaia DR3 981548637301374336 (IRSA Gator)",
+   "simbad_id": "G 193-27",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 372,
+    "images_per_detector": {
+     "D1": 73,
+     "D2": 60,
+     "D3": 53,
+     "D4": 74,
+     "D5": 59,
+     "D6": 53
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-176-40",
+   "name": "G 176-40",
+   "ra": 173.19187,
+   "dec": 43.98714,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 772255155844015104: proper motion 1.15 arcsec/yr, G = 14.47 (SIMBAD type LM*)",
+   "b_deg": 66.88,
+   "gaia_source_id": "772255155844015104",
+   "pm_masyr": 1147.1,
+   "pmra_masyr": 295.13,
+   "pmdec_masyr": -1108.52,
+   "parallax_mas": 15.0049,
+   "g_mag": 14.468,
+   "astrometry_source": "Gaia DR3 772255155844015104 (IRSA Gator)",
+   "simbad_id": "G 176-40",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 2,
+    "n_images": 313,
+    "images_per_detector": {
+     "D1": 55,
+     "D2": 51,
+     "D3": 52,
+     "D4": 53,
+     "D5": 50,
+     "D6": 52
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S2",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-wolf-125",
+   "name": "Wolf 125",
+   "ra": 33.46563,
+   "dec": 15.98436,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 79257544069541248: proper motion 1.02 arcsec/yr, G = 12.78 (SIMBAD type PM*)",
+   "b_deg": -42.48,
+   "gaia_source_id": "79257544069541248",
+   "pm_masyr": 1020.2,
+   "pmra_masyr": 978.52,
+   "pmdec_masyr": -288.64,
+   "parallax_mas": 9.3996,
+   "g_mag": 12.775,
+   "astrometry_source": "Gaia DR3 79257544069541248 (IRSA Gator)",
+   "simbad_id": "Wolf  125",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 333,
+    "images_per_detector": {
+     "D1": 53,
+     "D2": 56,
+     "D3": 56,
+     "D4": 55,
+     "D5": 58,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-l-532-21",
+   "name": "L 532-21",
+   "ra": 134.77801,
+   "dec": -31.23007,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 5629282488047547648: proper motion 1.08 arcsec/yr, G = 12.40 (SIMBAD type PM*)",
+   "b_deg": 9.55,
+   "gaia_source_id": "5629282488047547648",
+   "pm_masyr": 1082.9,
+   "pmra_masyr": 693.6,
+   "pmdec_masyr": -831.67,
+   "parallax_mas": 53.1145,
+   "g_mag": 12.403,
+   "astrometry_source": "Gaia DR3 5629282488047547648 (IRSA Gator)",
+   "simbad_id": "L  532-21",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 358,
+    "images_per_detector": {
+     "D1": 44,
+     "D2": 83,
+     "D3": 53,
+     "D4": 44,
+     "D5": 82,
+     "D6": 52
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-eggr-467",
+   "name": "EGGR 467",
+   "ra": 27.03734,
+   "dec": -17.21199,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 5142197118950177280: proper motion 1.11 arcsec/yr, G = 17.54 (SIMBAD type WD*)",
+   "b_deg": -73.57,
+   "gaia_source_id": "5142197118950177280",
+   "pm_masyr": 1111.3,
+   "pmra_masyr": -106.51,
+   "pmdec_masyr": -1106.19,
+   "parallax_mas": 13.0359,
+   "g_mag": 17.536,
+   "astrometry_source": "Gaia DR3 5142197118950177280 (IRSA Gator)",
+   "simbad_id": "EGGR 467",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 344,
+    "images_per_detector": {
+     "D1": 59,
+     "D2": 58,
+     "D3": 56,
+     "D4": 58,
+     "D5": 58,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-apmpm-j2330-4737",
+   "name": "APMPM J2330-4737",
+   "ra": 352.56134,
+   "dec": -47.61956,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 6526541563232943872: proper motion 1.12 arcsec/yr, G = 15.22 (SIMBAD type Em*)",
+   "b_deg": -64.09,
+   "gaia_source_id": "6526541563232943872",
+   "pm_masyr": 1124.6,
+   "pmra_masyr": -562.65,
+   "pmdec_masyr": -973.69,
+   "parallax_mas": 73.5992,
+   "g_mag": 15.217,
+   "astrometry_source": "Gaia DR3 6526541563232943872 (IRSA Gator)",
+   "simbad_id": "APMPM J2330-4737",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 346,
+    "images_per_detector": {
+     "D1": 67,
+     "D2": 52,
+     "D3": 56,
+     "D4": 65,
+     "D5": 51,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-l-127-97",
+   "name": "L 127-97",
+   "ra": 43.10833,
+   "dec": -63.67523,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 4721111481504887040: proper motion 1.17 arcsec/yr, G = 10.33 (SIMBAD type PM*)",
+   "b_deg": -48.56,
+   "gaia_source_id": "4721111481504887040",
+   "pm_masyr": 1167.4,
+   "pmra_masyr": 979.98,
+   "pmdec_masyr": 634.38,
+   "parallax_mas": 85.1168,
+   "g_mag": 10.325,
+   "astrometry_source": "Gaia DR3 4721111481504887040 (IRSA Gator)",
+   "simbad_id": "L  127-97",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 384,
+    "images_per_detector": {
+     "D1": 63,
+     "D2": 63,
+     "D3": 69,
+     "D4": 61,
+     "D5": 62,
+     "D6": 66
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-lp-639-1",
+   "name": "LP 639-1",
+   "ra": 329.23945,
+   "dec": -1.89817,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 2679694971455927296: proper motion 1.42 arcsec/yr, G = 13.01 (SIMBAD type PM*)",
+   "b_deg": -41.23,
+   "gaia_source_id": "2679694971455927296",
+   "pm_masyr": 1419.7,
+   "pmra_masyr": 1280.97,
+   "pmdec_masyr": 612.11,
+   "parallax_mas": 74.2201,
+   "g_mag": 13.014,
+   "astrometry_source": "Gaia DR3 2679694971455927296 (IRSA Gator)",
+   "simbad_id": "LP  639-1",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 320,
+    "images_per_detector": {
+     "D1": 49,
+     "D2": 55,
+     "D3": 56,
+     "D4": 49,
+     "D5": 55,
+     "D6": 56
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S1",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-ross-476",
+   "name": "Ross 476",
+   "ra": 202.50351,
+   "dec": -8.7105,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 3630015546177181952: proper motion 1.21 arcsec/yr, G = 12.71 (SIMBAD type PM*)",
+   "b_deg": 52.96,
+   "gaia_source_id": "3630015546177181952",
+   "pm_masyr": 1210.6,
+   "pmra_masyr": -1114.02,
+   "pmdec_masyr": -473.86,
+   "parallax_mas": 62.2807,
+   "g_mag": 12.706,
+   "astrometry_source": "Gaia DR3 3630015546177181952 (IRSA Gator)",
+   "simbad_id": "Ross  476",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 3,
+    "n_images": 344,
+    "images_per_detector": {
+     "D1": 60,
+     "D2": 57,
+     "D3": 56,
+     "D4": 58,
+     "D5": 57,
+     "D6": 56
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-7-17",
+   "name": "G  7-17",
+   "ra": 60.40496,
+   "dec": 18.71978,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 50135226263009280: proper motion 1.15 arcsec/yr, G = 14.59 (SIMBAD type LM*)",
+   "b_deg": -25.0,
+   "gaia_source_id": "50135226263009280",
+   "pm_masyr": 1153.1,
+   "pmra_masyr": 328.36,
+   "pmdec_masyr": -1105.33,
+   "parallax_mas": 17.239,
+   "g_mag": 14.59,
+   "astrometry_source": "Gaia DR3 50135226263009280 (IRSA Gator)",
+   "simbad_id": "G   7-17",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 349,
+    "images_per_detector": {
+     "D1": 66,
+     "D2": 55,
+     "D3": 54,
+     "D4": 66,
+     "D5": 55,
+     "D6": 53
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-g-63-45",
+   "name": "G 63-45",
+   "ra": 204.81852,
+   "dec": 15.67704,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 3742264417288315648: proper motion 1.01 arcsec/yr, G = 13.05 (SIMBAD type PM*)",
+   "b_deg": 74.05,
+   "gaia_source_id": "3742264417288315648",
+   "pm_masyr": 1007.3,
+   "pmra_masyr": 616.26,
+   "pmdec_masyr": -796.77,
+   "parallax_mas": 32.7444,
+   "g_mag": 13.05,
+   "astrometry_source": "Gaia DR3 3742264417288315648 (IRSA Gator)",
+   "simbad_id": "G  63-45",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 384,
+    "images_per_detector": {
+     "D1": 66,
+     "D2": 58,
+     "D3": 68,
+     "D4": 66,
+     "D5": 58,
+     "D6": 68
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "pm-lp-320-434",
+   "name": "LP 320-434",
+   "ra": 185.37856,
+   "dec": 28.90424,
+   "fov_deg": 0.1667,
+   "kind": "known-mover",
+   "why": "Gaia DR3 4010333804635798144: proper motion 1.04 arcsec/yr, G = 15.92 (SIMBAD type PM*)",
+   "b_deg": 83.16,
+   "gaia_source_id": "4010333804635798144",
+   "pm_masyr": 1042.6,
+   "pmra_masyr": -1001.82,
+   "pmdec_masyr": -288.84,
+   "parallax_mas": 18.206,
+   "g_mag": 15.919,
+   "astrometry_source": "Gaia DR3 4010333804635798144 (IRSA Gator)",
+   "simbad_id": "LP  320-434",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 387,
+    "images_per_detector": {
+     "D1": 82,
+     "D2": 56,
+     "D3": 57,
+     "D4": 80,
+     "D5": 56,
+     "D6": 56
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-sips-j1936-5502",
+   "name": "SIPS J1936-5502",
+   "ra": 294.01043,
+   "dec": -55.04442,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L4, parallax 43.1 mas, K = 13.05, proper motion 0.36 arcsec/yr",
+   "b_deg": -28.19,
+   "sp_type": "L4",
+   "parallax_mas": 43.1217,
+   "k_mag": 13.046,
+   "pm_masyr": 360.0,
+   "pmra_masyr": 204.195,
+   "pmdec_masyr": -296.529,
+   "astrometry_source": "SIMBAD SIPS J1936-5502 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "SIPS J1936-5502",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 472,
+    "images_per_detector": {
+     "D1": 91,
+     "D2": 65,
+     "D3": 81,
+     "D4": 91,
+     "D5": 63,
+     "D6": 81
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-ssspm-j1444-2019",
+   "name": "SSSPM J1444-2019",
+   "ra": 221.06234,
+   "dec": -20.33791,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type sdL0, parallax 58.1 mas, K = 11.93, proper motion 3.51 arcsec/yr",
+   "b_deg": 35.24,
+   "sp_type": "sdL0",
+   "parallax_mas": 58.1427,
+   "k_mag": 11.933,
+   "pm_masyr": 3507.9,
+   "pmra_masyr": -2908.634,
+   "pmdec_masyr": -1960.916,
+   "astrometry_source": "SIMBAD SSSPM J1444-2019 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "SSSPM J1444-2019",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 345,
+    "images_per_detector": {
+     "D1": 58,
+     "D2": 55,
+     "D3": 59,
+     "D4": 58,
+     "D5": 55,
+     "D6": 60
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j13153094-2649513",
+   "name": "2MASS J13153094-2649513",
+   "ra": 198.87301,
+   "dec": -26.83315,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L5e, parallax 54.6 mas, K = 13.46, proper motion 0.75 arcsec/yr",
+   "b_deg": 35.73,
+   "sp_type": "L5e",
+   "parallax_mas": 54.5626,
+   "k_mag": 13.462,
+   "pm_masyr": 746.5,
+   "pmra_masyr": -688.26,
+   "pmdec_masyr": -289.107,
+   "astrometry_source": "SIMBAD 2MASS J13153094-2649513 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J13153094-2649513",
+   "coverage": {
+    "n_epochs": 6,
+    "n_full": 3,
+    "n_images": 364,
+    "images_per_detector": {
+     "D1": 60,
+     "D2": 67,
+     "D3": 56,
+     "D4": 58,
+     "D5": 66,
+     "D6": 57
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j21265916p7617440",
+   "name": "2MASS J21265916+7617440",
+   "ra": 321.76951,
+   "dec": 76.30132,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type T0p, parallax 61.1 mas, K = 13.16, proper motion 1.12 arcsec/yr",
+   "b_deg": 18.1,
+   "sp_type": "T0p",
+   "parallax_mas": 61.1492,
+   "k_mag": 13.16,
+   "pm_masyr": 1117.4,
+   "pmra_masyr": 756.414,
+   "pmdec_masyr": 822.463,
+   "astrometry_source": "SIMBAD 2MASS J21265916+7617440 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J21265916+7617440",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 448,
+    "images_per_detector": {
+     "D1": 76,
+     "D2": 82,
+     "D3": 66,
+     "D4": 75,
+     "D5": 83,
+     "D6": 66
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j19555779p3215277",
+   "name": "2MASS J19555779+3215277",
+   "ra": 298.98732,
+   "dec": 32.25345,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L1, parallax 55.1 mas, K = 13.74, proper motion 0.67 arcsec/yr",
+   "b_deg": 1.96,
+   "sp_type": "L1",
+   "parallax_mas": 55.0671,
+   "k_mag": 13.738,
+   "pm_masyr": 673.5,
+   "pmra_masyr": -383.254,
+   "pmdec_masyr": -553.841,
+   "astrometry_source": "SIMBAD 2MASS J19555779+3215277 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J19555779+3215277",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 3,
+    "n_images": 444,
+    "images_per_detector": {
+     "D1": 69,
+     "D2": 55,
+     "D3": 99,
+     "D4": 68,
+     "D5": 55,
+     "D6": 98
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S1",
+     "S3",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j00345684-0706013",
+   "name": "2MASS J00345684-0706013",
+   "ra": 8.73841,
+   "dec": -7.10137,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L4.3V, parallax 55.8 mas, K = 13.94, proper motion 0.26 arcsec/yr",
+   "b_deg": -69.59,
+   "sp_type": "L4.3V",
+   "parallax_mas": 55.83,
+   "k_mag": 13.942,
+   "pm_masyr": 256.0,
+   "pmra_masyr": 215,
+   "pmdec_masyr": -139,
+   "astrometry_source": "SIMBAD 2MASS J00345684-0706013 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J00345684-0706013",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 372,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 74,
+     "D3": 56,
+     "D4": 56,
+     "D5": 74,
+     "D6": 56
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j13243553p6358281",
+   "name": "2MASS J13243553+6358281",
+   "ra": 201.14208,
+   "dec": 63.97396,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L8.0+T3.5, parallax 99.7 mas, K = 14.06, proper motion 0.37 arcsec/yr",
+   "b_deg": 52.77,
+   "sp_type": "L8.0+T3.5",
+   "parallax_mas": 99.7,
+   "k_mag": 14.058,
+   "pm_masyr": 371.5,
+   "pmra_masyr": -364.4,
+   "pmdec_masyr": -72.4,
+   "astrometry_source": "SIMBAD 2MASS J13243553+6358281 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J13243553+6358281",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 2,
+    "n_images": 316,
+    "images_per_detector": {
+     "D1": 59,
+     "D2": 62,
+     "D3": 37,
+     "D4": 57,
+     "D5": 63,
+     "D6": 38
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j04013766p2849529",
+   "name": "2MASS J04013766+2849529",
+   "ra": 60.40277,
+   "dec": 28.83057,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L4.0, parallax 80.4 mas, K = 11.82, proper motion 0.48 arcsec/yr",
+   "b_deg": -17.84,
+   "sp_type": "L4.0",
+   "parallax_mas": 80.3804,
+   "k_mag": 11.817,
+   "pm_masyr": 479.4,
+   "pmra_masyr": -468.257,
+   "pmdec_masyr": -102.608,
+   "astrometry_source": "SIMBAD 2MASS J04013766+2849529 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J04013766+2849529",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 332,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 55,
+     "D3": 54,
+     "D4": 56,
+     "D5": 56,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2massi-j1721039p334415",
+   "name": "2MASSI J1721039+334415",
+   "ra": 260.24902,
+   "dec": 33.7423,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L5.3:V, parallax 61.8 mas, K = 12.49, proper motion 1.95 arcsec/yr",
+   "b_deg": 32.53,
+   "sp_type": "L5.3:V",
+   "parallax_mas": 61.7896,
+   "k_mag": 12.489,
+   "pm_masyr": 1947.4,
+   "pmra_masyr": -1855.538,
+   "pmdec_masyr": 591.032,
+   "astrometry_source": "SIMBAD 2MASSI J1721039+334415 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASSI J1721039+334415",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 380,
+    "images_per_detector": {
+     "D1": 58,
+     "D2": 73,
+     "D3": 58,
+     "D4": 58,
+     "D5": 75,
+     "D6": 58
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "bd-2mass-j04430581-3202090",
+   "name": "2MASS J04430581-3202090",
+   "ra": 70.77418,
+   "dec": -32.03433,
+   "fov_deg": 0.1667,
+   "kind": "brown-dwarf",
+   "why": "SIMBAD BD*, spectral type L6.4:V, parallax 48.5 mas, K = 13.88, proper motion 0.20 arcsec/yr",
+   "b_deg": -39.99,
+   "sp_type": "L6.4:V",
+   "parallax_mas": 48.5037,
+   "k_mag": 13.877,
+   "pm_masyr": 198.2,
+   "pmra_masyr": -8.46,
+   "pmdec_masyr": 198.061,
+   "astrometry_source": "SIMBAD 2MASS J04430581-3202090 (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "2MASS J04430581-3202090",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 402,
+    "images_per_detector": {
+     "D1": 73,
+     "D2": 61,
+     "D3": 69,
+     "D4": 71,
+     "D5": 61,
+     "D6": 67
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-v1840-ori",
+   "name": "V* V1840 Ori",
+   "ra": 74.94245,
+   "dec": 14.51528,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD T Tauri star (TT*), K = 8.95, spectral type K4",
+   "b_deg": -16.8,
+   "otype": "TT*",
+   "sp_type": "K4",
+   "k_mag": 8.948,
+   "astrometry_source": "SIMBAD V* V1840 Ori (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* V1840 Ori",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 334,
+    "images_per_detector": {
+     "D1": 55,
+     "D2": 55,
+     "D3": 55,
+     "D4": 55,
+     "D5": 59,
+     "D6": 55
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-v2586-ori",
+   "name": "V* V2586 Ori",
+   "ra": 83.93686,
+   "dec": -5.4096,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD T Tauri star (TT*), K = 10.72, spectral type M4",
+   "b_deg": -19.29,
+   "otype": "TT*",
+   "sp_type": "M4",
+   "k_mag": 10.722,
+   "astrometry_source": "SIMBAD V* V2586 Ori (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* V2586 Ori",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 361,
+    "images_per_detector": {
+     "D1": 60,
+     "D2": 59,
+     "D3": 61,
+     "D4": 60,
+     "D5": 59,
+     "D6": 62
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-v957-per",
+   "name": "V* V957 Per",
+   "ra": 67.63957,
+   "dec": 48.07852,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD classical Cepheid (cC*), K = 9.21, spectral type ?",
+   "b_deg": -0.21,
+   "otype": "cC*",
+   "sp_type": null,
+   "k_mag": 9.206,
+   "astrometry_source": "SIMBAD V* V957 Per (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* V957 Per",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 3,
+    "n_images": 357,
+    "images_per_detector": {
+     "D1": 58,
+     "D2": 60,
+     "D3": 59,
+     "D4": 59,
+     "D5": 60,
+     "D6": 61
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S1",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-fu-oct",
+   "name": "V* FU Oct",
+   "ra": 275.00217,
+   "dec": -83.83459,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD RR Lyrae star (RR*), K = 10.52, spectral type ?",
+   "b_deg": -26.12,
+   "otype": "RR*",
+   "sp_type": null,
+   "k_mag": 10.517,
+   "astrometry_source": "SIMBAD V* FU Oct (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* FU Oct",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 521,
+    "images_per_detector": {
+     "D1": 109,
+     "D2": 64,
+     "D3": 90,
+     "D4": 108,
+     "D5": 63,
+     "D6": 87
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-v2893-sgr",
+   "name": "V* V2893 Sgr",
+   "ra": 274.36903,
+   "dec": -35.57586,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD Mira variable (Mi*), K = 8.43, spectral type ?",
+   "b_deg": -9.11,
+   "otype": "Mi*",
+   "sp_type": null,
+   "k_mag": 8.429,
+   "astrometry_source": "SIMBAD V* V2893 Sgr (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* V2893 Sgr",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 409,
+    "images_per_detector": {
+     "D1": 75,
+     "D2": 56,
+     "D3": 73,
+     "D4": 76,
+     "D5": 56,
+     "D6": 73
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "var-dd-ser",
+   "name": "V* DD Ser",
+   "ra": 280.30484,
+   "dec": -1.96826,
+   "fov_deg": 0.1667,
+   "kind": "variable",
+   "why": "SIMBAD Orion variable (Or*), K = 8.58, spectral type A0",
+   "b_deg": 1.37,
+   "otype": "Or*",
+   "sp_type": "A0",
+   "k_mag": 8.576,
+   "astrometry_source": "SIMBAD V* DD Ser (J2000 position, SIMBAD proper motion)",
+   "simbad_id": "V* DD Ser",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 402,
+    "images_per_detector": {
+     "D1": 72,
+     "D2": 67,
+     "D3": 64,
+     "D4": 70,
+     "D5": 65,
+     "D6": 64
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-01",
+   "name": "Control 01 (|b| > 20)",
+   "ra": 144.92395,
+   "dec": 35.04385,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +48.6 deg; no known object targeted",
+   "b_deg": 48.59,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 2,
+    "n_images": 313,
+    "images_per_detector": {
+     "D1": 41,
+     "D2": 75,
+     "D3": 41,
+     "D4": 40,
+     "D5": 75,
+     "D6": 41
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-02",
+   "name": "Control 02 (|b| > 20)",
+   "ra": 316.20405,
+   "dec": -14.34042,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -35.9 deg; no known object targeted",
+   "b_deg": -35.94,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 356,
+    "images_per_detector": {
+     "D1": 60,
+     "D2": 50,
+     "D3": 68,
+     "D4": 62,
+     "D5": 49,
+     "D6": 67
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S2",
+     "S1"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-03",
+   "name": "Control 03 (|b| > 20)",
+   "ra": 189.24433,
+   "dec": 49.40632,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +67.5 deg; no known object targeted",
+   "b_deg": 67.55,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 378,
+    "images_per_detector": {
+     "D1": 57,
+     "D2": 72,
+     "D3": 64,
+     "D4": 57,
+     "D5": 64,
+     "D6": 64
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-04",
+   "name": "Control 04 (|b| > 20)",
+   "ra": 167.36193,
+   "dec": -3.81291,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +50.5 deg; no known object targeted",
+   "b_deg": 50.46,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 5,
+    "n_full": 2,
+    "n_images": 289,
+    "images_per_detector": {
+     "D1": 57,
+     "D2": 46,
+     "D3": 42,
+     "D4": 56,
+     "D5": 45,
+     "D6": 43
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-05",
+   "name": "Control 05 (|b| > 20)",
+   "ra": 172.43763,
+   "dec": 24.27547,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +71.4 deg; no known object targeted",
+   "b_deg": 71.4,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 321,
+    "images_per_detector": {
+     "D1": 53,
+     "D2": 59,
+     "D3": 48,
+     "D4": 53,
+     "D5": 59,
+     "D6": 49
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-06",
+   "name": "Control 06 (|b| > 20)",
+   "ra": 41.6361,
+   "dec": -45.45798,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -60.7 deg; no known object targeted",
+   "b_deg": -60.71,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 459,
+    "images_per_detector": {
+     "D1": 95,
+     "D2": 55,
+     "D3": 79,
+     "D4": 97,
+     "D5": 56,
+     "D6": 77
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-07",
+   "name": "Control 07 (|b| > 20)",
+   "ra": 183.40659,
+   "dec": 13.65107,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +73.9 deg; no known object targeted",
+   "b_deg": 73.89,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 384,
+    "images_per_detector": {
+     "D1": 55,
+     "D2": 63,
+     "D3": 74,
+     "D4": 56,
+     "D5": 62,
+     "D6": 74
+    },
+    "surveys": [
+     "S2",
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-08",
+   "name": "Control 08 (|b| > 20)",
+   "ra": 334.461,
+   "dec": -38.68795,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -56.0 deg; no known object targeted",
+   "b_deg": -56.04,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 290,
+    "images_per_detector": {
+     "D1": 42,
+     "D2": 42,
+     "D3": 60,
+     "D4": 43,
+     "D5": 42,
+     "D6": 61
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S1",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-09",
+   "name": "Control 09 (|b| > 20)",
+   "ra": 183.84814,
+   "dec": 36.55611,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +77.9 deg; no known object targeted",
+   "b_deg": 77.87,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 368,
+    "images_per_detector": {
+     "D1": 64,
+     "D2": 64,
+     "D3": 57,
+     "D4": 62,
+     "D5": 65,
+     "D6": 56
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-10",
+   "name": "Control 10 (|b| > 20)",
+   "ra": 168.87212,
+   "dec": 17.22666,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +65.7 deg; no known object targeted",
+   "b_deg": 65.74,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 292,
+    "images_per_detector": {
+     "D1": 51,
+     "D2": 47,
+     "D3": 48,
+     "D4": 50,
+     "D5": 47,
+     "D6": 49
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-11",
+   "name": "Control 11 (|b| > 20)",
+   "ra": 35.35342,
+   "dec": -24.13249,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -69.5 deg; no known object targeted",
+   "b_deg": -69.53,
+   "control_band": "high",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 3,
+    "n_images": 347,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 59,
+     "D3": 59,
+     "D4": 56,
+     "D5": 58,
+     "D6": 59
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-12",
+   "name": "Control 12 (|b| < 10)",
+   "ra": 114.21777,
+   "dec": -35.31795,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -6.9 deg; no known object targeted",
+   "b_deg": -6.93,
+   "control_band": "low",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 2,
+    "n_images": 314,
+    "images_per_detector": {
+     "D1": 56,
+     "D2": 58,
+     "D3": 41,
+     "D4": 57,
+     "D5": 62,
+     "D6": 40
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S2"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-13",
+   "name": "Control 13 (|b| < 10)",
+   "ra": 112.87403,
+   "dec": -6.47109,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude +5.9 deg; no known object targeted",
+   "b_deg": 5.88,
+   "control_band": "low",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 2,
+    "n_images": 271,
+    "images_per_detector": {
+     "D1": 39,
+     "D2": 57,
+     "D3": 39,
+     "D4": 40,
+     "D5": 58,
+     "D6": 38
+    },
+    "surveys": [
+     "S1",
+     "S1",
+     "S2"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-14",
+   "name": "Control 14 (|b| < 10)",
+   "ra": 289.42574,
+   "dec": -2.76447,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -7.1 deg; no known object targeted",
+   "b_deg": -7.1,
+   "control_band": "low",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 421,
+    "images_per_detector": {
+     "D1": 62,
+     "D2": 65,
+     "D3": 83,
+     "D4": 63,
+     "D5": 66,
+     "D6": 82
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-15",
+   "name": "Control 15 (|b| < 10)",
+   "ra": 320.77799,
+   "dec": 45.71485,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -3.2 deg; no known object targeted",
+   "b_deg": -3.18,
+   "control_band": "low",
+   "coverage": {
+    "n_epochs": 3,
+    "n_full": 3,
+    "n_images": 439,
+    "images_per_detector": {
+     "D1": 72,
+     "D2": 81,
+     "D3": 69,
+     "D4": 68,
+     "D5": 81,
+     "D6": 68
+    },
+    "surveys": [
+     "S1",
+     "S2",
+     "S3"
+    ],
+    "deep_field": false
+   }
+  },
+  {
+   "id": "ctrl-16",
+   "name": "Control 16 (|b| < 10)",
+   "ra": 273.95512,
+   "dec": -25.34342,
+   "fov_deg": 0.1667,
+   "kind": "control",
+   "why": "Seeded random position (seed 20261114), Galactic latitude -4.1 deg; no known object targeted",
+   "b_deg": -4.05,
+   "control_band": "low",
+   "coverage": {
+    "n_epochs": 4,
+    "n_full": 2,
+    "n_images": 322,
+    "images_per_detector": {
+     "D1": 59,
+     "D2": 54,
+     "D3": 44,
+     "D4": 58,
+     "D5": 53,
+     "D6": 54
+    },
+    "surveys": [
+     "S2",
+     "S1",
+     "S4",
+     "S4"
+    ],
+    "deep_field": false
+   }
+  }
+ ]
+}

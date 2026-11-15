@@ -6,18 +6,17 @@ import { useEffect, useState, type ReactNode } from "react";
 import NumberFlow from "@number-flow/react";
 import { motion, type Variants } from "motion/react";
 import { cn } from "@/lib/utils";
+import { EASE_OUT_EXPO, PANEL_RISE } from "@/lib/motion";
 import { Term } from "@/components/ui/term";
 import type { Coverage, Live } from "@/lib/sky-live";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
-
 export const staggerParent: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.045, delayChildren: 0.06 } },
+  show: { transition: { staggerChildren: PANEL_RISE.stagger, delayChildren: PANEL_RISE.delay } },
 };
 export const staggerChild: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
+  hidden: { opacity: 0, y: PANEL_RISE.y },
+  show: { opacity: 1, y: 0, transition: { duration: PANEL_RISE.duration, ease: EASE_OUT_EXPO } },
 };
 
 /** A block of content that rises into place after the one before it. */
@@ -215,7 +214,7 @@ export function CoverageView({ coverage, reducedMotion }: { coverage: Coverage; 
         {epochs.slice(0, 8).map((e, i) => (
           <li key={i} className="flex justify-between gap-3">
             <span>
-              {e.survey ? <Term k="survey" mark={false}>{e.survey}</Term> : `Visit ${i + 1}`}
+              {e.survey ? e.survey : `Visit ${i + 1}`}
               {e.full ? null : <span className="text-fg-faint"> (partial)</span>}
             </span>
             <span className="readout text-fg-faint">
@@ -228,7 +227,7 @@ export function CoverageView({ coverage, reducedMotion }: { coverage: Coverage; 
       </ul>
       {coverage.deepField ? (
         <p className="text-micro text-fg-faint">
-          This is a <Term k="deepField" />, so SPHEREx looks here almost every orbit.
+          This is a <Term k="deepField">deep field</Term>, so SPHEREx looks here almost every orbit.
         </p>
       ) : null}
     </div>

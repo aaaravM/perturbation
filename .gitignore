@@ -18,6 +18,7 @@ next-env.d.ts
 # Downloaded archive data and caches (never commit; always re-fetchable)
 data/cache/
 data/tmp/
+data/survey/
 *.fits
 *.fits.gz
 !backend/tests/fixtures/*.fits

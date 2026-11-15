@@ -349,3 +349,38 @@ def test_live_cube_spectrum_at_barnards_star(live) -> None:
     print(f"offset field: {time.perf_counter() - t0:.2f} s, {field['requests']} requests, {field['bytes']} B; "
           f"complete {field['n_finite']}")
     assert field["n_finite"] == 100 and field["n_lower_limit"] == 0
+
+
+# --- many positions in one tile ---------------------------------------------------------------------------
+
+
+def test_cube_spectra_match_cube_spectrum_from_whole_row_reads(serve, tile) -> None:
+    blob, truth = tile
+    server = serve({TILE_URL: blob, config.IRSA_SIA_URL: sia_votable([TILE_URL])})
+    pixels = [SRC, (12.0, 14.0), (13.0, 17.0), (40.0, 52.0), (1.0, 20.0)]  # two share rows; one at the edge
+    positions = [_synthetic_radec(*p) for p in pixels]
+    singles = [cube.cube_spectrum(*p) for p in positions]
+    n_before = len(server.range_headers)
+    batch = cube.cube_spectra(positions + [(200.0, -60.0)], tile_url=TILE_URL)
+    assert batch[-1] is None  # another tile
+    for one, many in zip(singles, batch[:-1], strict=True):
+        assert many is not None and many["tile_url"] == TILE_URL and many["edge"] == one["edge"]
+        for key in ("flux_ujy", "flux_err_ujy", "flux_partial_ujy", "masked_fraction", "background_mjysr"):
+            assert np.array_equal(many[key], one[key], equal_nan=True), key
+        assert many["quality"].tolist() == one["quality"].tolist()
+        assert many["lower_limit"].tolist() == one["lower_limit"].tolist()
+        assert many["n_finite"] == one["n_finite"] and many["nhits"] is None and many["flags"] is None
+    # rows 8-26 (three overlapping boxes) and 35-58 (two boxes): one range per plane each, split over 4 requests
+    assert batch[0]["requests"] == 4 and len(server.range_headers) - n_before == 4
+    assert np.allclose(batch[0]["flux_ujy"][np.isfinite(batch[0]["flux_ujy"])],
+                       truth["flux"][np.isfinite(batch[0]["flux_ujy"])], rtol=1e-5)
+
+
+def test_read_cube_rows_rejects_rows_outside_the_tile(serve, tile) -> None:
+    serve({TILE_URL: tile[0]})
+    meta = cube.read_cube_meta(TILE_URL)
+    rows = cube.read_cube_rows(meta, [(0, 2), (60, 63)])
+    assert rows[(0, 2)].shape == (102, 3, N) and rows[(60, 63)].shape == (102, 4, N)
+    with pytest.raises(ValueError):
+        cube.read_cube_rows(meta, [(60, 64)])
+    assert cube.cube_spectra([]) == []

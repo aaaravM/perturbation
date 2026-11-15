@@ -4,7 +4,6 @@
 // to 5 microns. Masked channels are left out, never filled in.
 
 import { motion } from "motion/react";
-import { Term } from "@/components/ui/term";
 import type { QuickSpectrum as QuickSpectrumData } from "@/lib/sky-live";
 
 const W = 360;
@@ -109,7 +108,7 @@ export function QuickSpectrum({ data, reducedMotion }: { data: QuickSpectrumData
             , <span className="readout">{data.pixelArcsec.toFixed(1)}″</span> pixels
           </>
         ) : null}
-        . Each dot is one of SPHEREx&rsquo;s <Term k="channels">102 colours</Term>; gaps are channels with no usable
+        . Each dot is one of SPHEREx&rsquo;s 102 colours; gaps are channels with no usable
         data. Brightest near <span className="readout text-fg-dim">{peak.wl.toFixed(2)} µm</span>.
       </figcaption>
     </figure>

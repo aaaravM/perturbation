@@ -556,7 +556,7 @@ def cube_spectrum(
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             x, y = (float(v) for v in wcs.all_world2pix([[ra, dec]], 0)[0])
-        nplane, ny, nx = meta.shape
+        _, ny, nx = meta.shape
         if not (-0.5 <= x < nx - 0.5 and -0.5 <= y < ny - 0.5):
             raise CubeError(f"({ra}, {dec}) maps to pixel ({x:.2f}, {y:.2f}) outside tile {tile.npix}")
         half = math.ceil(r_out + 1.0)
@@ -567,6 +567,34 @@ def cube_spectrum(
         box, centre = read_cube_values(meta, xa, xb, ya, yb, xc, yc, max_gap=max_gap)
         nhits = centre.get("NHITS")
         cflags = centre.get("FLAGS")
+    out = _box_spectrum(
+        meta, tile, collection, ra, dec, x, y, box, xa, ya, edge, nhits, cflags, aperture_radius_px, (r_in, r_out)
+    )
+    out.update({"seconds": time.perf_counter() - t0, "requests": st.requests, "bytes": st.bytes})
+    return out
+
+
+def _box_spectrum(
+    meta: CubeMeta,
+    tile: CubeTile,
+    collection: str,
+    ra: float,
+    dec: float,
+    x: float,
+    y: float,
+    box: np.ndarray,
+    xa: int,
+    ya: int,
+    edge: bool,
+    nhits: np.ndarray | None,
+    cflags: np.ndarray | None,
+    aperture_radius_px: float,
+    annulus_px: tuple[float, float],
+    flag_bits: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """The `cube_spectrum` result (without timing) from a pixel box whose corner is tile pixel (xa, ya)."""
+    r_in, r_out = annulus_px
+    nplane = meta.shape[0]
     full_area = math.pi * aperture_radius_px**2 if edge else None
     phot = aperture_photometry(box, x - xa, y - ya, aperture_radius_px, r_in, r_out, meta.pixel_sr, full_area)
     quality = np.full(nplane, "ok", dtype=object)
@@ -600,7 +628,7 @@ def cube_spectrum(
         **phot,
         "nhits": nhits,
         "flags": cflags,
-        "flag_bits": meta.flag_bits(),
+        "flag_bits": meta.flag_bits() if flag_bits is None else dict(flag_bits),
         "quality": quality.astype(str),
         "lower_limit": lower_limit,
         "blank_planes": list(meta.blank_planes),
@@ -617,7 +645,127 @@ def cube_spectrum(
             "Quick look from the IRSA DR1 cube (labelled for visualization): no aperture correction; "
             "errors from background scatter only; saturated/bright-star pixels are often blank (NaN)."
         ),
-        "seconds": time.perf_counter() - t0,
-        "requests": st.requests,
-        "bytes": st.bytes,
     }
+
+
+# --- many positions in one tile ---------------------------------------------------------------------------
+
+
+def read_cube_rows(
+    meta: CubeMeta, intervals: list[tuple[int, int]], *, groups: int = config.IRSA_MAX_CONCURRENCY
+) -> dict[tuple[int, int], np.ndarray]:
+    """IMAGE values [nplane, yb-ya+1, nx] (MJy/sr) of whole tile rows ya..yb (inclusive) for each interval.
+
+    Whole rows are contiguous in the file, so each (interval, plane) is one byte range. The ranges are split
+    into up to `groups` requests of at most ``config.IBE_MAX_RANGES_PER_REQUEST`` ranges, issued in parallel;
+    rangeio's process-wide IRSA limit (``config.IRSA_MAX_CONCURRENCY``) still applies.
+    """
+    nplane, ny, nx = meta.shape
+    start = meta.data_start["IMAGE"]
+    ranges: list[tuple[int, int]] = []
+    for ya, yb in intervals:
+        if not (0 <= ya <= yb < ny):
+            raise ValueError(f"row interval {(ya, yb)} outside the tile (0-{ny - 1})")
+        for k in range(nplane):
+            base = start + 4 * k * ny * nx
+            ranges.append((base + 4 * ya * nx, base + 4 * (yb + 1) * nx - 1))
+    per = max(1, min(config.IBE_MAX_RANGES_PER_REQUEST, math.ceil(len(ranges) / max(1, groups))))
+    chunks = [ranges[i : i + per] for i in range(0, len(ranges), per)]
+    if len(chunks) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+
+        trackers = rangeio._current_trackers()  # count the workers' traffic in the caller's track() blocks
+
+        def read(c: list[tuple[int, int]]) -> list[bytes]:
+            rangeio._LOCAL.trackers = trackers
+            try:
+                return rangeio.read_ranges(meta.url, c)
+            finally:
+                rangeio._LOCAL.trackers = []
+
+        with ThreadPoolExecutor(max_workers=min(len(chunks), config.IRSA_MAX_CONCURRENCY)) as ex:
+            parts = [p for res in ex.map(read, chunks) for p in res]
+    else:
+        parts = [p for c in chunks for p in rangeio.read_ranges(meta.url, c)]
+    out: dict[tuple[int, int], np.ndarray] = {}
+    for i, (ya, yb) in enumerate(intervals):
+        raw = b"".join(parts[i * nplane : (i + 1) * nplane])
+        out[(ya, yb)] = np.frombuffer(raw, dtype=">f4").reshape(nplane, yb - ya + 1, nx).astype(np.float32)
+    return out
+
+
+def _merge_intervals(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    merged: list[tuple[int, int]] = []
+    for a, b in sorted(intervals):
+        if merged and a <= merged[-1][1] + 1:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], b))
+        else:
+            merged.append((a, b))
+    return merged
+
+
+def cube_spectra(
+    positions: list[tuple[float, float]],
+    aperture_radius_px: float = 1.5,
+    annulus_px: tuple[float, float] = (3.0, 5.0),
+    *,
+    tile_url: str | None = None,
+    collection: str = DEFAULT_COLLECTION,
+) -> list[dict[str, Any] | None]:
+    """Quick-look spectra at many positions in ONE cube tile, from whole-row reads.
+
+    For catalogues of sources (training sets, surveys): the boxes of all positions are covered by whole tile
+    rows, read once (each run of rows is one byte range per plane), so a few requests serve every source in
+    a band of rows. The photometry and the result keys are those of `cube_spectrum`, except that ``nhits``
+    and ``flags`` are None (not read) and the timing keys are shared by the whole call. Positions that fall
+    outside the tile (the tile is that of the first position unless `tile_url` is given) give None.
+    """
+    r_in, r_out = annulus_px
+    if not (0 < aperture_radius_px < r_in < r_out):
+        raise ValueError("need 0 < aperture radius < annulus inner < annulus outer")
+    if not positions:
+        return []
+    t0 = time.perf_counter()
+    with rangeio.track() as st:
+        if tile_url is None:
+            tile = find_cube_tile(*positions[0], collection=collection)
+        else:
+            parsed = parse_tile_url(tile_url)
+            if parsed is None:
+                raise CubeError(f"not a cube tile URL: {tile_url}")
+            tile = parsed
+        meta = read_cube_meta(tile.url)
+        wcs = meta.celestial_wcs()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            pix = wcs.all_world2pix(np.asarray(positions, dtype=float).reshape(-1, 2), 0)
+        _, ny, nx = meta.shape
+        half = math.ceil(r_out + 1.0)
+        boxes: list[tuple[int, int, int, int, bool] | None] = []
+        for x, y in pix:
+            if not (np.isfinite(x) and np.isfinite(y) and -0.5 <= x < nx - 0.5 and -0.5 <= y < ny - 0.5):
+                boxes.append(None)
+                continue
+            xc, yc = math.floor(x + 0.5), math.floor(y + 0.5)
+            xa, xb = max(0, xc - half), min(nx - 1, xc + half)
+            ya, yb = max(0, yc - half), min(ny - 1, yc + half)
+            boxes.append((xa, xb, ya, yb, (xa, xb, ya, yb) != (xc - half, xc + half, yc - half, yc + half)))
+        intervals = _merge_intervals([(b[2], b[3]) for b in boxes if b is not None])
+        rows = read_cube_rows(meta, intervals) if intervals else {}
+    shared = {"seconds": time.perf_counter() - t0, "requests": st.requests, "bytes": st.bytes}
+    bits = meta.flag_bits()  # parsed once: it costs ~10 ms per call
+    out: list[dict[str, Any] | None] = []
+    for (ra, dec), (x, y), b in zip(positions, pix, boxes, strict=True):
+        if b is None:
+            out.append(None)
+            continue
+        xa, xb, ya, yb, edge = b
+        (y0, _), block = next((iv, blk) for iv, blk in rows.items() if iv[0] <= ya and yb <= iv[1])
+        box = block[:, ya - y0 : yb - y0 + 1, xa : xb + 1]
+        res = _box_spectrum(
+            meta, tile, collection, float(ra), float(dec), float(x), float(y), box, xa, ya, edge, None, None,
+            aperture_radius_px, (r_in, r_out), bits,
+        )
+        res.update(shared)
+        out.append(res)
+    return out

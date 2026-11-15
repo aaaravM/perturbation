@@ -247,6 +247,28 @@ class FieldSummary(_Strict):
     warnings: list[str]
 
 
+class SpectrumAnomaly(_Strict):
+    score: float
+    p_value: float
+    unusual: bool
+
+
+class SpectrumClassification(_Strict):
+    """``classification`` of a quick-look spectrum (pxh.ml.specclass); only status, model (and reason) when
+    the status is "none"."""
+
+    status: Literal["ok", "none"]
+    model: str
+    reason: str | None = None
+    label: str | None = None
+    label_text: str | None = None
+    probs: dict[str, float] | None = None
+    confidence: float | None = None
+    anomaly: SpectrumAnomaly | None = None
+    channels_used: int | None = None
+    caveats: list[str] | None = None
+
+
 class QuickSpectrum(_Strict):
     wl_um: list[float]
     bw_um: list[float | None]
@@ -260,6 +282,7 @@ class QuickSpectrum(_Strict):
     n_finite: int
     pixel_arcsec: float
     notes: str
+    classification: SpectrumClassification | None = None
 
 
 class GaiaSource(_Strict):

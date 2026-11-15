@@ -201,6 +201,8 @@ test.describe("phone", () => {
     await page.waitForTimeout(2500);
     await shot(page, "sky-390x844");
 
+    // On phones the star lists fold away under "Browse stars".
+    await page.getByRole("button", { name: "Browse stars" }).tap();
     await page.getByTestId("target-list").getByRole("button", { name: /Barnard.s Star/ }).tap();
     await expect(skyPanel(page)).toHaveAttribute("data-layout", "sheet");
     await expect(skyPanel(page).getByRole("heading", { level: 2 })).toHaveText("Barnard's Star");

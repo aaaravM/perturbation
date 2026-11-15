@@ -9,7 +9,10 @@
 // SPHEREx all-sky map and the constellation figures are optional layers.
 //
 // 3D space: every star moves from the sphere to its place in space (star-field.ts), nearest
-// first; the camera orbits a point (the Sun at first) and flies to a star when it is clicked.
+// first; the camera orbits a point (the Sun at first). Selecting a star there puts it in focus:
+// every other star dims (shader uniforms, see star-field.ts), a line is drawn from the Sun to it
+// with the distance at its middle, and the camera eases round to frame both ends of the line.
+// Hovering another star still lights it; clicking empty space clears the focus.
 //
 // Almost every star can be picked: hover shows a ring and a label, a click selects it. Picking
 // uses the catalogue's grid on the sphere and a projection of the 3D positions in space, with a
@@ -23,6 +26,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -32,8 +36,9 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
+import { usePreference, type SkyStarDetailPref } from "@/lib/preferences";
 import { KEY_LIGHT_VIEW, createGlobeMaterial } from "@/components/globe/globe-material";
-import { DEG, radecToVector } from "@/components/globe/globe-math";
+import { DEG, radecToVector, vectorToRadec } from "@/components/globe/globe-math";
 import {
   ALT_MAX,
   ALT_MIN,
@@ -72,7 +77,18 @@ import {
   type StarFieldMaterial,
   type TierField,
 } from "@/components/globe/star-field";
-import { LY_PER_PC, distancePc, getStar, queryTier, starTitle, type Catalogue, type StarTier } from "@/lib/stars";
+import {
+  LY_PER_PC,
+  distancePc,
+  getStar,
+  queryTier,
+  starTitle,
+  type Catalogue,
+  type StarTier,
+} from "@/lib/stars";
+
+/** Star tiers drawn per Star detail setting: tier 1 to V 6.5, tier 2 to V 8, tier 3 the rest. */
+const STAR_DETAIL_TIERS: Record<SkyStarDetailPref, number> = { bright: 1, more: 2, all: 3 };
 
 export type GlobeView = "colour" | "mono";
 export type SkyMode = "sphere" | "space";
@@ -90,6 +106,8 @@ export interface GlobeMarker {
   dec: number;
   /** Distance for 3D space, or null to leave it on the outer shell. */
   distancePc: number | null;
+  /** The distance as published for this target (e.g. "≈ 510 light-years"), for the line to it in 3D. */
+  distanceText?: string;
 }
 
 export interface Insets {
@@ -131,6 +149,8 @@ export interface SkyGlobeProps {
   onSelectTarget: (slug: string) => void;
   onSelectStar: (id: number) => void;
   onSelectSpot: (ra: number, dec: number) => void;
+  /** A click on empty space in 3D clears the selection. */
+  onClearSelection?: () => void;
   mode: SkyMode;
   layers: SkyLayerToggles;
   view: GlobeView;
@@ -156,8 +176,9 @@ const SPACE_FOV = 50;
 const SPACE_HOME_DIST = 8.8;
 const SPACE_MIN_DIST = 0.035;
 const SPACE_MAX_DIST = 18;
-const SPACE_STAR_DIST = 0.42;
 const MORPH_MS = 2400;
+/** Two taps closer together than this are a double tap. */
+const DOUBLE_TAP_MS = 360;
 
 /** Well-known stars labelled in 3D space (HIP numbers) and whether they are close neighbours. */
 const SPACE_LABELS: { hip: number; name: string; near: boolean }[] = [
@@ -196,6 +217,10 @@ interface SpaceTween {
   toT: THREE.Vector3;
   fromD: number;
   toD: number;
+  /** The view direction too (camera seen from the orbit point), for a focus flight. */
+  turn?: { fromRa: number; fromDec: number; toRa: number; toDec: number };
+  /** How much the camera pulls back mid-flight (0.25 = a quarter farther out). */
+  lift?: number;
   start: number;
   dur: number;
   onDone?: () => void;
@@ -248,6 +273,8 @@ interface Ctl {
   entranceStart: number;
   pending: (() => void)[];
   dirty: boolean;
+  /** The last spot chosen on the globe itself (click or Enter), which needs no flight. */
+  globeSpot: { ra: number; dec: number } | null;
   dx: number;
   dy: number;
   width: number;
@@ -287,6 +314,40 @@ interface Ctl {
   hover: StarRef | null;
   railHover: StarRef | null;
   sel: StarRef | null;
+  /** A challenge target highlighted from the side list or under the pointer. */
+  hoverSlug: string | null;
+  // Focus in 3D space
+  /** A star or target is selected (in any mode; it shows as focus in 3D space). */
+  focusOn: boolean;
+  focusKey: string;
+  /** 0..1, eased: how far the focus has taken hold (the dimming, the line). */
+  focusAmt: number;
+  /** The catalogue star that stays lit: the selection, or a target's own star. */
+  focusStar: StarRef | null;
+  /** The star the focus is crossfading from, while focusMix runs from 0 to 1. */
+  focusPrev: StarRef | null;
+  focusMix: number;
+  focusSlug: string | null;
+  /** Where the line ends: on the sphere and in space, with the morph delay of that point. */
+  focusSphere: THREE.Vector3;
+  focusSpace: THREE.Vector3;
+  focusDelay: number;
+  hasFocusPoint: boolean;
+  /** The line's far end moves from pathFrom to the focus between pathStart and +pathDur. */
+  pathFrom: THREE.Vector3;
+  pathEnd: THREE.Vector3;
+  pathStart: number;
+  pathDur: number;
+  hoverLit: StarRef | null;
+  hoverMix: number;
+  hoverPrevLit: StarRef | null;
+  hoverPrevMix: number;
+  /** When the camera last framed the focus, and for which layout. */
+  framedAt: number;
+  frameKey: string;
+  /** Size of the line's distance label (px), measured when its words change. */
+  lineLabelW: number;
+  lineLabelH: number;
 }
 
 const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
@@ -335,6 +396,134 @@ function vec3(ra: number, dec: number): THREE.Vector3 {
 }
 
 // ----------------------------------------------------------------------------------------------
+// Focus in 3D space: a camera that frames the Sun and the selected star.
+
+interface FocusFrame {
+  target: THREE.Vector3;
+  dist: number;
+  ra: number;
+  dec: number;
+}
+
+/** The line is never seen closer than this to end-on (deg): it must read as a length. */
+const FOCUS_MIN_SIDE = 56;
+/** Room kept to the right of both ends of the line for the names "Sun" and the star's. */
+const FOCUS_LABEL_ROOM = 104;
+/** A name moves to the left of its point when the line leaves that point within ~40° of rightwards. */
+const SIDE_TURN = Math.cos(40 * DEG);
+/** Room a name needs on the left (px): "Sun", and a star's name with its ring. */
+const SUN_NAME_W = 48;
+const STAR_NAME_W = 150;
+const _fc = new THREE.PerspectiveCamera();
+
+/** Which side of its point a name sits on (read by the label's group-data-[side=left] styles). */
+function setSide(el: HTMLElement | null | undefined, left: boolean) {
+  if (!el) return;
+  const side = left ? "left" : "right";
+  if (el.dataset.side !== side) el.dataset.side = side;
+}
+const _fp = new THREE.Vector3();
+const _origin = new THREE.Vector3();
+
+const layoutKey = (c: Ctl) =>
+  `${c.width}x${c.height}:${Math.round(c.insets.top)},${Math.round(c.insets.right)},${Math.round(c.insets.bottom)},${Math.round(c.insets.left)}`;
+
+/**
+ * The orbit point, distance and view direction that show the whole line from the Sun to `point`
+ * in the part of the canvas the interface leaves free. The view keeps its current direction
+ * unless the line would be seen nearly end-on; then it turns only as far as it must.
+ */
+function frameFocus(c: Ctl, point: THREE.Vector3): FocusFrame {
+  const W = Math.max(1, c.width);
+  const H = Math.max(1, c.height);
+  const target = point.clone().multiplyScalar(0.5);
+  const v = vec3(c.rig.ra, c.rig.dec);
+  const len = point.length();
+  if (len > 1e-6) {
+    const u = point.clone().divideScalar(len);
+    const cosA = v.dot(u);
+    const maxCos = Math.cos(FOCUS_MIN_SIDE * DEG);
+    if (Math.abs(cosA) > maxCos) {
+      const w = v.clone().addScaledVector(u, -cosA);
+      if (w.lengthSq() < 1e-8) w.crossVectors(u, _up);
+      if (w.lengthSq() < 1e-8) w.set(1, 0, 0);
+      w.normalize();
+      v.copy(u)
+        .multiplyScalar(Math.sign(cosA) * maxCos)
+        .addScaledVector(w, Math.sqrt(1 - maxCos * maxCos));
+    }
+  }
+  const rd = vectorToRadec(v.x, v.y, v.z);
+  const rig: Rig = { ra: rd.ra, dec: clamp(rd.dec, -DEC_LIMIT, DEC_LIMIT), alt: 0, panX: 0, panY: 0 };
+  const fit = fitLayout(W, H, c.insets);
+  const freeW = Math.max(160, W - c.insets.left - c.insets.right);
+  const freeH = Math.max(160, H - c.insets.top - c.insets.bottom);
+  // At least the selection ring's radius and a little air, so the ring never touches the interface.
+  const pad = clamp(0.09 * Math.min(freeW, freeH), 30, 64);
+  const left = c.insets.left + pad;
+  const right = Math.max(left + 40, W - c.insets.right - pad - Math.min(FOCUS_LABEL_ROOM, freeW * 0.3));
+  const top = c.insets.top + pad;
+  // The view controls sit over the bottom of the view unless a sheet covers it.
+  const controls = c.insets.bottom < 64 ? 44 : 0;
+  const bottom = Math.max(top + 40, H - c.insets.bottom - pad - controls);
+  const fits = (d: number) => {
+    applySpace(_fc, rig, target, d, SPACE_FOV, W, H, fit.dx, fit.dy);
+    for (const p of [_origin, point]) {
+      _fp.copy(p).applyMatrix4(_fc.matrixWorldInverse);
+      if (_fp.z > -_fc.near) return false;
+      _fp.applyMatrix4(_fc.projectionMatrix);
+      const x = (_fp.x * 0.5 + 0.5) * W;
+      const y = (-_fp.y * 0.5 + 0.5) * H;
+      if (x < left || x > right || y < top || y > bottom) return false;
+    }
+    return true;
+  };
+  let lo = Math.log(SPACE_MIN_DIST);
+  let hi = Math.log(SPACE_MAX_DIST);
+  if (fits(Math.exp(hi))) {
+    for (let k = 0; k < 24; k++) {
+      const mid = (lo + hi) / 2;
+      if (fits(Math.exp(mid))) hi = mid;
+      else lo = mid;
+    }
+  }
+  return { target, dist: Math.exp(hi), ra: rig.ra, dec: rig.dec };
+}
+
+/** Where the focus point is drawn for a given morph (it moves with the stars). */
+function focusPosition(c: Ctl, morph: number, out: THREE.Vector3): THREE.Vector3 {
+  const e = morph <= 0 ? 0 : morphOf(morph, c.focusDelay);
+  return out.copy(c.focusSphere).lerp(c.focusSpace, e);
+}
+
+const _sa = new THREE.Vector3();
+const _sb = new THREE.Vector3();
+
+/** A segment on screen (px), clipped at the camera's near plane; null when wholly behind it. */
+function screenSegment(
+  camera: THREE.PerspectiveCamera,
+  a: THREE.Vector3,
+  b: THREE.Vector3,
+  width: number,
+  height: number,
+): { x1: number; y1: number; x2: number; y2: number } | null {
+  _sa.copy(a).applyMatrix4(camera.matrixWorldInverse);
+  _sb.copy(b).applyMatrix4(camera.matrixWorldInverse);
+  const zn = -camera.near * 1.01;
+  if (_sa.z > zn && _sb.z > zn) return null;
+  if (_sa.z > zn) _sa.lerp(_sb, (_sa.z - zn) / (_sa.z - _sb.z));
+  else if (_sb.z > zn) _sb.lerp(_sa, (_sb.z - zn) / (_sb.z - _sa.z));
+  _sa.applyMatrix4(camera.projectionMatrix);
+  _sb.applyMatrix4(camera.projectionMatrix);
+  return {
+    x1: (_sa.x * 0.5 + 0.5) * width,
+    y1: (-_sa.y * 0.5 + 0.5) * height,
+    x2: (_sb.x * 0.5 + 0.5) * width,
+    y2: (-_sb.y * 0.5 + 0.5) * height,
+  };
+}
+
+// ----------------------------------------------------------------------------------------------
 // Overlay elements positioned every frame.
 
 interface LabelEntry {
@@ -364,6 +553,10 @@ interface OverlayRefs {
   rings: React.RefObject<(HTMLDivElement | null)[]>;
   legend: React.RefObject<HTMLDivElement | null>;
   spaceLabels: React.RefObject<SpaceLabelEntry[]>;
+  /** The line from the Sun to the focus and its distance label. */
+  line: React.RefObject<SVGLineElement | null>;
+  lineLabel: React.RefObject<HTMLDivElement | null>;
+  root: React.RefObject<HTMLDivElement | null>;
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -375,18 +568,6 @@ class GlobeRuntime {
   lineMaterial = createLineMaterial();
   ringMaterial = createRingMaterial();
   ringGeometry = buildRings();
-  pathMaterial = new THREE.LineBasicMaterial({
-    color: new THREE.Color("#f0885a"),
-    transparent: true,
-    opacity: 0,
-    depthTest: false,
-    depthWrite: false,
-  });
-  pathGeometry = new THREE.BufferGeometry().setAttribute(
-    "position",
-    new THREE.BufferAttribute(new Float32Array(6), 3),
-  );
-  path = new THREE.Line(this.pathGeometry, this.pathMaterial);
   starMaterials: StarFieldMaterial[] = [];
   private tmp = new THREE.Vector3();
   private tmp2 = new THREE.Vector3();
@@ -400,11 +581,10 @@ class GlobeRuntime {
   private spotVector: THREE.Vector3 | null = null;
   private sharpLoader: () => void = () => {};
   private fieldFade = new Map<TierField, number>();
+  private dimState = "";
 
   constructor() {
     this.material.uniforms.uBase.value = new THREE.Color("#0a0a0a");
-    this.path.renderOrder = 3;
-    this.path.frustumCulled = false;
   }
 
   onNeedSharp(load: () => void) {
@@ -439,8 +619,6 @@ class GlobeRuntime {
     this.lineMaterial.dispose();
     this.ringMaterial.dispose();
     this.ringGeometry.dispose();
-    this.pathMaterial.dispose();
-    this.pathGeometry.dispose();
     this.starMaterials.forEach((m) => m.dispose());
   }
 
@@ -580,14 +758,48 @@ class GlobeRuntime {
       c.fov = fovFor(rig.alt);
     } else {
       // ---------------------------------------------------------------- space camera
+      // The focus stays framed when the interface changes size (the panel opening, a resize)
+      // until the view is moved by hand.
+      if (c.focusOn && c.hasFocusPoint && c.frameKey && c.width > 0) {
+        const key = layoutKey(c);
+        if (key !== c.frameKey) {
+          c.frameKey = key;
+          const tw = c.spaceTween;
+          if (tw?.turn) {
+            const fr = frameFocus(c, c.focusSpace);
+            tw.toT.copy(fr.target);
+            tw.toD = fr.dist;
+            tw.turn.toRa = fr.ra;
+            tw.turn.toDec = fr.dec;
+          } else if (!tw && c.lastInteraction <= c.framedAt) {
+            const fr = frameFocus(c, c.focusSpace);
+            c.spaceTween = {
+              fromT: c.spaceTarget.clone(),
+              toT: fr.target,
+              fromD: c.spaceDist,
+              toD: fr.dist,
+              turn: { fromRa: rig.ra, fromDec: rig.dec, toRa: fr.ra, toDec: fr.dec },
+              lift: 0,
+              start: now,
+              dur: 650,
+            };
+            c.lastInteraction = c.framedAt = now;
+          }
+        }
+      }
       if (c.spaceTween) {
         const tw = c.spaceTween;
         const t = c.reduced ? 1 : clamp((now - tw.start) / tw.dur, 0, 1);
         const e = easeInOutCubic(t);
         c.spaceTarget.lerpVectors(tw.fromT, tw.toT, e);
+        if (tw.turn) {
+          const p = slerpRadec(tw.turn.fromRa, tw.turn.fromDec, tw.turn.toRa, tw.turn.toDec, e);
+          rig.ra = p.ra;
+          rig.dec = clamp(p.dec, -DEC_LIMIT, DEC_LIMIT);
+        }
         // Pull back a little mid-flight, so a long hop reads as a flight.
         const hop = tw.fromT.distanceTo(tw.toT);
-        const lift = 1 + Math.min(0.8, hop * 0.35) * Math.sin(Math.PI * e);
+        const lift = 1 + (tw.lift ?? Math.min(0.8, hop * 0.35)) * Math.sin(Math.PI * e);
         c.spaceDist = Math.exp(Math.log(tw.fromD) + (Math.log(tw.toD) - Math.log(tw.fromD)) * e) * lift;
         c.spaceDistTarget = tw.toD;
         if (t >= 1) {
@@ -647,7 +859,39 @@ class GlobeRuntime {
 
     const m = c.morph;
     const sphereGain = 1 - smoothstep(0, 0.45, m);
+    const spaceGain = smoothstep(0.55, 1, m);
     const scale = pixelsPerRadian(rig.alt, height);
+
+    // Focus in 3D space: the dimming takes hold, crossfades between stars and lets the hovered
+    // star shine through. It only shows in 3D space (times spaceGain); the sphere is unchanged.
+    c.focusAmt = fade(c.focusAmt, c.focusOn && c.hasFocusPoint ? 1 : 0, 0.3);
+    c.focusMix = fade(c.focusMix, 1, 0.24);
+    if (c.focusMix === 1) c.focusPrev = null;
+    if (!c.focusOn && c.focusAmt === 0 && c.focusKey) {
+      c.focusKey = "";
+      c.frameKey = "";
+      c.focusStar = c.focusPrev = null;
+      c.focusSlug = null;
+      c.hasFocusPoint = false;
+    }
+    const hovNow = c.hover ?? c.railHover;
+    if ((hovNow?.id ?? -1) !== (c.hoverLit?.id ?? -1)) {
+      if (c.hoverLit && c.hoverMix > c.hoverPrevMix) {
+        c.hoverPrevLit = c.hoverLit;
+        c.hoverPrevMix = c.hoverMix;
+      }
+      c.hoverLit = hovNow;
+      c.hoverMix = 0;
+    }
+    c.hoverMix = fade(c.hoverMix, c.hoverLit ? 1 : 0, 0.1);
+    c.hoverPrevMix = fade(c.hoverPrevMix, 0, 0.16);
+    if (c.hoverPrevMix === 0) c.hoverPrevLit = null;
+    const dim = c.focusAmt * spaceGain;
+    const dimState = dim > 0.98 ? "on" : dim < 0.02 ? "off" : "changing";
+    if (dimState !== this.dimState && overlay.root.current) {
+      this.dimState = dimState;
+      overlay.root.current.setAttribute("data-dim", dimState);
+    }
     const u = this.material.uniforms;
     u.uOpacity.value = c.opacity * sphereGain;
     u.uMapMix.value = c.mapMix;
@@ -681,26 +925,18 @@ class GlobeRuntime {
       su.uBack.value = back;
       su.uRefDist.value = SPACE_HOME_DIST * 0.62;
       su.uFade.value = ff;
+      su.uDim.value = dim;
+      const at = (r: StarRef | null) => (r && r.f === fi ? r.i : -1);
+      su.uLit.value.set(at(c.focusStar), at(c.focusPrev), at(c.hoverLit), at(c.hoverPrevLit));
+      su.uLitW.value.set(c.focusMix, 1 - c.focusMix, c.hoverMix, c.hoverPrevMix);
     }
     if (rig.alt < 0.9 && !c.wantSharp && c.layers.spherex) {
       c.wantSharp = true;
       this.sharpLoader();
     }
     this.lineMaterial.uniforms.uOpacity.value = c.lines * c.opacity * sphereGain;
-    const spaceGain = smoothstep(0.55, 1, m);
-    this.ringMaterial.uniforms.uOpacity.value = 0.34 * spaceGain;
-
-    // Path from the Sun to the selected star (3D space).
-    const selPos = c.sel ? fieldPosition(c.fields[c.sel.f], c.sel.i, m, this.tmp2) : null;
-    if (selPos && spaceGain > 0.01) {
-      const arr = this.pathGeometry.getAttribute("position") as THREE.BufferAttribute;
-      arr.setXYZ(0, 0, 0, 0);
-      arr.setXYZ(1, selPos.x, selPos.y, selPos.z);
-      arr.needsUpdate = true;
-      this.pathMaterial.opacity = 0.55 * spaceGain;
-    } else {
-      this.pathMaterial.opacity = 0;
-    }
+    // The distance rings and their legend step back while a star is in focus.
+    this.ringMaterial.uniforms.uOpacity.value = 0.34 * spaceGain * (1 - 0.55 * dim);
 
     // ---------------------------------------------------------------- DOM overlay
     const cam = camera.position;
@@ -739,7 +975,8 @@ class GlobeRuntime {
       const e = morphOf(m, mk.delay);
       tmp.copy(mk.v).lerp(mk.space, e);
       const pos = this.tmp2.copy(tmp);
-      place(markerEls?.[mk.slug], pos, markerGain, m < 0.5);
+      const lit = mk.slug === c.focusSlug || mk.slug === c.hoverSlug;
+      place(markerEls?.[mk.slug], pos, markerGain * (lit ? 1 : 1 - 0.72 * dim), m < 0.5);
     }
     if (this.spotVector) place(overlay.spot.current, this.spotVector, sphereGain);
 
@@ -761,14 +998,19 @@ class GlobeRuntime {
     }
 
     // 3D guides: the Sun, ring labels and the names of well-known stars.
-    place(overlay.sun.current, tmp.set(0, 0, 0), spaceGain, false);
+    const sunP = place(overlay.sun.current, tmp.set(0, 0, 0), spaceGain, false);
     const ringEls = overlay.rings.current;
     // Ring labels sit on the side of each ring nearest the viewer.
     const labelRa = wrap360(rig.ra + 18);
     RING_LY.forEach((ly, k) => {
-      place(ringEls?.[k], ringPoint(ly, labelRa, this.tmp2), spaceGain * 0.95, false);
+      place(ringEls?.[k], ringPoint(ly, labelRa, this.tmp2), spaceGain * 0.95 * (1 - 0.5 * dim), false);
     });
-    if (overlay.legend.current) overlay.legend.current.style.opacity = spaceGain.toFixed(3);
+    if (overlay.legend.current) {
+      // Where the view is small (a phone with the sheet open) the legend gives the focus its room.
+      const roomy = height - c.insets.top - c.insets.bottom > 420;
+      overlay.legend.current.style.opacity = (spaceGain * (1 - (roomy ? 0.45 : 1) * dim)).toFixed(3);
+    }
+    if (this.drawLine(c, camera, overlay, width, height, m, spaceGain, sunP !== null, now)) moving = true;
     const spaceLabels = overlay.spaceLabels.current;
     if (spaceLabels?.length) {
       const nearGain = 1 - smoothstep(2.6, 4.2, c.spaceDist);
@@ -777,7 +1019,8 @@ class GlobeRuntime {
         if (!f) continue;
         const p = fieldPosition(f, l.ref.i, m, this.tmp2);
         const tooClose = c.sel?.id === l.ref.id || (c.hover ?? c.railHover)?.id === l.ref.id;
-        const gain = tooClose ? 0 : spaceGain * (l.near ? nearGain : 1 - 0.6 * nearGain);
+        // In focus only the Sun and the selection keep their names.
+        const gain = tooClose ? 0 : spaceGain * (1 - dim) * (l.near ? nearGain : 1 - 0.6 * nearGain);
         if (gain < 0.02) {
           if (l.el && l.el.style.visibility !== "hidden") l.el.style.visibility = "hidden";
           continue;
@@ -856,6 +1099,109 @@ class GlobeRuntime {
     }
 
     if (moving) state.invalidate();
+  }
+
+  /**
+   * The line from the Sun to the focus in 3D space, with the distance at its middle. When a star
+   * comes into focus the line grows out from the Sun to it; when the focus moves to another star
+   * the far end glides across. Returns true while it is still moving.
+   */
+  private drawLine(
+    c: Ctl,
+    camera: THREE.PerspectiveCamera,
+    overlay: OverlayRefs,
+    width: number,
+    height: number,
+    m: number,
+    spaceGain: number,
+    sunShown: boolean,
+    now: number,
+  ): boolean {
+    const line = overlay.line.current;
+    const label = overlay.lineLabel.current;
+    const markerEls = overlay.markers.current ?? {};
+    // The names of the Sun and the star sit to the right of their points; a name the line would
+    // run through moves to the left (data-side), where the frame keeps room for it.
+    const sides = (sunLeft: boolean, starLeft: boolean) => {
+      setSide(overlay.sun.current, sunLeft);
+      setSide(overlay.sel.current, starLeft);
+      for (const slug in markerEls) setSide(markerEls[slug], starLeft && slug === c.focusSlug);
+    };
+    const hide = () => {
+      if (line && line.style.visibility !== "hidden") line.style.visibility = "hidden";
+      if (label && label.style.visibility !== "hidden") label.style.visibility = "hidden";
+      sides(false, false);
+    };
+    const strength = c.focusAmt * spaceGain;
+    if (!line || !c.hasFocusPoint || strength < 0.01) {
+      hide();
+      return false;
+    }
+    const t = c.pathDur > 0 ? clamp((now - c.pathStart) / c.pathDur, 0, 1) : 1;
+    const end = focusPosition(c, m, this.tmp2);
+    c.pathEnd.copy(c.pathFrom).lerp(end, easeInOutCubic(t));
+    const seg = screenSegment(camera, _origin, c.pathEnd, width, height);
+    if (!seg || c.pathEnd.lengthSq() < 1e-10) {
+      hide();
+      return t < 1;
+    }
+    // Stop short of the Sun's dot and of the selection ring round the star.
+    const dx = seg.x2 - seg.x1;
+    const dy = seg.y2 - seg.y1;
+    const len = Math.hypot(dx, dy);
+    const trimStart = sunShown ? 7 : 0;
+    const trimEnd = 17 * smoothstep(0.75, 1, t);
+    if (len < trimStart + trimEnd + 8) {
+      hide();
+      return t < 1;
+    }
+    const ux = dx / len;
+    const uy = dy / len;
+    sides(
+      ux > SIDE_TURN && seg.x1 - SUN_NAME_W > c.insets.left,
+      -ux > SIDE_TURN && seg.x2 - STAR_NAME_W > c.insets.left,
+    );
+    const x1 = seg.x1 + ux * trimStart;
+    const y1 = seg.y1 + uy * trimStart;
+    const x2 = seg.x2 - ux * trimEnd;
+    const y2 = seg.y2 - uy * trimEnd;
+    line.setAttribute("x1", x1.toFixed(1));
+    line.setAttribute("y1", y1.toFixed(1));
+    line.setAttribute("x2", x2.toFixed(1));
+    line.setAttribute("y2", y2.toFixed(1));
+    line.style.opacity = (0.9 * strength).toFixed(3);
+    if (line.style.visibility !== "visible") line.style.visibility = "visible";
+
+    // The distance halfway along, once the line has arrived: on the line when it is long enough to
+    // carry it, beside it (on its left) when it is short, and never under the interface.
+    if (label) {
+      const lw = c.lineLabelW;
+      const lh = c.lineLabelH;
+      let lx = (x1 + x2) / 2;
+      let ly = (y1 + y2) / 2;
+      if (len < lw + 56) {
+        const nx = -Math.abs(uy);
+        const ny = uy > 0 ? ux : -ux;
+        const off = (Math.abs(nx) * lw) / 2 + (Math.abs(ny) * lh) / 2 + 6;
+        lx += nx * off;
+        ly += ny * off;
+      }
+      const ins = c.insets;
+      const free =
+        lx - lw / 2 > ins.left + 4 &&
+        lx + lw / 2 < width - ins.right - 4 &&
+        ly - lh / 2 > ins.top + 4 &&
+        ly + lh / 2 < height - ins.bottom - 4;
+      const gain = free ? strength * smoothstep(0.72, 1, t) * smoothstep(36, 64, len) : 0;
+      if (gain < 0.02) {
+        if (label.style.visibility !== "hidden") label.style.visibility = "hidden";
+      } else {
+        label.style.transform = `translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 0)`;
+        label.style.opacity = gain.toFixed(3);
+        if (label.style.visibility !== "visible") label.style.visibility = "visible";
+      }
+    }
+    return t < 1;
   }
 
   /** Inertia after a fling, then the slow drift when nobody touches anything. */
@@ -1169,7 +1515,6 @@ function GlobeScene({
         <lineSegments geometry={lines} material={runtime.lineMaterial} renderOrder={1} frustumCulled={false} />
       )}
       <lineSegments geometry={runtime.ringGeometry} material={runtime.ringMaterial} renderOrder={1} frustumCulled={false} />
-      <primitive object={runtime.path} />
       {fields.map((f, i) => (
         <points
           key={`${f.tier.name}:${f.tier.offset}:${f.tier.count}`}
@@ -1211,6 +1556,7 @@ export default function SkyGlobe({
   onSelectTarget,
   onSelectStar,
   onSelectSpot,
+  onClearSelection,
   mode,
   layers,
   view,
@@ -1231,6 +1577,8 @@ export default function SkyGlobe({
   const sunEl = useRef<HTMLDivElement>(null);
   const ringEls = useRef<(HTMLDivElement | null)[]>([]);
   const legendEl = useRef<HTMLDivElement>(null);
+  const lineEl = useRef<SVGLineElement>(null);
+  const lineLabelEl = useRef<HTMLDivElement>(null);
   const labelEntries = useRef<LabelEntry[]>([]);
   const spaceLabelEntries = useRef<SpaceLabelEntry[]>([]);
   const [arrived, setArrived] = useState<string | null>(null);
@@ -1263,11 +1611,13 @@ export default function SkyGlobe({
     };
   });
 
-  // Star fields for the loaded tiers (built once per tier).
+  // Star fields for the loaded tiers (built once per tier): as many tiers as the Star detail
+  // setting asks for. Search and the lists still reach every star.
+  const starDetail = usePreference("skyStarDetail");
   const fields = useMemo(() => {
     if (!catalogue) return [];
     const out: TierField[] = [];
-    for (const tier of catalogue.tiers) {
+    for (const tier of catalogue.tiers.slice(0, STAR_DETAIL_TIERS[starDetail])) {
       if (!tier) continue;
       let f = fieldCache.get(tier);
       if (!f) {
@@ -1277,7 +1627,7 @@ export default function SkyGlobe({
       out.push(f);
     }
     return out;
-  }, [catalogue]);
+  }, [catalogue, starDetail]);
   const prevFields = useRef<TierField[]>([]);
   useEffect(() => {
     const gone = prevFields.current.filter((f) => !fields.includes(f));
@@ -1308,6 +1658,7 @@ export default function SkyGlobe({
     entranceStart: 0,
     pending: [],
     dirty: false,
+    globeSpot: null,
     dx: 0,
     dy: 0,
     width: 0,
@@ -1346,6 +1697,30 @@ export default function SkyGlobe({
     hover: null,
     railHover: null,
     sel: null,
+    hoverSlug: hovered,
+    focusOn: false,
+    focusKey: "",
+    focusAmt: 0,
+    focusStar: null,
+    focusPrev: null,
+    focusMix: 1,
+    focusSlug: null,
+    focusSphere: new THREE.Vector3(),
+    focusSpace: new THREE.Vector3(),
+    focusDelay: 0,
+    hasFocusPoint: false,
+    pathFrom: new THREE.Vector3(),
+    pathEnd: new THREE.Vector3(),
+    pathStart: 0,
+    pathDur: 0,
+    hoverLit: null,
+    hoverMix: 0,
+    hoverPrevLit: null,
+    hoverPrevMix: 0,
+    framedAt: 0,
+    frameKey: "",
+    lineLabelW: 96,
+    lineLabelH: 17,
   });
 
   // Development aid: the controller on window, for inspecting the view from the console and tests.
@@ -1361,6 +1736,7 @@ export default function SkyGlobe({
     c.reduced = reducedMotion;
     c.allowAuto = selection === null;
     c.highlighted = hovered !== null || railStar !== null;
+    c.hoverSlug = hovered;
     c.wantMono = view === "mono";
     c.imageryTarget = imagery;
     c.fields = fields;
@@ -1500,6 +1876,35 @@ export default function SkyGlobe({
     c.invalidate();
   }, []);
 
+  /** Ease the 3D camera round to frame the Sun, a point in space and the line between them. */
+  const flyFocus = useCallback((point: THREE.Vector3, onDone?: () => void) => {
+    const c = ctl.current;
+    c.vRa = c.vDec = 0;
+    c.auto = 0;
+    // Whatever was under the pointer moves away with the view.
+    c.hover = null;
+    setHoverId(null);
+    const fr = frameFocus(c, point);
+    const now = performance.now();
+    const hop = c.spaceTarget.distanceTo(fr.target);
+    const turn = slerpRadec(c.rig.ra, c.rig.dec, fr.ra, fr.dec, 0).angle;
+    const zoom = Math.abs(Math.log(fr.dist / c.spaceDist));
+    c.spaceTween = {
+      fromT: c.spaceTarget.clone(),
+      toT: fr.target,
+      fromD: c.spaceDist,
+      toD: fr.dist,
+      turn: { fromRa: c.rig.ra, fromDec: c.rig.dec, toRa: fr.ra, toDec: fr.dec },
+      lift: Math.min(0.3, hop * 0.15),
+      start: now,
+      dur: clamp(1000 + hop * 360 + turn * 420 + zoom * 220, 1000, 2400),
+      onDone,
+    };
+    c.lastInteraction = c.framedAt = now;
+    c.frameKey = layoutKey(c);
+    c.invalidate();
+  }, []);
+
   // ------------------------------------------------------------------ mode: sphere <-> 3D space
   const modeRef = useRef<SkyMode>("sphere");
   const selectionRef = useRef(selection);
@@ -1523,6 +1928,12 @@ export default function SkyGlobe({
       if (mode === "space") {
         const startD = c.cam === "sphere" ? 1 + c.rig.alt : c.spaceDist;
         c.cam = "space";
+        // A star already selected gets its line drawn out from the Sun once the stars have moved.
+        if (c.hasFocusPoint) {
+          c.pathFrom.set(0, 0, 0);
+          c.pathStart = now + dur;
+          c.pathDur = c.reduced ? 0 : 1000;
+        }
         c.morphAnim = {
           from: c.morph,
           to: 1,
@@ -1595,10 +2006,52 @@ export default function SkyGlobe({
     ctl.current.invalidate();
   }, [selection, fields]);
 
+  // Focus: the selected star or target lights up in 3D space, with a line to it from the Sun.
+  // (Defined before the flight below, which records the layout it framed.)
+  const focusStarId = selection?.kind === "star" ? selection.id : null;
+  const focusSlug = selection?.kind === "target" ? selection.slug : null;
+  const focusInfo = useMemo(
+    () => focusFor(focusStarId, focusSlug, fields, markers),
+    [focusStarId, focusSlug, fields, markers],
+  );
+  // The line's label keeps its words while it fades out after the selection is cleared.
+  const [shownFocus, setShownFocus] = useState<FocusInfo | null>(null);
+  if (focusInfo && focusInfo !== shownFocus) setShownFocus(focusInfo);
   useEffect(() => {
-    if (!selection || selection.kind === "spot") return;
+    applyFocus(ctl.current, focusInfo, performance.now());
+    ctl.current.invalidate();
+  }, [focusInfo]);
+  useLayoutEffect(() => {
+    const el = lineLabelEl.current?.firstElementChild as HTMLElement | null | undefined;
+    if (!el) return;
+    ctl.current.lineLabelW = el.offsetWidth || 96;
+    ctl.current.lineLabelH = el.offsetHeight || 17;
+  }, [shownFocus]);
+
+  useEffect(() => {
+    if (!selection) return;
     const key = selectionKey;
     const c = ctl.current;
+    if (selection.kind === "spot") {
+      // A click or Enter on the globe moves the camera itself. A spot from a link or the search
+      // box (the Lab's "Show on the sky globe", typed coordinates) flies there.
+      const g = c.globeSpot;
+      if (g && Math.abs(g.ra - selection.ra) < 1e-3 && Math.abs(g.dec - selection.dec) < 1e-3) return;
+      const spot = { ra: selection.ra, dec: selection.dec };
+      const goSpot = () => {
+        if (c.cam === "space" || c.morphAnim) return;
+        c.followHome = false;
+        const current = c.tween ? c.tween.to.alt : c.altTarget;
+        flyTo(spot.ra, spot.dec, { alt: Math.min(current, c.focusAlt), onDone: () => setArrived(key) });
+      };
+      if (c.width === 0) {
+        c.pending.push(goSpot);
+        c.invalidate();
+      } else {
+        goSpot();
+      }
+      return;
+    }
     let ra: number;
     let dec: number;
     let space: THREE.Vector3;
@@ -1616,11 +2069,8 @@ export default function SkyGlobe({
       dec = f.tier.data[ref.i * 8 + 1];
       space = new THREE.Vector3(f.space[3 * ref.i], f.space[3 * ref.i + 1], f.space[3 * ref.i + 2]);
     }
-    const goSpace = () => {
-      const cc = ctl.current;
-      const d = Math.min(cc.spaceDist, SPACE_STAR_DIST * (selection.kind === "target" ? 1.6 : 1));
-      flySpace(space, d, () => setArrived(key));
-    };
+    // In 3D space the camera frames the Sun and the selection, with the line between them.
+    const goSpace = () => flyFocus(space, () => setArrived(key));
     flyToSelectionInSpace.current = () => {
       if (selectionRef.current && selectionKeyOf(selectionRef.current) === key) goSpace();
     };
@@ -1643,7 +2093,7 @@ export default function SkyGlobe({
     }
     // selectionKey captures the selection's identity; selStarReady re-runs it once the star's tier loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectionKey, selStarReady, markers, flyTo, flySpace]);
+  }, [selectionKey, selStarReady, markers, flyTo, flyFocus]);
 
   const resetView = useCallback(() => {
     const c = ctl.current;
@@ -1694,6 +2144,17 @@ export default function SkyGlobe({
   });
   const hoverFrame = useRef<number | null>(null);
   const hoverAt = useRef<{ x: number; y: number } | null>(null);
+  const clearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearSelection = useRef(onClearSelection);
+  useEffect(() => {
+    clearSelection.current = onClearSelection;
+  }, [onClearSelection]);
+  useEffect(
+    () => () => {
+      if (clearTimer.current) clearTimeout(clearTimer.current);
+    },
+    [],
+  );
 
   const local = useCallback((clientX: number, clientY: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -1887,11 +2348,16 @@ export default function SkyGlobe({
     if (isTap) {
       c.vRa = c.vDec = 0;
       const at = e.timeStamp || now;
-      const doubleTap = at - g.lastTapT < 360 && Math.hypot(e.clientX - g.lastTapX, e.clientY - g.lastTapY) < 24;
+      const doubleTap =
+        at - g.lastTapT < DOUBLE_TAP_MS && Math.hypot(e.clientX - g.lastTapX, e.clientY - g.lastTapY) < 24;
       g.lastTapT = doubleTap ? 0 : at;
       g.lastTapX = e.clientX;
       g.lastTapY = e.clientY;
       const p = local(e.clientX, e.clientY);
+      if (clearTimer.current) {
+        clearTimeout(clearTimer.current);
+        clearTimer.current = null;
+      }
       if (g.marker) {
         onSelectTarget(g.marker);
       } else if (doubleTap) {
@@ -1916,8 +2382,15 @@ export default function SkyGlobe({
             const key = `p:${rd.ra.toFixed(4)},${rd.dec.toFixed(4)}`;
             if (c.rig.alt > 0.8) flyTo(rd.ra, rd.dec, { onDone: () => setArrived(key) });
             else setArrived(key);
+            c.globeSpot = { ra: rd.ra, dec: rd.dec };
             onSelectSpot(rd.ra, rd.dec);
           }
+        } else if (selectionRef.current) {
+          // Empty space in 3D clears the focus, unless this was the first tap of a double tap.
+          clearTimer.current = setTimeout(() => {
+            clearTimer.current = null;
+            clearSelection.current?.();
+          }, DOUBLE_TAP_MS);
         }
       }
     } else if (now - g.lastT > 90 || c.reduced || g.pan) {
@@ -2016,6 +2489,7 @@ export default function SkyGlobe({
       case " ": {
         if (!c.camera || space) break;
         const centre = centreOfView(c, c.camera);
+        c.globeSpot = { ra: centre.ra, dec: centre.dec };
         onSelectSpot(centre.ra, centre.dec);
         setArrived(`p:${centre.ra.toFixed(4)},${centre.dec.toFixed(4)}`);
         break;
@@ -2047,6 +2521,9 @@ export default function SkyGlobe({
       rings: ringEls,
       legend: legendEl,
       spaceLabels: spaceLabelEntries,
+      line: lineEl,
+      lineLabel: lineLabelEl,
+      root: containerRef,
     }),
     [],
   );
@@ -2149,10 +2626,24 @@ export default function SkyGlobe({
           </div>
         ))}
 
+        {/* 3D space, in focus: the line from the Sun to the selection. Dashed when the distance
+            is unknown and the star only sits on the outer shell. */}
+        <svg className="absolute inset-0 size-full overflow-visible">
+          <line
+            ref={lineEl}
+            stroke="var(--accent)"
+            strokeWidth={1.25}
+            strokeLinecap="round"
+            strokeDasharray={shownFocus && !shownFocus.known ? "3 5" : undefined}
+            style={{ visibility: "hidden" }}
+            data-testid="space-line"
+          />
+        </svg>
+
         {/* 3D space: the Sun, the distance rings and well-known stars. */}
-        <div ref={sunEl} className="absolute top-0 left-0" style={{ visibility: "hidden" }} data-testid="space-sun">
+        <div ref={sunEl} className="group absolute top-0 left-0" style={{ visibility: "hidden" }} data-testid="space-sun">
           <span className="absolute -top-[3px] -left-[3px] size-1.5 rounded-full bg-[#fff1d6]" />
-          <span className="absolute top-0 left-2.5 -translate-y-1/2 text-micro font-medium whitespace-nowrap text-fg [text-shadow:0_0_3px_rgb(0_0_0/0.95)]">
+          <span className="absolute top-0 left-2.5 -translate-y-1/2 group-data-[side=left]:right-2.5 group-data-[side=left]:left-auto text-micro font-medium whitespace-nowrap text-fg [text-shadow:0_0_3px_rgb(0_0_0/0.95)]">
             Sun
           </span>
         </div>
@@ -2190,6 +2681,21 @@ export default function SkyGlobe({
           </div>
         ))}
 
+        {/* The distance, halfway along the line. */}
+        <div ref={lineLabelEl} className="absolute top-0 left-0" style={{ visibility: "hidden" }} data-testid="space-line-label">
+          {shownFocus ? (
+            <span className="absolute -translate-x-1/2 -translate-y-1/2 rounded-[3px] bg-[#050505]/85 px-1.5 py-[3px] text-[11px] leading-none whitespace-nowrap text-accent">
+              {shownFocus.value ? (
+                <>
+                  <span className="readout">{shownFocus.value}</span> {shownFocus.words}
+                </>
+              ) : (
+                shownFocus.words
+              )}
+            </span>
+          ) : null}
+        </div>
+
         {spot && (
           <div ref={spotEl} className="absolute top-0 left-0" style={{ visibility: "hidden" }}>
             <SpotReticle key={spotKey} drawn={arrived === spotKey} reduced={reducedMotion} />
@@ -2214,11 +2720,11 @@ export default function SkyGlobe({
         </div>
 
         {/* Selection: an accent ring that draws itself once the camera has arrived. */}
-        <div ref={selEl} className="absolute top-0 left-0" style={{ visibility: "hidden" }} data-testid="star-selection">
+        <div ref={selEl} className="group absolute top-0 left-0" style={{ visibility: "hidden" }} data-testid="star-selection">
           {selStar && (
             <>
               <SelectionRing key={selStar.id} drawn={arrived === `s:${selStar.id}`} reduced={reducedMotion} size={30} />
-              <span className="absolute top-0 left-5 -translate-y-1/2 text-micro font-medium whitespace-nowrap text-fg [text-shadow:0_0_4px_rgb(0_0_0/0.95)]">
+              <span className="absolute top-0 left-5 -translate-y-1/2 group-data-[side=left]:right-5 group-data-[side=left]:left-auto text-micro font-medium whitespace-nowrap text-fg [text-shadow:0_0_4px_rgb(0_0_0/0.95)]">
                 {starTitle(selStar)}
               </span>
             </>
@@ -2234,7 +2740,7 @@ export default function SkyGlobe({
               ref={(el) => {
                 markerEls.current[mk.slug] = el;
               }}
-              className="absolute top-0 left-0"
+              className="group absolute top-0 left-0"
               style={{ visibility: "hidden" }}
             >
               <div
@@ -2261,11 +2767,14 @@ export default function SkyGlobe({
                     active ? "scale-125 border-accent" : "border-accent/70",
                   )}
                 />
-                {selected && <SelectionRing drawn={arrived === `t:${mk.slug}`} reduced={reducedMotion} size={32} />}
               </div>
+              {/* On the marker's point (outside the hit area, which is offset to centre the diamond). */}
+              {selected && <SelectionRing drawn={arrived === `t:${mk.slug}`} reduced={reducedMotion} size={32} />}
               <span
                 className={cn(
-                  "absolute top-0 left-3.5 -translate-y-1/2 rounded-[3px] bg-[#030303]/82 px-1.5 py-0.5 text-micro font-medium whitespace-nowrap text-fg transition-[opacity,translate] duration-200 ease-out-expo",
+                  "absolute top-0 -translate-y-1/2 group-data-[side=left]:left-auto rounded-[3px] bg-[#030303]/82 px-1.5 py-0.5 text-micro font-medium whitespace-nowrap text-fg transition-[opacity,translate] duration-200 ease-out-expo",
+                  // Clear of the selection ring when there is one.
+                  selected ? "left-5 group-data-[side=left]:right-5" : "left-3.5 group-data-[side=left]:right-3.5",
                   active ? "translate-x-0 opacity-100" : "-translate-x-1 opacity-0",
                 )}
               >
@@ -2295,11 +2804,149 @@ export default function SkyGlobe({
             </g>
           ))}
         </svg>
-        Distance from the Sun in light-years, on a log scale: each ring is ten times farther out. Distances from
-        Hipparcos parallaxes; stars beyond about 3,000 light-years, or without one, stay on the faint outer shell.
+        Distance from the Sun in light-years, on a log scale: each ring is ten times farther out.
+        {/* Phones keep the legend short, so it covers less of the view. */}
+        <span className="hidden sm:inline">
+          {" "}
+          Distances from Hipparcos parallaxes; stars beyond about 3,000 light-years, or without one, stay on the faint
+          outer shell.
+        </span>
       </div>
     </div>
   );
+}
+
+// ----------------------------------------------------------------------------------------------
+// Focus in 3D space: what is lit, where the line goes, and the distance it carries.
+
+interface FocusInfo {
+  key: string;
+  /** The catalogue star that stays lit (a target's own star when the catalogue has it). */
+  lit: StarRef | null;
+  slug: string | null;
+  sphere: THREE.Vector3;
+  space: THREE.Vector3;
+  delay: number;
+  /** Whether the line's length is a measured distance (otherwise it ends on the outer shell). */
+  known: boolean;
+  /** The distance: a number for the readout font and the words after it. */
+  value: string | null;
+  words: string;
+}
+
+/** The catalogue star at a challenge target's position (within an arcminute), if any. */
+function counterpart(fields: TierField[], ra: number, dec: number): StarRef | null {
+  let best: StarRef | null = null;
+  let bestCos = -2;
+  fields.forEach((f, fi) =>
+    queryTier(f.tier, ra, dec, 1 / 60, (i, cosd) => {
+      if (cosd > bestCos) {
+        bestCos = cosd;
+        best = { f: fi, i, id: f.tier.offset + i };
+      }
+    }),
+  );
+  return best;
+}
+
+function focusFor(
+  starId: number | null,
+  slug: string | null,
+  fields: TierField[],
+  markers: GlobeMarker[],
+): FocusInfo | null {
+  if (starId !== null) {
+    const ref = refFor(fields, starId);
+    if (!ref) return null;
+    const f = fields[ref.f];
+    const i = ref.i;
+    const known = f.known[i] === 1;
+    const plx = f.tier.data[i * 8 + 4];
+    return {
+      key: `s:${starId}`,
+      lit: ref,
+      slug: null,
+      sphere: new THREE.Vector3(f.tier.xyz[3 * i], f.tier.xyz[3 * i + 1], f.tier.xyz[3 * i + 2]),
+      space: new THREE.Vector3(f.space[3 * i], f.space[3 * i + 1], f.space[3 * i + 2]),
+      delay: f.delay[i],
+      known,
+      // Rounded as in the star's panel.
+      value: known ? formatDistanceLy((1000 / plx) * LY_PER_PC) : null,
+      words: known ? "light-years" : "Too far to measure",
+    };
+  }
+  if (slug !== null) {
+    const mk = markers.find((x) => x.slug === slug);
+    if (!mk) return null;
+    const sphere = vec3(mk.ra, mk.dec);
+    const r = mk.distancePc ? spaceRadius(mk.distancePc) : SPACE_SHELL;
+    const published = mk.distanceText ? /^(.*?)\s*light-years$/.exec(mk.distanceText) : null;
+    const known = mk.distancePc !== null;
+    const space = sphere.clone().multiplyScalar(r);
+    // The target's catalogue star stays lit only where it sits at the end of the line; one whose
+    // parallax puts it elsewhere (a target with no distance ends on the outer shell) would light a
+    // second point.
+    let lit = counterpart(fields, mk.ra, mk.dec);
+    if (lit) {
+      const f = fields[lit.f];
+      const at = new THREE.Vector3(f.space[3 * lit.i], f.space[3 * lit.i + 1], f.space[3 * lit.i + 2]);
+      if (at.distanceTo(space) > 0.05) lit = null;
+    }
+    return {
+      key: `t:${slug}`,
+      lit,
+      slug,
+      sphere,
+      space,
+      delay: clamp((r - 0.25) / (SPACE_SHELL - 0.25), 0, 1),
+      known,
+      value: published ? published[1] : known ? formatDistanceLy(mk.distancePc! * LY_PER_PC) : null,
+      words: published || known ? "light-years" : "Distance unknown",
+    };
+  }
+  return null;
+}
+
+/** Light-years as the star's panel rounds them: one decimal below 100. */
+function formatDistanceLy(ly: number): string {
+  return ly < 100 ? ly.toFixed(1) : Math.round(ly).toLocaleString("en-US");
+}
+
+/**
+ * Point the focus at a new star or target. From nothing, the line will grow out of the Sun; from
+ * another star, the lighting crossfades and the line's far end glides across.
+ */
+function applyFocus(c: Ctl, next: FocusInfo | null, now: number) {
+  if (!next) {
+    c.focusOn = false;
+    return;
+  }
+  if (next.key === c.focusKey) {
+    // The same focus again (a tier loaded, or it was cleared and chosen again while fading).
+    c.focusOn = true;
+    c.focusStar = next.lit;
+    return;
+  }
+  const switching = c.hasFocusPoint;
+  if (switching) {
+    c.pathFrom.copy(c.pathEnd);
+    c.focusPrev = c.focusMix >= 0.5 ? c.focusStar : c.focusPrev;
+    c.focusMix = 0;
+  } else {
+    c.pathFrom.set(0, 0, 0);
+    c.focusPrev = null;
+    c.focusMix = 1;
+  }
+  c.focusKey = next.key;
+  c.focusOn = true;
+  c.focusStar = next.lit;
+  c.focusSlug = next.slug;
+  c.focusSphere.copy(next.sphere);
+  c.focusSpace.copy(next.space);
+  c.focusDelay = next.delay;
+  c.hasFocusPoint = true;
+  c.pathStart = now + (c.reduced ? 0 : 120);
+  c.pathDur = c.reduced ? 0 : switching ? 1100 : 1000;
 }
 
 function selectionKeyOf(s: NonNullable<GlobeSelection>): string {

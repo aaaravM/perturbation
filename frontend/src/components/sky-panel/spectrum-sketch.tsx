@@ -6,6 +6,7 @@
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import type { FieldManifest } from "@/lib/manifest";
+import { Term } from "@/components/ui/term";
 import { spectrumSketch } from "@/components/sky-panel/bundle-frames";
 
 const W = 360;
@@ -136,10 +137,13 @@ export function SpectrumSketch({
         {peak !== null && (
           <p>
             <span className="text-fg">Brightest near </span>
-            <span className="readout text-fg">{peak.toFixed(1)} µm</span>
-            <span className="text-fg">.</span> All of this light is infrared, beyond the reddest light our
-            eyes can see (about <span className="readout">0.7</span> µm). Cooler objects glow at longer
-            wavelengths.
+            <span className="readout text-fg">{peak.toFixed(1)}</span>{" "}
+            <Term k="micron" className="text-fg">
+              µm
+            </Term>
+            <span className="text-fg">.</span> All of this light is infrared, beyond
+            the reddest light our eyes can see (about <span className="readout">0.7</span> µm). Cooler objects
+            glow at longer wavelengths.
           </p>
         )}
         <p className="text-fg-faint">

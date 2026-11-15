@@ -15,6 +15,8 @@ import { DETECTOR_KEYS } from "@/lib/lab-field";
 import { formatDay, mjdToEpoch, offsetArcsec, propagate } from "@/lib/lab-coords";
 import { cn } from "@/lib/utils";
 import { Term } from "@/components/ui/term";
+import { SpectralClassView } from "@/components/panel/spectral-class";
+import { catalogueClass, useSpectralClass } from "@/lib/spectral-class";
 import { TargetDetails } from "@/components/panel/target-details";
 import { PositionDetails } from "@/components/panel/position-details";
 import { StarDetails } from "@/components/panel/star-details";
@@ -165,7 +167,7 @@ function TabContent(props: AnalysisPaneProps) {
     );
   }
   const epochLabel = (index: number) => manifest.epochs.find((e) => e.index === index)?.label ?? `epoch ${index}`;
-  if (tab === "spectrum") return <SpectrumTab manifest={manifest} epochLabel={epochLabel} starSelected={selection?.kind === "star"} />;
+  if (tab === "spectrum") return <SpectrumTab manifest={manifest} epochLabel={epochLabel} starSelected={selection?.kind === "star"} selection={selection} />;
   if (tab === "lightcurve") return <LightCurveTab manifest={manifest} focusDetector={props.focusDetector} currentMjd={props.currentMjd} />;
   if (tab === "motion") return <MotionTab manifest={manifest} epochLabel={epochLabel} />;
   if (tab === "data") return <DataTab manifest={manifest} epochLabel={epochLabel} />;
@@ -215,8 +217,8 @@ function ObjectTab(props: AnalysisPaneProps) {
       <p className="text-ui text-fg">Click any star to learn about it.</p>
       <p className="text-meta text-pretty text-fg-dim">
         Zoom in below 30′ and the <Term k="gaia">Gaia DR3</Term> stars in view appear as small circles. Clicking one
-        shows its catalogue measurements, its SIMBAD entry, what <Term k="spherex">SPHEREx</Term> has observed there
-        and its <Term k="spectrum">spectrum</Term>. Clicking empty sky describes that position.
+        shows its catalogue measurements, its SIMBAD entry, what SPHEREx has observed there
+        and its spectrum. Clicking empty sky describes that position.
       </p>
       {manifest && (
         <p className="text-meta text-fg-dim">
@@ -286,21 +288,76 @@ export function exportPositionsCsv(manifest: FieldManifest) {
   );
 }
 
-function SpectrumTab({ manifest, epochLabel, starSelected }: { manifest: FieldManifest; epochLabel: (i: number) => string; starSelected: boolean }) {
+/** Where the Spectrum tab's quick-look classification is read: the selected star or spot, else the target. */
+interface ClassPoint {
+  ra: number;
+  dec: number;
+  what: string;
+  /** For the target: the class the catalogues give it, to compare with the network's answer. */
+  catalogue: { name: string; label: string } | null;
+}
+
+function classificationPoint(selection: Selection, manifest: FieldManifest): ClassPoint | null {
+  if (selection?.kind === "star") return { ra: selection.source.ra, dec: selection.source.dec, what: "the selected star", catalogue: null };
+  if (selection?.kind === "position") return { ra: selection.ra, dec: selection.dec, what: "the selected position", catalogue: null };
+  const t = manifest.target;
+  const a = t?.astrometry;
+  if (!t || !a) return null;
+  // The DR1 cube is Year 1 of the survey: move the target there (about 2026.0), as /api/object does.
+  const p = propagate({ ra: a.ra, dec: a.dec, pmra: a.pmra ?? 0, pmdec: a.pmdec ?? 0 }, a.ref_epoch, 2026.0);
+  const listed = catalogueClass(t.kind);
+  return { ...p, what: t.name, catalogue: listed ? { name: t.name, label: listed } : null };
+}
+
+function SpectrumClass({ point }: { point: ClassPoint | null }) {
+  const cls = useSpectralClass(point);
+  if (!point || cls.state === "idle") return null;
+  return (
+    <section className="flex flex-col gap-2 border-b border-hair px-3 py-3" data-testid="lab-spectral-class" aria-label="What kind of object">
+      <h3 className="text-micro text-fg-faint">What kind of object, from the quick-look spectrum at {point.what}</h3>
+      {cls.state === "loading" ? (
+        <p className="text-micro text-fg-faint">Reading the quick-look spectrum…</p>
+      ) : cls.state === "error" ? (
+        <p className="text-micro text-fg-faint">{cls.message}</p>
+      ) : cls.value ? (
+        <SpectralClassView c={cls.value} testId="lab-class" catalogue={point.catalogue} />
+      ) : (
+        <p className="text-micro text-fg-faint">The DR1 cube has no data here, so there is no class.</p>
+      )}
+    </section>
+  );
+}
+
+function SpectrumTab({
+  manifest,
+  epochLabel,
+  starSelected,
+  selection,
+}: {
+  manifest: FieldManifest;
+  epochLabel: (i: number) => string;
+  starSelected: boolean;
+  selection: Selection;
+}) {
   const spectrum = manifest.spectrum;
   const epochs = useMemo(() => [...new Set(spectrum?.points.map((p) => p.epoch) ?? [])].sort((a, b) => a - b), [spectrum]);
   const [only, setOnly] = useState<number | null>(null);
+  const point = classificationPoint(selection, manifest);
   if (!spectrum || spectrum.points.length === 0) {
     return (
-      <Empty>
-        No spectrum was measured for this field{manifest.target ? "" : ": live fields carry frames only"}.
-        {starSelected ? " The selected star's quick-look spectrum is in the Object tab." : " Click a star for its quick-look spectrum."}
-      </Empty>
+      <div className="flex flex-col" data-testid="tab-spectrum-empty">
+        <SpectrumClass point={point} />
+        <Empty>
+          No spectrum was measured for this field{manifest.target ? "" : ": live fields carry frames only"}.
+          {starSelected ? " The selected star's quick-look spectrum is in the Object tab." : " Click a star for its quick-look spectrum."}
+        </Empty>
+      </div>
     );
   }
   const shown = only === null ? spectrum : { ...spectrum, points: spectrum.points.filter((p) => p.epoch === only) };
   return (
     <div className="flex flex-col" data-testid="tab-spectrum">
+      <SpectrumClass point={point} />
       <Toolbar>
         <span className="text-micro text-fg-faint">
           <Term k="epoch">Epoch</Term>
@@ -326,8 +383,8 @@ function SpectrumTab({ manifest, epochLabel, starSelected }: { manifest: FieldMa
       <div className="flex flex-col gap-2 px-3 py-3">
         <SpectrumChart spectrum={shown} epochLabel={epochLabel} height={300} />
         <p className="text-micro text-fg-faint">
-          Log <Term k="wavelength">wavelength</Term> axis, linear <Term k="flux">flux</Term>; bars are 1σ. Shaded bands
-          are the six <Term k="detector">detectors</Term>. Hollow points are <Term k="saturated">saturated</Term>.
+          Log wavelength axis, linear <Term k="flux">flux</Term>; bars are 1σ. Shaded bands
+          are the six detectors. Hollow points are saturated.
         </p>
         {spectrum.notes.map((n) => (
           <p key={n} className="text-micro text-fg-faint">
@@ -348,7 +405,7 @@ function LightCurveTab({ manifest, focusDetector, currentMjd }: { manifest: Fiel
     <div className="flex flex-col" data-testid="tab-lightcurve">
       <Toolbar>
         <span className="text-micro text-fg-faint">
-          <Term k="detector">Detector</Term>
+          Detector
         </span>
         <div role="radiogroup" aria-label="Detector in focus" className="flex gap-1">
           {DETECTOR_KEYS.map((d, i) => (
@@ -378,7 +435,7 @@ function LightCurveTab({ manifest, focusDetector, currentMjd }: { manifest: Fiel
           <p className="text-meta text-fg-dim">
             {lc.variability.significant ? "Significant variability: " : "No significant variability: "}
             largest change <span className="readout text-fg">{lc.variability.max_delta_mag.toFixed(2)}</span>{" "}
-            <Term k="magnitude">mag</Term>, χ²/dof <span className="readout text-fg">{lc.variability.chi2_dof.toFixed(1)}</span>.
+            mag, χ²/dof <span className="readout text-fg">{lc.variability.chi2_dof.toFixed(1)}</span>.
           </p>
         )}
         <p className="text-micro text-fg-faint">
@@ -557,9 +614,9 @@ function DataTab({ manifest, epochLabel }: { manifest: FieldManifest; epochLabel
       ) : (
         <div className="px-3 py-2">
           <p className="pb-2 text-micro text-pretty text-fg-faint">
-            One row per <Term k="epoch">epoch</Term> and <Term k="detector">detector</Term>: <Term k="flux">flux</Term> in
-            microjanskys with its 1σ error, the same as an <Term k="abMagnitude">AB magnitude</Term>, and the share of the
-            star&apos;s pixels that were <Term k="saturated">saturated</Term>. Click a heading to sort.
+            One row per <Term k="epoch">epoch</Term> and detector: <Term k="flux">flux</Term> in
+            microjanskys with its 1σ error, the same as an AB magnitude, and the share of the
+            star&apos;s pixels that were saturated. Click a heading to sort.
           </p>
           <table className="w-full text-micro" data-testid="photometry-table">
             <caption className="sr-only">Epoch photometry: one row per epoch and detector</caption>
@@ -608,7 +665,7 @@ function ProvenanceTab({ manifest }: { manifest: FieldManifest }) {
   const links = manifest.links.length ? manifest.links : defaultLinks(manifest.center.ra, manifest.center.dec, manifest.target?.simbad_id ?? null);
   return (
     <div className="flex flex-col gap-0" data-testid="tab-provenance">
-      <Block title={<Term k="dataRelease">Data release</Term>}>
+      <Block title="Data release">
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-meta">
           <dt className="text-fg-dim">Collections</dt>
           <dd className="readout text-fg">{manifest.release.collections.join(", ")}</dd>
@@ -631,7 +688,7 @@ function ProvenanceTab({ manifest }: { manifest: FieldManifest }) {
       <Block title="File tags">
         <p className="readout text-micro break-words text-fg-dim">{manifest.release.file_tags.join(", ") || "–"}</p>
       </Block>
-      <Block title={<Term k="flags">Flags</Term>}>
+      <Block title="Flags">
         <p className="text-meta text-fg-dim">
           <span className="readout text-fg">{flags.length}</span> flag overlays from the official SPHEREx pixel masks.
         </p>

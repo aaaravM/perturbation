@@ -722,7 +722,7 @@ function DetectorPicker({
           </>
         ) : det === "rgb" ? (
           <>
-            <Term k="falseColour">False colour</Term>: {channels ? channels.split("/").join(", ") : "D6, D3, D1"}
+            False colour: {channels ? channels.split("/").join(", ") : "D6, D3, D1"}
           </>
         ) : null}
       </p>

@@ -26,6 +26,7 @@ import {
 } from "@/lib/stars";
 import { CoverageView, Fact, LiveNote, Rise, Roll, Section, Stagger } from "@/components/sky-panel/panel-bits";
 import { QuickSpectrum } from "@/components/sky-panel/quick-spectrum";
+import { SpectralClassView } from "@/components/panel/spectral-class";
 
 /** Lab link for a position: a 10-arcminute field, as the API builds by default. */
 export function labHrefFor(ra: number, dec: number): string {
@@ -125,9 +126,7 @@ export function StarStory({
                 {con ? (
                   <>
                     {" · in "}
-                    <Term k="constellation" mark={false}>
-                      {con}
-                    </Term>
+                    {con}
                   </>
                 ) : null}
               </p>
@@ -154,7 +153,7 @@ export function StarStory({
         <Rise>
           <dl className="grid grid-cols-2 gap-x-5 gap-y-4">
             <Fact
-              label={<Term k="magnitude">Brightness</Term>}
+              label="Brightness"
               sub={rank >= 0 && rank < 30 ? `The ${ordinal(rank + 1)} brightest star in the catalogue.` : brightnessWords(star.vmag)}
               testId="fact-magnitude"
             >
@@ -162,7 +161,7 @@ export function StarStory({
               <Roll value={star.vmag} digits={2} reducedMotion={reducedMotion} />
             </Fact>
             <Fact
-              label={<Term k="colourIndex">Colour</Term>}
+              label="Colour"
               sub={
                 star.teff ? (
                   <>
@@ -176,7 +175,11 @@ export function StarStory({
             >
               {colour ?? "Unknown"}
               {star.bv !== null ? (
-                <span className="readout ml-1.5 text-fg-dim">B−V {star.bv.toFixed(2).replace("-", "−")}</span>
+                <span className="readout ml-1.5 text-fg-dim">
+                  <Term k="colourIndex" mark={false}>
+                    B−V
+                  </Term>{" "}
+                  {star.bv.toFixed(2).replace("-", "−")}</span>
               ) : null}
             </Fact>
             <Fact
@@ -210,9 +213,7 @@ export function StarStory({
               {ly && reliable ? (
                 <>
                   <Roll value={ly} digits={ly < 100 ? 1 : 0} reducedMotion={reducedMotion} />{" "}
-                  <Term k="lightYear" mark={false}>
-                    light-years
-                  </Term>
+                  light-years
                 </>
               ) : (
                 <span className="text-fg-dim">Unknown</span>
@@ -230,9 +231,7 @@ export function StarStory({
                   <span>
                     <Roll value={pm.total} digits={pm.total < 1 ? 3 : 2} reducedMotion={reducedMotion} />
                     <span className="readout">″</span> a year,{" "}
-                    <Term k="positionAngle" mark={false}>
-                      towards
-                    </Term>{" "}
+                    towards{" "}
                     {COMPASS[Math.round(pm.pa / 45) % 8]}
                   </span>
                 </span>
@@ -246,8 +245,7 @@ export function StarStory({
             <Fact
               label={
                 <>
-                  Position (<Term k="rightAscension" mark={false}>RA</Term>,{" "}
-                  <Term k="declination" mark={false}>Dec</Term>) in {catalogue.epoch.toFixed(1)}
+                  Position (RA, Dec) in {catalogue.epoch.toFixed(1)}
                 </>
               }
               className="col-span-2"
@@ -280,7 +278,7 @@ export function StarStory({
           </div>
         </Rise>
 
-        <Section title={<Term k="gaia">Gaia DR3</Term>} source="ESA Gaia, via IRSA" testId="live-gaia">
+        <Section title="Gaia DR3" source="ESA Gaia, via IRSA" testId="live-gaia">
           {live.gaia.state === "ok" ? (
             <dl className="grid grid-cols-2 gap-x-5 gap-y-3">
               {live.gaia.value.hint ? (
@@ -301,7 +299,7 @@ export function StarStory({
               ) : null}
               {live.gaia.value.parallax !== null ? (
                 <Fact
-                  label={<Term k="parallax" mark={false}>Parallax</Term>}
+                  label="Parallax"
                   sub={
                     live.gaia.value.distanceLy !== null
                       ? `${formatLyShort(live.gaia.value.distanceLy)} light-years`
@@ -352,7 +350,7 @@ export function StarStory({
                 </Fact>
               ) : null}
               {live.simbad.value.spType ? (
-                <Fact label={<Term k="spectralType" mark={false}>Spectral type</Term>}>
+                <Fact label="Spectral type">
                   <span className="readout">{live.simbad.value.spType}</span>
                 </Fact>
               ) : null}
@@ -365,7 +363,7 @@ export function StarStory({
         <Section
           title={
             <>
-              What <Term k="spherex" /> has seen here
+              What SPHEREx has seen here
             </>
           }
           source="SPHEREx DR1 and QR3, IRSA"
@@ -377,7 +375,10 @@ export function StarStory({
             <LiveNote live={live.coverage} what="SPHEREx visits" />
           )}
           {live.spectrum.state === "ok" ? (
-            <QuickSpectrum data={live.spectrum.value} reducedMotion={reducedMotion} />
+            <>
+              <QuickSpectrum data={live.spectrum.value} reducedMotion={reducedMotion} />
+              {live.spectrum.value.classification ? <SpectralClassView c={live.spectrum.value.classification} /> : null}
+            </>
           ) : live.coverage.state === "ok" ? (
             <LiveNote live={live.spectrum} what="the quick-look spectrum" />
           ) : null}
@@ -387,12 +388,19 @@ export function StarStory({
           <p className="border-t border-hair pt-4 text-micro text-pretty text-fg-faint" data-testid="star-sources">
             {basic
               ? "Position, brightness and colour: Hipparcos stars via d3-celestial (Olaf Frohn). Temperature estimated from B−V."
-              : `Names, brightness, colour, distance and motion: ${catalogue.credits || "Hipparcos catalogue (ESA), new reduction by van Leeuwen (2007)"}. Positions moved to ${catalogue.epoch.toFixed(1)} with the proper motion; temperature estimated from B−V.`}
+              : sourcesLine(catalogue)}
           </p>
         </Rise>
       </Stagger>
     </article>
   );
+}
+
+/** Where the catalogue numbers come from, without repeating what the credits already say. */
+function sourcesLine(catalogue: Catalogue): string {
+  const credits = (catalogue.credits || "Hipparcos catalogue (ESA), new reduction by van Leeuwen (2007)").trim().replace(/\.+$/, "");
+  const temperature = /temperature/i.test(credits) ? "" : "; temperature estimated from B−V";
+  return `Names, brightness, colour, distance and motion: ${credits}. Positions moved to ${catalogue.epoch.toFixed(1)} with the proper motion${temperature}.`;
 }
 
 function ordinal(n: number): string {

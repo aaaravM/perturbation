@@ -14,7 +14,6 @@ import type { ResolvedPlace } from "@/lib/lab-resolve";
 import type { SpectralChannel } from "@/lib/spherex";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
-import { Term } from "@/components/ui/term";
 import { LabSearch } from "@/components/lab/lab-search";
 import { WavelengthSlider } from "@/components/sky/wavelength-slider";
 import { PaneHeading } from "@/components/lab/workbench-ui";
@@ -84,7 +83,7 @@ export function DataPane({
               ) : null
             }
           >
-            <Term k="epoch">Epochs</Term>
+            Epochs
           </PaneHeading>
           {manifest ? (
             <EpochTable
@@ -188,14 +187,10 @@ function EpochTable({
           </th>
           {header("date", "Date")}
           <th scope="col" className="py-1 font-normal">
-            <Term k="survey" mark={false}>
-              Survey
-            </Term>
+            Survey
           </th>
           <th scope="col" className="py-1 font-normal">
-            <Term k="detector" mark={false}>
-              Det.
-            </Term>
+            Det.
           </th>
           {header("exposures", "Exp.", "pr-3 text-right")}
         </tr>
@@ -224,7 +219,7 @@ function EpochTable({
                     aria-expanded={expanded}
                     aria-label={`${expanded ? "Hide" : "Show"} the exposures of ${e.label}`}
                     onClick={() => setOpen(expanded ? null : e.index)}
-                    className="grid size-4 place-items-center rounded-sm text-fg-faint hover:text-fg"
+                    className="-my-1 -ml-1 grid size-6 place-items-center rounded-sm text-fg-faint hover:text-fg"
                   >
                     <ChevronRightIcon className={cn("size-3 transition-transform duration-200", expanded && "rotate-90")} aria-hidden />
                   </button>
@@ -234,12 +229,12 @@ function EpochTable({
                     type="button"
                     disabled={!clickable}
                     onClick={() => onSeekEpoch(e.index)}
-                    className="readout text-left text-fg enabled:hover:underline enabled:hover:decoration-hair-strong enabled:hover:underline-offset-4 disabled:text-inherit"
+                    className="readout -my-1 inline-flex min-h-6 items-center text-left text-fg enabled:hover:underline enabled:hover:decoration-hair-strong enabled:hover:underline-offset-4 disabled:text-inherit"
                     title={clickable ? `Show ${e.label}` : e.full ? "No frame for this detector" : "Partial epoch"}
                   >
                     {e.label}
                   </button>
-                  {!e.full && <span className="block text-fg-faint">partial</span>}
+                  {!e.full && <span className={cn("block", isShown ? "text-fg-dim" : "text-fg-faint")}>partial</span>}
                 </td>
                 <td className="readout py-1 text-fg-dim">
                   {e.survey} <span className="text-fg-dim">{e.pa}°</span>
@@ -306,7 +301,7 @@ function ExposureRows({ epoch, manifest }: { epoch: Epoch; manifest: FieldManife
         <span className="readout text-fg-dim">
           {start} → {end}
         </span>{" "}
-        · {days} {days === 1 ? "day" : "days"} · <Term k="survey">{epoch.survey}</Term>, position angle{" "}
+        · {days} {days === 1 ? "day" : "days"} · {epoch.survey}, position angle{" "}
         <span className="readout">{epoch.pa}°</span>
       </p>
       <table className="w-full text-micro">
@@ -378,10 +373,10 @@ export function siaExposureUrl(manifest: FieldManifest, epoch: Epoch): string {
 
 const LAYER_LABEL: Record<LayerId, { name: React.ReactNode; plain: string; hint: string }> = {
   epochs: { name: <>SPHEREx epochs</>, plain: "SPHEREx epochs", hint: "The blink frames, one co-add per visit" },
-  difference: { name: <Term k="difference">Difference</Term>, plain: "Difference", hint: "Last epoch minus first, in units of the noise" },
+  difference: { name: "Difference", plain: "Difference", hint: "Last epoch minus first, in units of the noise" },
   wise: { name: <>WISE 2010 (W2)</>, plain: "WISE 2010", hint: "AllWISE at 4.6 µm, about 15 years earlier" },
-  gaia: { name: <Term k="gaia">Gaia DR3</Term>, plain: "Gaia DR3 stars", hint: "Catalogue stars: click one to inspect it" },
-  flags: { name: <Term k="flags">Flags</Term>, plain: "Flags", hint: "Pixels marked in the official SPHEREx masks" },
+  gaia: { name: "Gaia DR3", plain: "Gaia DR3 stars", hint: "Catalogue stars: click one to inspect it" },
+  flags: { name: "Flags", plain: "Flags", hint: "Pixels marked in the official SPHEREx masks" },
   path: { name: <>Motion path</>, plain: "Motion path", hint: "The selected object's track across the epochs" },
   cube: { name: <>SPHEREx all-sky cube</>, plain: "SPHEREx all-sky cube", hint: "DR1 map underneath, 102 wavelengths" },
 };
@@ -402,7 +397,8 @@ function LayerList({
       {layers.map((l) => {
         const meta = LAYER_LABEL[l.id];
         return (
-          <li key={l.id} className={cn("flex flex-col gap-1 px-3 py-1.5", l.disabled && "opacity-45")} data-testid={`layer-${l.id}`}>
+          // A layer that cannot be shown here keeps readable (AA) text; only its controls fade.
+          <li key={l.id} className="flex flex-col gap-1 px-3 py-1.5" data-disabled={l.disabled || undefined} data-testid={`layer-${l.id}`}>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -413,18 +409,18 @@ function LayerList({
                 onClick={() => onVisible(l.id, !l.visible)}
                 data-testid={`layer-toggle-${l.id}`}
                 className={cn(
-                  "grid size-6 shrink-0 place-items-center rounded-[5px] transition-colors hover:bg-white/[0.06]",
+                  "grid size-6 shrink-0 place-items-center rounded-[5px] transition-colors hover:bg-white/[0.06] disabled:opacity-40",
                   l.visible ? "text-fg" : "text-fg-faint",
                 )}
               >
                 {l.visible ? <EyeIcon className="size-3.5" aria-hidden /> : <EyeOffIcon className="size-3.5" aria-hidden />}
               </button>
               <div className="min-w-0 flex-1">
-                <p className={cn("truncate text-meta", l.visible ? "text-fg" : "text-fg-dim")}>{meta.name}</p>
+                <p className={cn("truncate text-meta", l.disabled ? "text-fg-faint" : l.visible ? "text-fg" : "text-fg-dim")}>{meta.name}</p>
                 <p className="truncate text-micro text-fg-faint">{l.note ?? meta.hint}</p>
               </div>
               {l.opacity !== undefined && (
-                <div className="flex w-[4.5rem] shrink-0 items-center gap-1.5">
+                <div className={cn("flex w-[4.5rem] shrink-0 items-center gap-1.5", l.disabled && "opacity-40")}>
                   <Slider
                     min={0}
                     max={1}

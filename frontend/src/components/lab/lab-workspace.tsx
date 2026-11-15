@@ -9,7 +9,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { useQueryStates } from "nuqs";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
-import { CommandIcon, DownloadIcon, KeyboardIcon, LinkIcon, MousePointerClickIcon } from "lucide-react";
+import Link from "next/link";
+import { CommandIcon, DownloadIcon, GlobeIcon, KeyboardIcon, LinkIcon, MousePointerClickIcon } from "lucide-react";
 import { AladinView, type AladinStatus, type SkyView } from "@/components/sky/aladin-view";
 import type { AladinSession } from "@/components/sky/aladin-session";
 import { extra } from "@/components/sky/aladin-extra";
@@ -56,7 +57,8 @@ import { DEFAULT_DISPLAY, decodePng, histogram as histogramOf, type DisplaySetti
 import { DataPane, siaExposureUrl, type LayerId, type LayerRow } from "@/components/lab/data-pane";
 import { ViewerToolbar, type Tool } from "@/components/lab/viewer-toolbar";
 import { StatusBar } from "@/components/lab/status-bar";
-import { Timeline, SPEED_DEFAULT, SPEED_MAX, SPEED_MIN, type BlinkStyle, type CompareMode } from "@/components/lab/timeline";
+import { Timeline, SPEED_MAX, SPEED_MIN, type BlinkStyle, type CompareMode } from "@/components/lab/timeline";
+import { getPreference, prefersReducedMotionNow, useEffectiveReducedMotion, usePreference } from "@/lib/preferences";
 import { CompareOverlay } from "@/components/lab/compare-overlay";
 import {
   AnalysisPane,
@@ -94,6 +96,19 @@ function subscribeWide(onChange: () => void) {
 /** Three panes from 900 px; tabs below. The server renders the wide layout. */
 function useIsWide() {
   return useSyncExternalStore(subscribeWide, () => window.matchMedia(WIDE_QUERY).matches, () => true);
+}
+
+/**
+ * Reduced motion: the Motion setting (Settings page), else the system setting, read live (motion's
+ * own hook keeps the value of its first render, which can miss the setting when the Lab hydrates).
+ */
+function usePrefersReducedMotion() {
+  return useEffectiveReducedMotion();
+}
+
+/** Whether a new blink may start by itself: never with reduced motion (read at the moment it starts). */
+function autoplayAllowed() {
+  return !prefersReducedMotionNow();
 }
 
 const noopSubscribe = () => () => {};
@@ -189,7 +204,7 @@ type Measure =
 
 export function LabWorkspace() {
   const [q, setQ] = useQueryStates(labParsers, labUrlOptions);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const wide = useIsWide();
   const isClient = useIsClient();
   const featured = findFeatured(q.target);
@@ -317,7 +332,9 @@ export function LabWorkspace() {
           ? manifest.frames.difference.length > 0
           : true;
   const mode: LabMode = modeAvailable(q.mode) ? q.mode : "epochs";
-  const det: LabDetector | null = manifest ? resolveDetector(manifest, mode, q.det) : null;
+  // A detector in the link wins; otherwise the Settings choice, when this field has it.
+  const preferredDet = usePreference("labDetector");
+  const det: LabDetector | null = manifest ? resolveDetector(manifest, mode, q.det ?? preferredDet) : null;
   const frames = useMemo(
     () => (manifest && manifestUrl ? framesFor(manifest, manifestUrl, mode, det) : []),
     [manifest, manifestUrl, mode, det],
@@ -330,7 +347,10 @@ export function LabWorkspace() {
   // ------------------------------------------------------------------ playback
   const [frameIndex, setFrameIndex] = useState(q.frame ?? 0);
   const [playing, setPlaying] = useState(q.frame === null);
-  const [speed, setSpeed] = useState(SPEED_DEFAULT);
+  // Blink speed: the Settings choice until it is changed here.
+  const preferredSpeed = usePreference("labBlinkMs");
+  const [speedChoice, setSpeed] = useState<number | null>(null);
+  const speed = speedChoice ?? preferredSpeed;
   const [loopCount, setLoopCount] = useState(0);
   const [blinkStyle, setBlinkStyle] = useState<BlinkStyle>("hard");
   const [compare, setCompare] = useState<CompareMode>("off");
@@ -589,13 +609,13 @@ export function LabWorkspace() {
       setPatch(null);
       setNote(pick);
       setFrameIndex(0);
-      setPlaying(!reduceMotion);
+      setPlaying(autoplayAllowed());
       setCompare("off");
       void setQ({ target: slug, ra: v?.ra ?? null, dec: v?.dec ?? null, fov: v?.fov ?? null, frame: null });
       setSelection({ kind: "target" });
       setTab("object");
     },
-    [reduceMotion, setQ, viewerSize],
+    [setQ, viewerSize],
   );
 
   const watchFieldArcmin = isClient ? visibleFieldArcmin(view.fov, viewerSize) : DEFAULT_FIELD_ARCMIN;
@@ -612,20 +632,20 @@ export function LabWorkspace() {
       const v = framedView({ ra, dec }, f, viewerSize);
       setNote(null);
       setFrameIndex(0);
-      setPlaying(!reduceMotion);
+      setPlaying(autoplayAllowed());
       setCompare("off");
       void setQ({ target: null, ra: v.ra, dec: v.dec, fov: v.fov, frame: null });
       setPatch((p) => ({ ra, dec, fovArcmin: f, nonce: (p?.nonce ?? 0) + 1 }));
       return "patch" as const;
     },
-    [view.fov, reduceMotion, setQ, selectTarget, viewerSize],
+    [view.fov, setQ, selectTarget, viewerSize],
   );
 
   const watchStar = (s: GaiaSource) => {
     if (manifest && separationDeg(manifest.center, s) * 60 <= manifest.fov_arcmin / 2) {
       // Already in the loaded field: centre it and play.
       void setQ({ ra: s.ra, dec: s.dec, fov: Math.min(view.fov, framedView(s, Math.min(6, manifest.fov_arcmin), viewerSize).fov) });
-      setPlaying(!reduceMotion);
+      setPlaying(autoplayAllowed());
       if (!wide) setPhoneTab("viewer");
       return;
     }
@@ -801,8 +821,8 @@ export function LabWorkspace() {
           else if (lower === "e") s.setMode("epochs");
           else if (lower === "t" && s.manifest && s.manifest.frames.then_vs_now.length > 1) s.setMode("then-now");
           else if (lower === "d" && s.manifest && s.manifest.frames.difference.length > 0) s.setMode("difference");
-          else if (key === "[") setSpeed((v) => Math.min(SPEED_MAX, v + 50));
-          else if (key === "]") setSpeed((v) => Math.max(SPEED_MIN, v - 50));
+          else if (key === "[") setSpeed((v) => Math.min(SPEED_MAX, (v ?? getPreference("labBlinkMs")) + 50));
+          else if (key === "]") setSpeed((v) => Math.max(SPEED_MIN, (v ?? getPreference("labBlinkMs")) - 50));
           else if (/^[1-6]$/.test(key) && s.manifest) {
             const d = `D${key}` as LabDetector;
             if (availableDetectors(s.manifest).includes(d)) void setQ({ det: d });
@@ -1172,6 +1192,17 @@ export function LabWorkspace() {
         </span>
       </p>
       <div className="ml-auto flex shrink-0 items-center gap-0.5">
+        {/* Back to the same place on the Sky globe: the target, else the view centre. */}
+        <Link
+          href={featured ? `/sky?target=${featured.slug}` : `/sky?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`}
+          prefetch={false}
+          className="mr-1 inline-flex h-7 items-center gap-1.5 rounded-[5px] px-2 text-micro text-fg-dim transition-colors duration-150 hover:bg-white/[0.06] hover:text-fg"
+          data-testid="lab-to-sky"
+        >
+          <GlobeIcon className="size-3.5" aria-hidden />
+          <span className="hidden sm:inline">On the sky globe</span>
+          <span className="sr-only sm:hidden">Show this on the sky globe</span>
+        </Link>
         <ToolButton label="Command palette" shortcut="Ctrl K" onClick={() => setPaletteOpen(true)} testId="open-palette">
           <CommandIcon className="size-3.5" aria-hidden />
         </ToolButton>

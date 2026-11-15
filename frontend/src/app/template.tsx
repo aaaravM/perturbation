@@ -2,10 +2,11 @@
 // Soft page-enter transition. A template re-mounts on every navigation, so each page fades in.
 // Opacity only: a transform here would sit above the sky viewer's canvas while it measures.
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useEffectiveReducedMotion } from "@/lib/preferences";
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useEffectiveReducedMotion();
   return (
     <motion.div
       className="flex flex-1 flex-col"

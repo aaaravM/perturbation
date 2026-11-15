@@ -142,7 +142,9 @@ function StretchPopover({
             />
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-micro text-fg-dim">Stretch</span>
+            <span className="text-micro text-fg-dim">
+              <Term k="stretch" />
+            </span>
             <Seg label="Stretch" value={display.stretch} options={STRETCHES} onChange={(stretch) => onDisplay({ ...display, stretch })} layoutId="stretch-seg" testIdPrefix="stretch" />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -167,7 +169,7 @@ function StretchPopover({
             </div>
           </div>
           <p className="text-micro text-pretty text-fg-faint">
-            Changes how the frames look, not the data. Every <Term k="epoch">epoch</Term> gets the same setting, so
+            Changes how the frames look, not the data. Every epoch gets the same setting, so
             brightness changes stay real. Colour composites keep their colours.
           </p>
         </div>

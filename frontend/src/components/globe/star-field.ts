@@ -9,6 +9,10 @@
 // Colours are the catalogue's sRGB colours (blackbody from B-V), converted to linear light here so
 // the renderer's output conversion gives back exactly those colours. Size and weight follow the
 // V magnitude; fainter stars fade in as the view comes closer (uMagLimit).
+//
+// Focus in 3D space: uDim dims every star except up to four "lit" ones (the selection, the star it
+// is crossfading from, the hovered star and the one hovered before), found by their vertex index in
+// uLit with their weights in uLitW. Dimming is all uniforms: no buffer changes.
 
 import * as THREE from "three";
 import type { StarTier } from "@/lib/stars";
@@ -24,6 +28,8 @@ export const SPACE_SHELL = 3.45;
 export const MIN_PARALLAX_MAS = 1;
 /** How much of the morph is spent staggering the start of each star. */
 export const STAGGER = 0.5;
+/** Brightness left to the other stars when one is in focus in 3D space. */
+export const DIM_LEVEL = 0.12;
 
 export function spaceRadius(pc: number): number {
   return SPACE_R0 + SPACE_K * Math.log10(Math.min(SPACE_MAX_PC, Math.max(1, pc)));
@@ -103,6 +109,9 @@ const vertexShader = /* glsl */ `
   uniform float uBack;
   uniform float uRefDist;
   uniform float uFade;
+  uniform float uDim;
+  uniform ivec4 uLit;
+  uniform vec4 uLitW;
   attribute vec3 aSpace;
   attribute float aMag;
   attribute vec3 aColor;
@@ -131,9 +140,20 @@ const vertexShader = /* glsl */ `
     float facing = dot(normalize(position), normalize(cameraPosition - position));
     float occl = mix(uBack, 1.0, smoothstep(-0.04, 0.1, facing));
     occl = mix(occl, 1.0, e);
-    // Level of detail: stars fainter than the limit fade out over a magnitude.
+    // Focus: how lit this star is (1 for the selection or the hovered star), and so how far it dims.
+    float sel = 0.0;
+    if (gl_VertexID == uLit.x) sel = max(sel, uLitW.x);
+    if (gl_VertexID == uLit.y) sel = max(sel, uLitW.y);
+    float hov = 0.0;
+    if (gl_VertexID == uLit.z) hov = max(hov, uLitW.z);
+    if (gl_VertexID == uLit.w) hov = max(hov, uLitW.w);
+    sel *= e;
+    float dim = uDim * (1.0 - max(sel, hov * e));
+
+    // Level of detail: stars fainter than the limit fade out over a magnitude. The selected star
+    // always shows in space, however faint.
     float limit = mix(uMagLimit, uMagLimitSpace, e);
-    float lod = 1.0 - smoothstep(limit - 1.2, limit, aMag);
+    float lod = max(1.0 - smoothstep(limit - 1.2, limit, aMag), sel);
     // In space, stars without a distance stay dim on the outer shell.
     float shell = mix(1.0, mix(0.3, 1.0, aKnown), e);
 
@@ -141,16 +161,19 @@ const vertexShader = /* glsl */ `
     float diameter = (1.35 + 6.2 * pow(b, 1.4)) * uSizeGain;
     float persp = clamp(pow(uRefDist / dist, 0.75), 0.5, 3.4);
     diameter *= mix(1.0, persp, e);
-    diameter = min(diameter, 15.0);
+    diameter = min(diameter, 15.0) * mix(1.0, 0.8, dim);
     float weight = clamp(0.5 + 0.5 * (8.5 - aMag) / 4.0, 0.3, 1.0);
-    // Never draw below 2 px (it would shimmer); dim instead.
-    float drawn = max(diameter, 2.0);
+    // Never draw below 2 px (it would shimmer); dim instead. The selected star keeps at least 3 px.
+    float drawn = max(diameter, mix(2.0, 3.0, sel));
     float energy = min(1.0, (diameter * diameter) / (drawn * drawn) + 0.2);
     // In space, nearer stars read brighter than far ones: a depth cue as the view turns.
     float depth = mix(1.0, clamp(pow(uRefDist / dist, 0.8), 0.3, 1.25), e);
     vAlpha = uOpacity * uFade * occl * lod * shell * weight * energy * depth;
+    vAlpha = max(vAlpha, 0.6 * sel * uOpacity * uFade) * mix(1.0, ${DIM_LEVEL.toFixed(2)}, dim);
     vSize = drawn * uPixelRatio;
-    vColor = toLinear(aColor);
+    // Dimmed stars lose most of their colour, so the lit ones stand out by colour as well.
+    vec3 col = toLinear(aColor);
+    vColor = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), 0.7 * dim);
     gl_PointSize = vSize;
     gl_Position = projectionMatrix * viewMatrix * world;
     if (vAlpha < 0.003) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
@@ -187,6 +210,12 @@ export interface StarFieldUniforms {
   uBack: THREE.IUniform<number>;
   uRefDist: THREE.IUniform<number>;
   uFade: THREE.IUniform<number>;
+  /** 0..1: how far the stars that are not lit have dimmed. */
+  uDim: THREE.IUniform<number>;
+  /** Vertex indices of the lit stars in this tier (or -1): selection, previous selection, hover, previous hover. */
+  uLit: THREE.IUniform<THREE.Vector4>;
+  /** Their weights, 0..1. */
+  uLitW: THREE.IUniform<THREE.Vector4>;
 }
 
 export type StarFieldMaterial = THREE.ShaderMaterial & { uniforms: StarFieldUniforms };
@@ -202,6 +231,9 @@ export function createStarFieldMaterial(): StarFieldMaterial {
     uBack: { value: 0.1 },
     uRefDist: { value: 4 },
     uFade: { value: 1 },
+    uDim: { value: 0 },
+    uLit: { value: new THREE.Vector4(-1, -1, -1, -1) },
+    uLitW: { value: new THREE.Vector4(0, 0, 0, 0) },
   };
   return new THREE.ShaderMaterial({
     uniforms,

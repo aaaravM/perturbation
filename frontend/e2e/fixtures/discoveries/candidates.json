@@ -1,0 +1,561 @@
+{
+ "version": 1,
+ "generated": "2026-11-15T03:00:00Z",
+ "model": {
+  "name": "fixture_model",
+  "classes": [
+   "mover",
+   "variable",
+   "artifact",
+   "nothing"
+  ],
+  "trained_on": "Synthetic test fixture for the end-to-end tests. Not real data.",
+  "metrics": {
+   "test_accuracy": 0.9,
+   "mover_completeness_snr10": 0.5,
+   "variable_completeness_snr10": 0.6,
+   "false_alarms_per_deg2_q05": 0.0,
+   "mover_completeness_shift_ge_1px_snr10": 0.8,
+   "false_alarms_area_deg2": 0.1,
+   "false_alarms_per_deg2_q05_upper95": 30.0
+  }
+ },
+ "fdr": {
+  "method": "Synthetic",
+  "alpha": 0.05
+ },
+ "survey": {
+  "n_fields": 3,
+  "area_deg2": 0.08,
+  "detectors": [
+   "D4",
+   "D5",
+   "D6"
+  ],
+  "epochs_median": 4
+ },
+ "fields": [
+  {
+   "id": "fx-field-a",
+   "name": "Synthetic field A",
+   "kind": "target",
+   "ra": 10.1,
+   "dec": 20.2,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 120,
+   "n_kept": 1
+  },
+  {
+   "id": "fx-field-b",
+   "name": "Synthetic field B",
+   "kind": "known-mover",
+   "ra": 150.5,
+   "dec": -30.25,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 80,
+   "n_kept": 1
+  },
+  {
+   "id": "fx-field-c",
+   "name": "Synthetic field C",
+   "kind": "control",
+   "ra": 280.0,
+   "dec": 60.0,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 40,
+   "n_kept": 0
+  }
+ ],
+ "candidates": [
+  {
+   "id": "fx-a-000",
+   "field": "fx-field-a",
+   "ra": 10.1,
+   "dec": 20.2,
+   "kind": "mover",
+   "score": 0.97,
+   "probs": {
+    "mover": 0.95,
+    "variable": 0.02,
+    "artifact": 0.01,
+    "nothing": 0.02
+   },
+   "p_value": 0.001,
+   "q_value": 0.004,
+   "snr": 42.0,
+   "motion": {
+    "pm_arcsec_yr": 2.31,
+    "pm_err_arcsec_yr": 0.12,
+    "pa_deg": 45.0,
+    "n_epochs": 4
+   },
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "Gaia DR3",
+    "name": "Synthetic Star 1",
+    "id": "Synthetic Star 1",
+    "sep_arcsec": 0.8,
+    "catalog_pm_arcsec_yr": 2.25
+   },
+   "stamp": "/discoveries/stamps/fx-a-000.png",
+   "lab_url": "/explore?ra=10.10000&dec=20.20000&fov=0.1667"
+  },
+  {
+   "id": "fx-a-001",
+   "field": "fx-field-a",
+   "ra": 10.12,
+   "dec": 20.21,
+   "kind": "variable",
+   "score": 0.93,
+   "probs": {
+    "mover": 0.03,
+    "variable": 0.9,
+    "artifact": 0.04,
+    "nothing": 0.03
+   },
+   "p_value": 0.003,
+   "q_value": 0.012,
+   "snr": 18.5,
+   "motion": null,
+   "variability": {
+    "delta_mag": -0.75,
+    "sigma": 12.0
+   },
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-a-001.png",
+   "lab_url": "/explore?ra=10.12000&dec=20.21000&fov=0.1667"
+  },
+  {
+   "id": "fx-b-000",
+   "field": "fx-field-b",
+   "ra": 150.5,
+   "dec": -30.25,
+   "kind": "mover",
+   "score": 0.88,
+   "probs": {
+    "mover": 0.84,
+    "variable": 0.04,
+    "artifact": 0.05,
+    "nothing": 0.07
+   },
+   "p_value": 0.0075,
+   "q_value": 0.03,
+   "snr": 11.2,
+   "motion": {
+    "pm_arcsec_yr": 0.95,
+    "pm_err_arcsec_yr": 0.2,
+    "pa_deg": 200.0,
+    "n_epochs": 3
+   },
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-10",
+    "2026-03-12"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-b-000.png",
+   "lab_url": "/explore?ra=150.50000&dec=-30.25000&fov=0.1667"
+  },
+  {
+   "id": "fx-b-001",
+   "field": "fx-field-b",
+   "ra": 150.52,
+   "dec": -30.27,
+   "kind": "variable",
+   "score": 0.81,
+   "probs": {
+    "mover": 0.06,
+    "variable": 0.75,
+    "artifact": 0.1,
+    "nothing": 0.09
+   },
+   "p_value": 0.01125,
+   "q_value": 0.045,
+   "snr": 9.0,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.42,
+    "sigma": 6.1
+   },
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-10",
+    "2026-03-12"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "Synthetic Variable 2",
+    "id": "Synthetic Variable 2",
+    "sep_arcsec": 1.4,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-b-001.png",
+   "lab_url": "/explore?ra=150.52000&dec=-30.27000&fov=0.1667"
+  },
+  {
+   "id": "fx-c-000",
+   "field": "fx-field-c",
+   "ra": 280.0,
+   "dec": 60.0,
+   "kind": "mover",
+   "score": 0.72,
+   "probs": {
+    "mover": 0.6,
+    "variable": 0.12,
+    "artifact": 0.13,
+    "nothing": 0.15
+   },
+   "p_value": 0.02,
+   "q_value": 0.08,
+   "snr": 7.5,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-c-000.png",
+   "lab_url": "/explore?ra=280.00000&dec=60.00000&fov=0.1667"
+  },
+  {
+   "id": "fx-c-001",
+   "field": "fx-field-c",
+   "ra": 280.02,
+   "dec": 60.01,
+   "kind": "variable",
+   "score": 0.6,
+   "probs": {
+    "mover": 0.1,
+    "variable": 0.5,
+    "artifact": 0.2,
+    "nothing": 0.2
+   },
+   "p_value": 0.0375,
+   "q_value": 0.15,
+   "snr": 6.1,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.2,
+    "sigma": 3.0
+   },
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-c-001.png",
+   "lab_url": "/explore?ra=280.02000&dec=60.01000&fov=0.1667"
+  },
+  {
+   "id": "fx-c-002",
+   "field": "fx-field-c",
+   "ra": 280.03,
+   "dec": 60.02,
+   "kind": "mover",
+   "score": 0.41,
+   "probs": {
+    "mover": 0.3,
+    "variable": 0.11,
+    "artifact": 0.35,
+    "nothing": 0.24
+   },
+   "p_value": 0.0475,
+   "q_value": 0.19,
+   "snr": 5.4,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/fx-c-002.png",
+   "lab_url": "/explore?ra=280.03000&dec=60.02000&fov=0.1667"
+  },
+  {
+   "id": "fx-c-003",
+   "field": "fx-field-c",
+   "ra": 280.05,
+   "dec": 60.03,
+   "kind": "variable",
+   "score": 0.5,
+   "probs": {
+    "mover": 0.05,
+    "variable": 0.45,
+    "artifact": 0.3,
+    "nothing": 0.2
+   },
+   "p_value": 0.045,
+   "q_value": 0.18,
+   "snr": 5.9,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.3,
+    "sigma": 2.2
+   },
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "https://example.com/x.png",
+   "lab_url": "javascript:alert(1)"
+  },
+  {
+   "id": "fx-bad-000",
+   "field": "fx-field-c",
+   "ra": 400.0,
+   "dec": 95.0,
+   "kind": "mover",
+   "score": 0.9,
+   "probs": {
+    "mover": 0.9,
+    "variable": 0.05,
+    "artifact": 0.03,
+    "nothing": 0.02
+   },
+   "p_value": 0.0025,
+   "q_value": "abc",
+   "snr": 30.0,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-05-01",
+    "2026-05-01"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": null,
+   "lab_url": "/explore?ra=400.00000&dec=95.00000&fov=0.1667"
+  }
+ ],
+ "targets": [
+  {
+   "field": "fx-field-a",
+   "name": "Synthetic Target A",
+   "expected": "mover",
+   "catalog_pm_arcsec_yr": 2.25,
+   "radius_arcsec": 30.0,
+   "family": 1,
+   "q_target": 0.002,
+   "sep_arcsec": 0.8,
+   "found": true,
+   "candidate": {
+    "id": "fx-a-target-000",
+    "field": "fx-field-a",
+    "ra": 10.1,
+    "dec": 20.2,
+    "kind": "mover",
+    "score": 0.9,
+    "probs": {
+     "mover": 0.85,
+     "variable": 0.05,
+     "artifact": 0.05,
+     "nothing": 0.05
+    },
+    "p_value": 0.05,
+    "q_value": 0.2,
+    "snr": 40.0,
+    "motion": {
+     "pm_arcsec_yr": 2.2,
+     "pm_err_arcsec_yr": 0.2,
+     "pa_deg": 44.0,
+     "n_epochs": 4
+    },
+    "variability": null,
+    "detectors": [
+     "D4",
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-05-01",
+     "2026-05-01"
+    ],
+    "match": {
+     "status": "known",
+     "catalog": "SIMBAD",
+     "name": "Synthetic Target A",
+     "id": "Synthetic Target A",
+     "sep_arcsec": 0.8,
+     "catalog_pm_arcsec_yr": 2.25
+    },
+    "stamp": "/discoveries/stamps/fx-a-target-000.png",
+    "lab_url": "/explore?ra=10.10000&dec=20.20000&fov=0.1667"
+   },
+   "motion_fit_epochs": 4
+  },
+  {
+   "field": "fx-field-b",
+   "name": "Synthetic Target B",
+   "expected": "variable",
+   "catalog_pm_arcsec_yr": 0.01,
+   "radius_arcsec": 30.0,
+   "family": 2,
+   "q_target": 0.09,
+   "sep_arcsec": 3.1,
+   "found": false,
+   "candidate": {
+    "id": "fx-b-target-000",
+    "field": "fx-field-b",
+    "ra": 150.6,
+    "dec": -30.3,
+    "kind": "variable",
+    "score": 0.7,
+    "probs": {
+     "mover": 0.1,
+     "variable": 0.6,
+     "artifact": 0.2,
+     "nothing": 0.1
+    },
+    "p_value": 0.1,
+    "q_value": 0.4,
+    "snr": 8.0,
+    "motion": null,
+    "variability": {
+     "delta_mag": 0.5,
+     "sigma": 4.0
+    },
+    "detectors": [
+     "D4",
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-05-01",
+     "2026-05-01"
+    ],
+    "match": {
+     "status": "unknown",
+     "catalog": null,
+     "name": null,
+     "id": null,
+     "sep_arcsec": null,
+     "catalog_pm_arcsec_yr": null
+    },
+    "stamp": "/discoveries/stamps/fx-b-target-000.png",
+    "lab_url": "/explore?ra=150.60000&dec=-30.30000&fov=0.1667"
+   },
+   "motion_fit_epochs": null
+  },
+  {
+   "field": "fx-field-c",
+   "name": "Synthetic Target C",
+   "expected": "mover",
+   "catalog_pm_arcsec_yr": 1.0,
+   "radius_arcsec": 30.0,
+   "family": 0,
+   "q_target": null,
+   "sep_arcsec": null,
+   "found": false,
+   "candidate": null,
+   "motion_fit_epochs": null
+  }
+ ]
+}

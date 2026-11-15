@@ -14,7 +14,10 @@ import {
   propagate,
   separationDeg,
 } from "@/lib/lab-coords";
+import Link from "next/link";
+import { GlobeIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Term } from "@/components/ui/term";
 import { PanelSection, Row, Rows } from "@/components/panel/detail-panel";
 import { MotionCompass } from "@/components/panel/motion-compass";
 import { SpectrumChart } from "@/components/panel/spectrum-chart";
@@ -76,9 +79,21 @@ export function TargetDetails({
         </p>
       )}
 
-      {featured && <p className="px-5 pb-4 text-meta text-pretty text-fg-dim">{featured.summary}</p>}
+      {featured && <p className="px-5 pb-3 text-meta text-pretty text-fg-dim">{featured.summary}</p>}
+      {featured && (
+        <p className="px-5 pb-4">
+          <Link
+            href={`/sky?target=${featured.slug}`}
+            className="inline-flex items-center gap-1.5 text-meta text-fg-dim underline decoration-hair-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-fg-dim"
+            data-testid="target-on-globe"
+          >
+            <GlobeIcon aria-hidden className="size-3.5" />
+            Show on the sky globe
+          </Link>
+        </p>
+      )}
 
-      <PanelSection title="Position" aside={nowMjd ? <span className="readout">Epoch {mjdToEpoch(nowMjd).toFixed(2)}</span> : null}>
+      <PanelSection index={0} title="Position" aside={nowMjd ? <span className="readout">Epoch {mjdToEpoch(nowMjd).toFixed(2)}</span> : null}>
         {now ? (
           <Rows>
             <Row label="Now">
@@ -90,7 +105,7 @@ export function TargetDetails({
               </span>
             </Row>
             {j2000 && (
-              <Row label="J2000">
+              <Row label={<Term k="j2000" />}>
                 <span className="readout block text-fg-dim">
                   {formatRaHms(j2000.ra)} {formatDecDms(j2000.dec)}
                 </span>
@@ -121,7 +136,12 @@ export function TargetDetails({
 
       {manifest && (
         <>
-          <PanelSection title="Motion" testId="panel-motion" aside={motion?.verdict ? VERDICT_LABEL[motion.verdict] : null}>
+          <PanelSection
+            index={1}
+            title="Motion"
+            testId="panel-motion"
+            aside={motion?.verdict ? VERDICT_LABEL[motion.verdict] : null}
+          >
             {motion?.fit || motion?.catalog ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-5">
@@ -133,7 +153,12 @@ export function TargetDetails({
                         <dd className="readout whitespace-nowrap text-accent">
                           {motion.fit.total_arcsec_yr.toFixed(2)} ± {motion.fit.total_err.toFixed(2)}″/yr
                         </dd>
-                        <dd className="readout text-fg-dim">PA {motion.fit.pa_deg.toFixed(1)}°</dd>
+                        <dd className="readout text-fg-dim">
+                          <Term k="positionAngle" mark={false}>
+                            PA
+                          </Term>{" "}
+                          {motion.fit.pa_deg.toFixed(1)}°
+                        </dd>
                       </div>
                     )}
                     {motion.catalog && (
@@ -193,7 +218,7 @@ export function TargetDetails({
             )}
           </PanelSection>
 
-          <PanelSection title="Spectrum" testId="panel-spectrum">
+          <PanelSection index={2} title="Spectrum" aside="SPHEREx images, IRSA" testId="panel-spectrum">
             {manifest.spectrum && manifest.spectrum.points.length > 0 ? (
               <>
                 <SpectrumChart spectrum={manifest.spectrum} epochLabel={epochLabel} />
@@ -208,15 +233,23 @@ export function TargetDetails({
             )}
           </PanelSection>
 
-          <PanelSection title="Brightness over time" testId="panel-lightcurve">
+          <PanelSection
+            index={3}
+            title="Brightness over time"
+            aside="SPHEREx images, IRSA"
+            testId="panel-lightcurve"
+          >
             {manifest.lightcurve && manifest.lightcurve.epoch_photometry.length > 0 ? (
               <>
                 <LightCurveChart lightcurve={manifest.lightcurve} detector={focusDetector} currentMjd={currentMjd} />
                 {manifest.lightcurve.variability && (
                   <p className="text-meta text-fg-dim">
                     {manifest.lightcurve.variability.significant ? "Significant variability: " : "No significant variability: "}
-                    largest change <span className="readout text-fg">{manifest.lightcurve.variability.max_delta_mag.toFixed(2)}</span> mag,
-                    χ²/dof <span className="readout text-fg">{manifest.lightcurve.variability.chi2_dof.toFixed(1)}</span>.
+                    largest change <span className="readout text-fg">{manifest.lightcurve.variability.max_delta_mag.toFixed(2)}</span>{" "}
+                    <Term k="magnitude" mark={false}>
+                      mag
+                    </Term>
+                    , <Term k="chiSquare">χ²/dof</Term> <span className="readout text-fg">{manifest.lightcurve.variability.chi2_dof.toFixed(1)}</span>.
                   </p>
                 )}
               </>
@@ -226,7 +259,7 @@ export function TargetDetails({
           </PanelSection>
 
           {(manifest.checks.length > 0 || manifest.warnings.length > 0) && (
-            <PanelSection title="Checks and warnings" testId="panel-checks">
+            <PanelSection index={4} title="Checks and warnings" testId="panel-checks">
               {manifest.checks.length > 0 && (
                 <ul className="flex flex-col gap-1.5">
                   {manifest.checks.map((check) => (
@@ -257,7 +290,7 @@ export function TargetDetails({
             </PanelSection>
           )}
 
-          <PanelSection title="Data" testId="panel-provenance">
+          <PanelSection index={5} title="Data" testId="panel-provenance">
             <Rows>
               <Row label="Collections">
                 <span className="readout">{manifest.release.collections.join(", ")}</span>
@@ -268,7 +301,7 @@ export function TargetDetails({
               <Row label="Latest image">
                 <span className="readout">{manifest.release.latest_obs}</span>
               </Row>
-              <Row label="Epochs">
+              <Row label={<Term k="epoch">Epochs</Term>}>
                 {manifest.epochs.length}
                 {manifest.epochs.some((e) => !e.full) ? `, ${manifest.epochs.filter((e) => !e.full).length} partial` : ""}
               </Row>
@@ -289,7 +322,7 @@ export function TargetDetails({
         </>
       )}
 
-      <PanelSection title="Look it up elsewhere">
+      <PanelSection index={6} title="Look it up elsewhere">
         <LinkList
           links={
             manifest?.links.length

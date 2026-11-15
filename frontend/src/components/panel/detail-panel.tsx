@@ -7,6 +7,7 @@
 import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { XIcon } from "lucide-react";
+import { riseProps } from "@/lib/motion";
 
 const DESKTOP_QUERY = "(min-width: 768px)";
 function subscribe(onChange: () => void) {
@@ -131,26 +132,37 @@ export function DetailPanel({
   );
 }
 
-/** A titled block inside the panel. */
+/**
+ * One section of a Lab panel. Same header as the Sky panels' sections: the title on the left and,
+ * on the right, where the numbers come from (`aside`). With `index`, it rises into place in turn,
+ * on the same timing as the Sky panels.
+ */
 export function PanelSection({
   title,
   aside,
   children,
   testId,
+  index,
 }: {
-  title: string;
+  title: ReactNode;
   aside?: ReactNode;
   children: ReactNode;
   testId?: string;
+  index?: number;
 }) {
+  const reduce = useReducedMotion();
   return (
-    <section className="flex flex-col gap-3 border-t border-hair px-5 py-4" data-testid={testId}>
+    <motion.section
+      {...(index !== undefined ? riseProps(index, reduce) : {})}
+      className="flex flex-col gap-3 border-t border-hair px-5 py-4"
+      data-testid={testId}
+    >
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-ui font-medium text-fg">{title}</h3>
-        {aside && <div className="text-micro text-fg-faint">{aside}</div>}
+        {aside && <div className="shrink-0 text-right text-micro text-fg-faint">{aside}</div>}
       </div>
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -159,7 +171,7 @@ export function Rows({ children }: { children: ReactNode }) {
   return <dl className="grid grid-cols-[minmax(6.5rem,auto)_1fr] gap-x-4 gap-y-1.5 text-meta">{children}</dl>;
 }
 
-export function Row({ label, children }: { label: string; children: ReactNode }) {
+export function Row({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <>
       <dt className="text-fg-dim">{label}</dt>

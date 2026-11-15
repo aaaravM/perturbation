@@ -1,0 +1,1536 @@
+{
+ "version": 1,
+ "generated": "2026-11-15T07:09:45Z",
+ "model": {
+  "name": "realbogus_v1",
+  "classes": [
+   "mover",
+   "variable",
+   "artifact",
+   "nothing"
+  ],
+  "trained_on": "Synthetic movers and variables injected into real SPHEREx co-adds of 31 training fields, plus real finder candidates from those fields; validated on 8 other fields and tested on 9 more (split by field).",
+  "metrics": {
+   "test_accuracy": 0.8374,
+   "mover_completeness_snr10": 0.2693,
+   "variable_completeness_snr10": 0.5516,
+   "false_alarms_per_deg2_q05": 0.0,
+   "mover_completeness_shift_ge_1px_snr10": 0.7101,
+   "false_alarms_area_deg2": 0.2467,
+   "false_alarms_per_deg2_q05_upper95": 12.2
+  }
+ },
+ "fdr": {
+  "method": "Conformal p-values against real validation-field candidates, then Benjamini-Hochberg within each field (one field is one search, as in the Lab)",
+  "alpha": 0.05
+ },
+ "survey": {
+  "n_fields": 53,
+  "area_deg2": 1.4728,
+  "detectors": [
+   "D4",
+   "D5",
+   "D6"
+  ],
+  "epochs_median": 4
+ },
+ "fields": [
+  {
+   "id": "barnards-star",
+   "name": "Barnard's Star",
+   "kind": "target",
+   "ra": 269.44627,
+   "dec": 4.76822,
+   "fov_deg": 0.1667,
+   "n_epochs": 6,
+   "n_candidates": 102,
+   "n_kept": 0
+  },
+  {
+   "id": "eps-indi-b",
+   "name": "Epsilon Indi B",
+   "kind": "target",
+   "ra": 331.09666,
+   "dec": -56.80066,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 76,
+   "n_kept": 0
+  },
+  {
+   "id": "wise-0855",
+   "name": "WISE 0855-0714",
+   "kind": "target",
+   "ra": 133.75976,
+   "dec": -7.24219,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 45,
+   "n_kept": 0
+  },
+  {
+   "id": "rw-aur",
+   "name": "RW Aurigae",
+   "kind": "target",
+   "ra": 76.95609,
+   "dec": 30.40113,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 102,
+   "n_kept": 0
+  },
+  {
+   "id": "r-dra",
+   "name": "R Draconis",
+   "kind": "target",
+   "ra": 248.16723,
+   "dec": 66.75502,
+   "fov_deg": 0.1667,
+   "n_epochs": 17,
+   "n_candidates": 134,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-l-750-42",
+   "name": "L 750-42",
+   "kind": "known-mover",
+   "ra": 145.93158,
+   "dec": -17.78345,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 79,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-249-28",
+   "name": "G 249-28",
+   "kind": "known-mover",
+   "ra": 90.21439,
+   "dec": 68.14841,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 86,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-bdp66-34a",
+   "name": "BD+66  34A",
+   "kind": "known-mover",
+   "ra": 8.15558,
+   "dec": 67.23336,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 108,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-lp-732-35",
+   "name": "LP 732-35",
+   "kind": "known-mover",
+   "ra": 172.78798,
+   "dec": -14.96583,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 56,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-wolf-1040",
+   "name": "Wolf 1040",
+   "kind": "known-mover",
+   "ra": 354.22432,
+   "dec": 1.16381,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 64,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-10-17",
+   "name": "G 10-17",
+   "kind": "known-mover",
+   "ra": 170.40483,
+   "dec": 6.12913,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 52,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-266-89",
+   "name": "G 266-89",
+   "kind": "known-mover",
+   "ra": 4.90186,
+   "dec": -28.17247,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 63,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-170-12",
+   "name": "G 170-12",
+   "kind": "known-mover",
+   "ra": 256.09408,
+   "dec": 16.92393,
+   "fov_deg": 0.1667,
+   "n_epochs": 6,
+   "n_candidates": 90,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-32-7",
+   "name": "G 32-7",
+   "kind": "known-mover",
+   "ra": 4.07274,
+   "dec": 19.85861,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 67,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-lp-817-26",
+   "name": "LP 817-26",
+   "kind": "known-mover",
+   "ra": 320.39048,
+   "dec": -19.06721,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 84,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-193-27",
+   "name": "G 193-27",
+   "kind": "known-mover",
+   "ra": 105.99026,
+   "dec": 52.69517,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 77,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-176-40",
+   "name": "G 176-40",
+   "kind": "known-mover",
+   "ra": 173.19187,
+   "dec": 43.98714,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 59,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-wolf-125",
+   "name": "Wolf 125",
+   "kind": "known-mover",
+   "ra": 33.46563,
+   "dec": 15.98436,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 59,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-l-532-21",
+   "name": "L 532-21",
+   "kind": "known-mover",
+   "ra": 134.77801,
+   "dec": -31.23007,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 98,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-eggr-467",
+   "name": "EGGR 467",
+   "kind": "known-mover",
+   "ra": 27.03734,
+   "dec": -17.21199,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 61,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-apmpm-j2330-4737",
+   "name": "APMPM J2330-4737",
+   "kind": "known-mover",
+   "ra": 352.56134,
+   "dec": -47.61956,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 44,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-l-127-97",
+   "name": "L 127-97",
+   "kind": "known-mover",
+   "ra": 43.10833,
+   "dec": -63.67523,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 83,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-lp-639-1",
+   "name": "LP 639-1",
+   "kind": "known-mover",
+   "ra": 329.23945,
+   "dec": -1.89817,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 46,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-ross-476",
+   "name": "Ross 476",
+   "kind": "known-mover",
+   "ra": 202.50351,
+   "dec": -8.7105,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 65,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-7-17",
+   "name": "G  7-17",
+   "kind": "known-mover",
+   "ra": 60.40496,
+   "dec": 18.71978,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 63,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-g-63-45",
+   "name": "G 63-45",
+   "kind": "known-mover",
+   "ra": 204.81852,
+   "dec": 15.67704,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 59,
+   "n_kept": 0
+  },
+  {
+   "id": "pm-lp-320-434",
+   "name": "LP 320-434",
+   "kind": "known-mover",
+   "ra": 185.37856,
+   "dec": 28.90424,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 64,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-sips-j1936-5502",
+   "name": "SIPS J1936-5502",
+   "kind": "brown-dwarf",
+   "ra": 294.01043,
+   "dec": -55.04442,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 83,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-ssspm-j1444-2019",
+   "name": "SSSPM J1444-2019",
+   "kind": "brown-dwarf",
+   "ra": 221.06234,
+   "dec": -20.33791,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 72,
+   "n_kept": 1
+  },
+  {
+   "id": "bd-2mass-j13153094-2649513",
+   "name": "2MASS J13153094-2649513",
+   "kind": "brown-dwarf",
+   "ra": 198.87301,
+   "dec": -26.83315,
+   "fov_deg": 0.1667,
+   "n_epochs": 6,
+   "n_candidates": 86,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2mass-j21265916p7617440",
+   "name": "2MASS J21265916+7617440",
+   "kind": "brown-dwarf",
+   "ra": 321.76951,
+   "dec": 76.30132,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 87,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2mass-j19555779p3215277",
+   "name": "2MASS J19555779+3215277",
+   "kind": "brown-dwarf",
+   "ra": 298.98732,
+   "dec": 32.25345,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 137,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2mass-j00345684-0706013",
+   "name": "2MASS J00345684-0706013",
+   "kind": "brown-dwarf",
+   "ra": 8.73841,
+   "dec": -7.10137,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 56,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2mass-j13243553p6358281",
+   "name": "2MASS J13243553+6358281",
+   "kind": "brown-dwarf",
+   "ra": 201.14208,
+   "dec": 63.97396,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 46,
+   "n_kept": 1
+  },
+  {
+   "id": "bd-2mass-j04013766p2849529",
+   "name": "2MASS J04013766+2849529",
+   "kind": "brown-dwarf",
+   "ra": 60.40277,
+   "dec": 28.83057,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 73,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2massi-j1721039p334415",
+   "name": "2MASSI J1721039+334415",
+   "kind": "brown-dwarf",
+   "ra": 260.24902,
+   "dec": 33.7423,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 88,
+   "n_kept": 0
+  },
+  {
+   "id": "bd-2mass-j04430581-3202090",
+   "name": "2MASS J04430581-3202090",
+   "kind": "brown-dwarf",
+   "ra": 70.77418,
+   "dec": -32.03433,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 69,
+   "n_kept": 0
+  },
+  {
+   "id": "var-v1840-ori",
+   "name": "V* V1840 Ori",
+   "kind": "variable",
+   "ra": 74.94245,
+   "dec": 14.51528,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 49,
+   "n_kept": 0
+  },
+  {
+   "id": "var-v2586-ori",
+   "name": "V* V2586 Ori",
+   "kind": "variable",
+   "ra": 83.93686,
+   "dec": -5.4096,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 26,
+   "n_kept": 0
+  },
+  {
+   "id": "var-v957-per",
+   "name": "V* V957 Per",
+   "kind": "variable",
+   "ra": 67.63957,
+   "dec": 48.07852,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 108,
+   "n_kept": 0
+  },
+  {
+   "id": "var-fu-oct",
+   "name": "V* FU Oct",
+   "kind": "variable",
+   "ra": 275.00217,
+   "dec": -83.83459,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 76,
+   "n_kept": 0
+  },
+  {
+   "id": "var-v2893-sgr",
+   "name": "V* V2893 Sgr",
+   "kind": "variable",
+   "ra": 274.36903,
+   "dec": -35.57586,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 159,
+   "n_kept": 0
+  },
+  {
+   "id": "var-dd-ser",
+   "name": "V* DD Ser",
+   "kind": "variable",
+   "ra": 280.30484,
+   "dec": -1.96826,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 135,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-01",
+   "name": "Control 01 (|b| > 20)",
+   "kind": "control",
+   "ra": 144.92395,
+   "dec": 35.04385,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 30,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-02",
+   "name": "Control 02 (|b| > 20)",
+   "kind": "control",
+   "ra": 316.20405,
+   "dec": -14.34042,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 70,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-03",
+   "name": "Control 03 (|b| > 20)",
+   "kind": "control",
+   "ra": 189.24433,
+   "dec": 49.40632,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 50,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-04",
+   "name": "Control 04 (|b| > 20)",
+   "kind": "control",
+   "ra": 167.36193,
+   "dec": -3.81291,
+   "fov_deg": 0.1667,
+   "n_epochs": 5,
+   "n_candidates": 56,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-05",
+   "name": "Control 05 (|b| > 20)",
+   "kind": "control",
+   "ra": 172.43763,
+   "dec": 24.27547,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 60,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-06",
+   "name": "Control 06 (|b| > 20)",
+   "kind": "control",
+   "ra": 41.6361,
+   "dec": -45.45798,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 73,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-07",
+   "name": "Control 07 (|b| > 20)",
+   "kind": "control",
+   "ra": 183.40659,
+   "dec": 13.65107,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 60,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-08",
+   "name": "Control 08 (|b| > 20)",
+   "kind": "control",
+   "ra": 334.461,
+   "dec": -38.68795,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 71,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-09",
+   "name": "Control 09 (|b| > 20)",
+   "kind": "control",
+   "ra": 183.84814,
+   "dec": 36.55611,
+   "fov_deg": 0.1667,
+   "n_epochs": 3,
+   "n_candidates": 62,
+   "n_kept": 0
+  },
+  {
+   "id": "ctrl-10",
+   "name": "Control 10 (|b| > 20)",
+   "kind": "control",
+   "ra": 168.87212,
+   "dec": 17.22666,
+   "fov_deg": 0.1667,
+   "n_epochs": 4,
+   "n_candidates": 51,
+   "n_kept": 0
+  }
+ ],
+ "candidates": [
+  {
+   "id": "bd-2mass-j13243553p6358281-000",
+   "field": "bd-2mass-j13243553p6358281",
+   "ra": 201.142099,
+   "dec": 63.973689,
+   "kind": "variable",
+   "score": 0.9935,
+   "probs": {
+    "mover": 0.0004,
+    "variable": 0.9931,
+    "artifact": 0.0001,
+    "nothing": 0.0065
+   },
+   "p_value": 0.000294,
+   "q_value": 0.01117,
+   "snr": 16.7,
+   "motion": null,
+   "variability": {
+    "delta_mag": -0.32,
+    "sigma": 1.43
+   },
+   "detectors": [
+    "D4",
+    "D5"
+   ],
+   "epochs": [
+    "2025-05-07",
+    "2025-11-16"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "2MASS J13243553+6358281",
+    "id": "2MASS J13243553+6358281",
+    "sep_arcsec": 1.0,
+    "catalog_pm_arcsec_yr": 0.3715
+   },
+   "stamp": "/discoveries/stamps/bd-2mass-j13243553p6358281-000.png",
+   "lab_url": "/explore?ra=201.14210&dec=63.97369&fov=0.1667"
+  },
+  {
+   "id": "bd-ssspm-j1444-2019-000",
+   "field": "bd-ssspm-j1444-2019",
+   "ra": 221.061822,
+   "dec": -20.338211,
+   "kind": "mover",
+   "score": 0.964,
+   "probs": {
+    "mover": 0.8795,
+    "variable": 0.0845,
+    "artifact": 0.0063,
+    "nothing": 0.0296
+   },
+   "p_value": 0.0005881,
+   "q_value": 0.03293,
+   "snr": 87.7,
+   "motion": {
+    "pm_arcsec_yr": 3.6567,
+    "pm_err_arcsec_yr": 0.4311,
+    "pa_deg": 236.33,
+    "n_epochs": 3
+   },
+   "variability": null,
+   "detectors": [
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-07-22",
+    "2026-07-17"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "SSSPM J1444-2019",
+    "id": "SSSPM J1444-2019",
+    "sep_arcsec": 0.17,
+    "catalog_pm_arcsec_yr": 3.5079
+   },
+   "stamp": "/discoveries/stamps/bd-ssspm-j1444-2019-000.png",
+   "lab_url": "/explore?ra=221.06182&dec=-20.33821&fov=0.1667"
+  },
+  {
+   "id": "rw-aur-000",
+   "field": "rw-aur",
+   "ra": 76.898284,
+   "dec": 30.441828,
+   "kind": "mover",
+   "score": 0.9276,
+   "probs": {
+    "mover": 0.9107,
+    "variable": 0.0169,
+    "artifact": 0.0001,
+    "nothing": 0.0723
+   },
+   "p_value": 0.00294,
+   "q_value": 0.07547,
+   "snr": 5.7,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D6"
+   ],
+   "epochs": [
+    "2026-02-25",
+    "2026-09-15"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/rw-aur-000.png",
+   "lab_url": "/explore?ra=76.89828&dec=30.44183&fov=0.1667"
+  },
+  {
+   "id": "pm-lp-732-35-000",
+   "field": "pm-lp-732-35",
+   "ra": 172.729608,
+   "dec": -14.950226,
+   "kind": "variable",
+   "score": 0.9473,
+   "probs": {
+    "mover": 0.0061,
+    "variable": 0.9412,
+    "artifact": 0.0014,
+    "nothing": 0.0513
+   },
+   "p_value": 0.002058,
+   "q_value": 0.1009,
+   "snr": 9.6,
+   "motion": null,
+   "variability": {
+    "delta_mag": -0.189,
+    "sigma": 1.14
+   },
+   "detectors": [
+    "D4"
+   ],
+   "epochs": [
+    "2025-05-29",
+    "2025-12-19"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "Gaia DR3",
+    "name": "Gaia DR3 3560758240367248384",
+    "id": "3560758240367248384",
+    "sep_arcsec": 2.65,
+    "catalog_pm_arcsec_yr": 0.0138
+   },
+   "stamp": "/discoveries/stamps/pm-lp-732-35-000.png",
+   "lab_url": "/explore?ra=172.72961&dec=-14.95023&fov=0.1667"
+  },
+  {
+   "id": "wise-0855-000",
+   "field": "wise-0855",
+   "ra": 133.725057,
+   "dec": -7.185959,
+   "kind": "mover",
+   "score": 0.9244,
+   "probs": {
+    "mover": 0.8644,
+    "variable": 0.0601,
+    "artifact": 0.0443,
+    "nothing": 0.0313
+   },
+   "p_value": 0.00294,
+   "q_value": 0.1059,
+   "snr": 6.9,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D6"
+   ],
+   "epochs": [
+    "2025-11-12",
+    "2026-04-26"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/wise-0855-000.png",
+   "lab_url": "/explore?ra=133.72506&dec=-7.18596&fov=0.1667"
+  },
+  {
+   "id": "pm-lp-732-35-001",
+   "field": "pm-lp-732-35",
+   "ra": 172.809277,
+   "dec": -15.027066,
+   "kind": "variable",
+   "score": 0.9072,
+   "probs": {
+    "mover": 0.0165,
+    "variable": 0.8908,
+    "artifact": 0.0203,
+    "nothing": 0.0724
+   },
+   "p_value": 0.00441,
+   "q_value": 0.1081,
+   "snr": 24.9,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.01,
+    "sigma": 0.03
+   },
+   "detectors": [
+    "D4",
+    "D5"
+   ],
+   "epochs": [
+    "2025-05-29",
+    "2025-12-19"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "Gaia DR3 3560745046227713152",
+    "id": "Gaia DR3 3560745046227713152",
+    "sep_arcsec": 2.65,
+    "catalog_pm_arcsec_yr": 0.0144
+   },
+   "stamp": "/discoveries/stamps/pm-lp-732-35-001.png",
+   "lab_url": "/explore?ra=172.80928&dec=-15.02707&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-000",
+   "field": "var-v2586-ori",
+   "ra": 83.960806,
+   "dec": -5.477053,
+   "kind": "mover",
+   "score": 0.7747,
+   "probs": {
+    "mover": 0.5552,
+    "variable": 0.2195,
+    "artifact": 0.0071,
+    "nothing": 0.2182
+   },
+   "p_value": 0.01558,
+   "q_value": 0.1852,
+   "snr": 30.5,
+   "motion": {
+    "pm_arcsec_yr": 7.1003,
+    "pm_err_arcsec_yr": 0.7714,
+    "pa_deg": 138.91,
+    "n_epochs": 2
+   },
+   "variability": null,
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2026-03-05",
+    "2026-09-19"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-000.png",
+   "lab_url": "/explore?ra=83.96081&dec=-5.47705&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-001",
+   "field": "var-v2586-ori",
+   "ra": 83.924545,
+   "dec": -5.469756,
+   "kind": "variable",
+   "score": 0.6836,
+   "probs": {
+    "mover": 0.2784,
+    "variable": 0.4052,
+    "artifact": 0.0132,
+    "nothing": 0.3032
+   },
+   "p_value": 0.02352,
+   "q_value": 0.1852,
+   "snr": 21.4,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.296,
+    "sigma": 0.46
+   },
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2026-03-05",
+    "2026-09-19"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "Gaia DR3 3017347914253414016",
+    "id": "Gaia DR3 3017347914253414016",
+    "sep_arcsec": 1.96,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-001.png",
+   "lab_url": "/explore?ra=83.92454&dec=-5.46976&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-002",
+   "field": "var-v2586-ori",
+   "ra": 83.938859,
+   "dec": -5.469469,
+   "kind": "variable",
+   "score": 0.6491,
+   "probs": {
+    "mover": 0.2678,
+    "variable": 0.3813,
+    "artifact": 0.0005,
+    "nothing": 0.3504
+   },
+   "p_value": 0.02646,
+   "q_value": 0.1852,
+   "snr": 6.4,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.144,
+    "sigma": 0.16
+   },
+   "detectors": [
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-15",
+    "2026-09-19"
+   ],
+   "match": {
+    "status": "known",
+    "catalog": "SIMBAD",
+    "name": "V* AP Ori",
+    "id": "V* AP Ori",
+    "sep_arcsec": 1.11,
+    "catalog_pm_arcsec_yr": 0.0014
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-002.png",
+   "lab_url": "/explore?ra=83.93886&dec=-5.46947&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-003",
+   "field": "var-v2586-ori",
+   "ra": 83.905831,
+   "dec": -5.436967,
+   "kind": "mover",
+   "score": 0.4338,
+   "probs": {
+    "mover": 0.2439,
+    "variable": 0.1899,
+    "artifact": 0.2194,
+    "nothing": 0.3468
+   },
+   "p_value": 0.06675,
+   "q_value": 0.1954,
+   "snr": 6.2,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-003.png",
+   "lab_url": "/explore?ra=83.90583&dec=-5.43697&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-004",
+   "field": "var-v2586-ori",
+   "ra": 83.899099,
+   "dec": -5.476245,
+   "kind": "mover",
+   "score": 0.4324,
+   "probs": {
+    "mover": 0.2638,
+    "variable": 0.1686,
+    "artifact": 0.272,
+    "nothing": 0.2956
+   },
+   "p_value": 0.06704,
+   "q_value": 0.1954,
+   "snr": 5.3,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-004.png",
+   "lab_url": "/explore?ra=83.89910&dec=-5.47625&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-005",
+   "field": "var-v2586-ori",
+   "ra": 83.885366,
+   "dec": -5.44549,
+   "kind": "variable",
+   "score": 0.4221,
+   "probs": {
+    "mover": 0.1955,
+    "variable": 0.2266,
+    "artifact": 0.297,
+    "nothing": 0.2809
+   },
+   "p_value": 0.0691,
+   "q_value": 0.1954,
+   "snr": 8.3,
+   "motion": null,
+   "variability": {
+    "delta_mag": 0.167,
+    "sigma": 0.14
+   },
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-005.png",
+   "lab_url": "/explore?ra=83.88537&dec=-5.44549&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-006",
+   "field": "var-v2586-ori",
+   "ra": 83.900849,
+   "dec": -5.445463,
+   "kind": "mover",
+   "score": 0.3368,
+   "probs": {
+    "mover": 0.1849,
+    "variable": 0.1519,
+    "artifact": 0.275,
+    "nothing": 0.3882
+   },
+   "p_value": 0.09203,
+   "q_value": 0.1954,
+   "snr": 6.0,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-006.png",
+   "lab_url": "/explore?ra=83.90085&dec=-5.44546&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-007",
+   "field": "var-v2586-ori",
+   "ra": 83.905956,
+   "dec": -5.411308,
+   "kind": "mover",
+   "score": 0.3266,
+   "probs": {
+    "mover": 0.1761,
+    "variable": 0.1505,
+    "artifact": 0.3854,
+    "nothing": 0.288
+   },
+   "p_value": 0.0938,
+   "q_value": 0.1954,
+   "snr": 5.2,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-15",
+    "2026-09-19"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-007.png",
+   "lab_url": "/explore?ra=83.90596&dec=-5.41131&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-008",
+   "field": "var-v2586-ori",
+   "ra": 83.890505,
+   "dec": -5.450527,
+   "kind": "mover",
+   "score": 0.2727,
+   "probs": {
+    "mover": 0.1523,
+    "variable": 0.1204,
+    "artifact": 0.4976,
+    "nothing": 0.2296
+   },
+   "p_value": 0.1097,
+   "q_value": 0.1954,
+   "snr": 7.3,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5",
+    "D6"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-008.png",
+   "lab_url": "/explore?ra=83.89051&dec=-5.45053&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-009",
+   "field": "var-v2586-ori",
+   "ra": 84.00165,
+   "dec": -5.482313,
+   "kind": "mover",
+   "score": 0.2652,
+   "probs": {
+    "mover": 0.1565,
+    "variable": 0.1086,
+    "artifact": 0.2765,
+    "nothing": 0.4583
+   },
+   "p_value": 0.1126,
+   "q_value": 0.1954,
+   "snr": 8.2,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D6"
+   ],
+   "epochs": [
+    "2026-03-05",
+    "2026-09-19"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-009.png",
+   "lab_url": "/explore?ra=84.00165&dec=-5.48231&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-010",
+   "field": "var-v2586-ori",
+   "ra": 83.892308,
+   "dec": -5.474542,
+   "kind": "mover",
+   "score": 0.2611,
+   "probs": {
+    "mover": 0.1645,
+    "variable": 0.0966,
+    "artifact": 0.4393,
+    "nothing": 0.2996
+   },
+   "p_value": 0.1138,
+   "q_value": 0.1954,
+   "snr": 5.4,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-010.png",
+   "lab_url": "/explore?ra=83.89231&dec=-5.47454&fov=0.1667"
+  },
+  {
+   "id": "var-v2586-ori-011",
+   "field": "var-v2586-ori",
+   "ra": 83.89904,
+   "dec": -5.464287,
+   "kind": "mover",
+   "score": 0.2357,
+   "probs": {
+    "mover": 0.1637,
+    "variable": 0.072,
+    "artifact": 0.4679,
+    "nothing": 0.2964
+   },
+   "p_value": 0.1303,
+   "q_value": 0.1954,
+   "snr": 5.1,
+   "motion": null,
+   "variability": null,
+   "detectors": [
+    "D5"
+   ],
+   "epochs": [
+    "2025-09-11",
+    "2026-03-09"
+   ],
+   "match": {
+    "status": "unknown",
+    "catalog": null,
+    "name": null,
+    "id": null,
+    "sep_arcsec": null,
+    "catalog_pm_arcsec_yr": null
+   },
+   "stamp": "/discoveries/stamps/var-v2586-ori-011.png",
+   "lab_url": "/explore?ra=83.89904&dec=-5.46429&fov=0.1667"
+  }
+ ],
+ "targets": [
+  {
+   "field": "barnards-star",
+   "name": "Barnard's Star",
+   "expected": "mover",
+   "catalog_pm_arcsec_yr": 10.393,
+   "radius_arcsec": 30.0,
+   "family": 1,
+   "q_target": 0.05469,
+   "sep_arcsec": 15.96,
+   "found": false,
+   "candidate": {
+    "id": "barnards-star-target-000",
+    "field": "barnards-star",
+    "ra": 269.443087,
+    "dec": 4.773568,
+    "kind": "variable",
+    "score": 0.4935,
+    "probs": {
+     "mover": 0.2318,
+     "variable": 0.2617,
+     "artifact": 0.1593,
+     "nothing": 0.3472
+    },
+    "p_value": 0.05469,
+    "q_value": 0.3574,
+    "snr": 276.1,
+    "motion": null,
+    "variability": {
+     "delta_mag": -2.295,
+     "sigma": 3.37
+    },
+    "detectors": [
+     "D4",
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-08-20",
+     "2026-08-18"
+    ],
+    "match": {
+     "status": "unknown",
+     "catalog": null,
+     "name": null,
+     "id": null,
+     "sep_arcsec": null,
+     "catalog_pm_arcsec_yr": null
+    },
+    "stamp": "/discoveries/stamps/barnards-star-target-000.png",
+    "lab_url": "/explore?ra=269.44309&dec=4.77357&fov=0.1667"
+   },
+   "motion_fit_epochs": null
+  },
+  {
+   "field": "eps-indi-b",
+   "name": "Epsilon Indi B",
+   "expected": "mover",
+   "catalog_pm_arcsec_yr": 4.684,
+   "radius_arcsec": 30.0,
+   "family": 1,
+   "q_target": 0.009703,
+   "sep_arcsec": 4.89,
+   "found": true,
+   "candidate": {
+    "id": "eps-indi-b-target-000",
+    "field": "eps-indi-b",
+    "ra": 331.098209,
+    "dec": -56.801353,
+    "kind": "mover",
+    "score": 0.8371,
+    "probs": {
+     "mover": 0.6517,
+     "variable": 0.1854,
+     "artifact": 0.0158,
+     "nothing": 0.1471
+    },
+    "p_value": 0.009703,
+    "q_value": 0.2571,
+    "snr": 142.7,
+    "motion": {
+     "pm_arcsec_yr": 4.3007,
+     "pm_err_arcsec_yr": 0.3936,
+     "pa_deg": 124.77,
+     "n_epochs": 4
+    },
+    "variability": null,
+    "detectors": [
+     "D4",
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-10-12",
+     "2026-09-30"
+    ],
+    "match": {
+     "status": "known",
+     "catalog": "SIMBAD",
+     "name": "* eps Ind B",
+     "id": "* eps Ind B",
+     "sep_arcsec": 0.65,
+     "catalog_pm_arcsec_yr": 4.6842
+    },
+    "stamp": "/discoveries/stamps/eps-indi-b-target-000.png",
+    "lab_url": "/explore?ra=331.09821&dec=-56.80135&fov=0.1667"
+   },
+   "motion_fit_epochs": 4
+  },
+  {
+   "field": "wise-0855",
+   "name": "WISE 0855-0714",
+   "expected": "mover",
+   "catalog_pm_arcsec_yr": 8.152,
+   "radius_arcsec": 30.0,
+   "family": 1,
+   "q_target": 0.03117,
+   "sep_arcsec": 5.23,
+   "found": true,
+   "candidate": {
+    "id": "wise-0855-target-000",
+    "field": "wise-0855",
+    "ra": 133.757529,
+    "dec": -7.24203,
+    "kind": "mover",
+    "score": 0.6136,
+    "probs": {
+     "mover": 0.4578,
+     "variable": 0.1558,
+     "artifact": 0.0249,
+     "nothing": 0.3615
+    },
+    "p_value": 0.03117,
+    "q_value": 0.4022,
+    "snr": 6.4,
+    "motion": null,
+    "variability": null,
+    "detectors": [
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-11-12",
+     "2026-04-26"
+    ],
+    "match": {
+     "status": "known",
+     "catalog": "SIMBAD",
+     "name": "WISEA J085510.74-071442.5",
+     "id": "WISEA J085510.74-071442.5",
+     "sep_arcsec": 5.44,
+     "catalog_pm_arcsec_yr": 8.1515
+    },
+    "stamp": "/discoveries/stamps/wise-0855-target-000.png",
+    "lab_url": "/explore?ra=133.75753&dec=-7.24203&fov=0.1667"
+   },
+   "motion_fit_epochs": null
+  },
+  {
+   "field": "rw-aur",
+   "name": "RW Aurigae",
+   "expected": "variable",
+   "catalog_pm_arcsec_yr": 0.028,
+   "radius_arcsec": 30.0,
+   "family": 4,
+   "q_target": 0.05116,
+   "sep_arcsec": 14.88,
+   "found": false,
+   "candidate": {
+    "id": "rw-aur-target-000",
+    "field": "rw-aur",
+    "ra": 76.958799,
+    "dec": 30.397713,
+    "kind": "variable",
+    "score": 0.7852,
+    "probs": {
+     "mover": 0.0167,
+     "variable": 0.7685,
+     "artifact": 0.0696,
+     "nothing": 0.1452
+    },
+    "p_value": 0.01382,
+    "q_value": 0.2189,
+    "snr": 271.6,
+    "motion": null,
+    "variability": {
+     "delta_mag": 0.575,
+     "sigma": 0.82
+    },
+    "detectors": [
+     "D4",
+     "D5",
+     "D6"
+    ],
+    "epochs": [
+     "2025-09-17",
+     "2026-09-15"
+    ],
+    "match": {
+     "status": "unknown",
+     "catalog": null,
+     "name": null,
+     "id": null,
+     "sep_arcsec": null,
+     "catalog_pm_arcsec_yr": null
+    },
+    "stamp": "/discoveries/stamps/rw-aur-target-000.png",
+    "lab_url": "/explore?ra=76.95880&dec=30.39771&fov=0.1667"
+   },
+   "motion_fit_epochs": null
+  },
+  {
+   "field": "r-dra",
+   "name": "R Draconis",
+   "expected": "variable",
+   "catalog_pm_arcsec_yr": 0.022,
+   "radius_arcsec": 30.0,
+   "family": 0,
+   "q_target": null,
+   "sep_arcsec": null,
+   "found": false,
+   "candidate": null,
+   "motion_fit_epochs": null
+  }
+ ]
+}

@@ -4,11 +4,11 @@ import { watchPage } from "./helpers";
 
 const ROUTES = [
   { path: "/", heading: "Watch the sky move." },
-  { path: "/explore", heading: "Lab: blink SPHEREx images of any patch of sky" },
+  { path: "/explore", heading: "Lab: a workbench for SPHEREx images of any patch of sky" },
   { path: "/discoveries", heading: "Candidate movers and variables" },
   { path: "/help", heading: "Review candidates with us" },
-  { path: "/how-it-works", heading: "From SPHEREx exposures to a blink" },
-  { path: "/about", heading: "Team Ninth Vanguard" },
+  { path: "/how-it-works", heading: "How it works" },
+  { path: "/about", heading: "About Planet X Hunter" },
 ] as const;
 
 for (const route of ROUTES) {
@@ -25,18 +25,10 @@ for (const route of ROUTES) {
   });
 }
 
-test("placeholders say so, quietly", async ({ page }) => {
-  for (const path of ["/discoveries", "/help", "/how-it-works", "/about"]) {
-    await page.goto(path);
-    await expect(page.locator("[data-placeholder]")).toHaveText(/^Placeholder\. Built in Phase \d+\.$/);
-  }
-});
-
 test("the landing links to Barnard's Star in the explorer", async ({ page }) => {
   await page.goto("/");
   const cta = page.getByRole("link", { name: /Try Barnard.s Star/ });
   await expect(cta).toHaveAttribute("href", "/explore?target=barnards-star");
   await expect(page.getByRole("link", { name: "Explore the sky globe" })).toHaveAttribute("href", "/sky");
-  await expect(page.getByTestId("blink-hero")).toBeVisible();
-  await expect(page.getByTestId("blink-hero")).toContainText(/Illustration/);
+  await expect(page.getByRole("link", { name: "skip the story" })).toHaveAttribute("href", "#two-ways-in");
 });

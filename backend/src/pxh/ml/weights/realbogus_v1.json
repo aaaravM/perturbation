@@ -1,0 +1,353 @@
+{
+ "name": "realbogus_v1",
+ "version": 1,
+ "created": "2026-11-15T06:48:03Z",
+ "classes": [
+  "mover",
+  "variable",
+  "artifact",
+  "nothing"
+ ],
+ "score": "P(mover) + P(variable)",
+ "input": {
+  "shape": [
+   4,
+   21,
+   21
+  ],
+  "convention": {
+   "size": 21,
+   "channels": [
+    "earliest co-add",
+    "latest co-add",
+    "S/N difference (latest - earliest)",
+    "mask"
+   ],
+   "image_channels": "asinh((I - median of the stamp's valid pixels) * sqrt(weight) / 5); 0 where invalid",
+   "difference_channel": "asinh(S/N / 5), S/N divided by the difference image's robust scatter when above 1; 0 where invalid",
+   "mask_channel": "1 where either epoch is invalid (weight 0) or saturated, or outside the grid; else 0",
+   "softening": 5.0,
+   "centre": "mover: midpoint of the two lobes; variable: the peak; pixel = round(x), round(y)",
+   "source": "the detector and epoch pair (later, earlier) where the candidate is strongest"
+  },
+  "finder": "movers-1"
+ },
+ "architecture": "conv3x3 4-16, 16-16, maxpool2, 16-32, 32-32, maxpool2, 32-64 (ReLU, padding 1); global mean+max pool (128); dense 64 (ReLU, dropout 0.3 in training); dense 4",
+ "n_parameters": 43812,
+ "temperature": 1.2996910390290313,
+ "trained_on": "Synthetic movers and variables injected into real SPHEREx co-adds of 31 training fields, plus real finder candidates from those fields; validated on 8 other fields and tested on 9 more (split by field).",
+ "training": {
+  "framework": "PyTorch 2.15.0+cpu (CPU)",
+  "epochs_run": 30,
+  "best_epoch": 25,
+  "batch": 256,
+  "lr": 0.003,
+  "sampling": "class-balanced",
+  "augmentation": "the 8 rotations and reflections of the stamp",
+  "early_stopping": "validation loss, patience 5",
+  "seconds": 875.0,
+  "history": [
+   {
+    "epoch": 0,
+    "train_loss": 0.9608831535686146,
+    "val_loss": 0.8143311738967896,
+    "val_acc": 0.6257533145841704
+   },
+   {
+    "epoch": 1,
+    "train_loss": 0.6414564701643857,
+    "val_loss": 0.6896048784255981,
+    "val_acc": 0.7324226597026918
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.5436766624450684,
+    "val_loss": 0.5556873083114624,
+    "val_acc": 0.7808356769787063
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.49474769523649503,
+    "val_loss": 0.5100633502006531,
+    "val_acc": 0.797308155885898
+   },
+   {
+    "epoch": 4,
+    "train_loss": 0.45735418579795145,
+    "val_loss": 0.48389241099357605,
+    "val_acc": 0.8107673764564082
+   },
+   {
+    "epoch": 5,
+    "train_loss": 0.43538224245562696,
+    "val_loss": 0.460037499666214,
+    "val_acc": 0.8141824025713138
+   },
+   {
+    "epoch": 6,
+    "train_loss": 0.41703686533552226,
+    "val_loss": 0.4463645815849304,
+    "val_acc": 0.8278425070309361
+   },
+   {
+    "epoch": 7,
+    "train_loss": 0.39958505178942827,
+    "val_loss": 0.4147513210773468,
+    "val_acc": 0.834069907593411
+   },
+   {
+    "epoch": 8,
+    "train_loss": 0.38511102217616455,
+    "val_loss": 0.43932974338531494,
+    "val_acc": 0.823222177581358
+   },
+   {
+    "epoch": 9,
+    "train_loss": 0.3839454746607578,
+    "val_loss": 0.43263164162635803,
+    "val_acc": 0.8262354359180394
+   },
+   {
+    "epoch": 10,
+    "train_loss": 0.3765809431220546,
+    "val_loss": 0.4009699523448944,
+    "val_acc": 0.8332663720369626
+   },
+   {
+    "epoch": 11,
+    "train_loss": 0.3685445097359744,
+    "val_loss": 0.3899466097354889,
+    "val_acc": 0.8415026114905585
+   },
+   {
+    "epoch": 12,
+    "train_loss": 0.35818551670421256,
+    "val_loss": 0.3928645849227905,
+    "val_acc": 0.840498192044998
+   },
+   {
+    "epoch": 13,
+    "train_loss": 0.3522978612870881,
+    "val_loss": 0.39120370149612427,
+    "val_acc": 0.836078746484532
+   },
+   {
+    "epoch": 14,
+    "train_loss": 0.35022068881627283,
+    "val_loss": 0.39860883355140686,
+    "val_acc": 0.8400964242667738
+   },
+   {
+    "epoch": 15,
+    "train_loss": 0.33825661214915187,
+    "val_loss": 0.41917744278907776,
+    "val_acc": 0.8374849337083166
+   },
+   {
+    "epoch": 16,
+    "train_loss": 0.33595720141222984,
+    "val_loss": 0.3817098140716553,
+    "val_acc": 0.8396946564885496
+   },
+   {
+    "epoch": 17,
+    "train_loss": 0.32730388153683054,
+    "val_loss": 0.3886435627937317,
+    "val_acc": 0.8453194053836882
+   },
+   {
+    "epoch": 18,
+    "train_loss": 0.32104009209257184,
+    "val_loss": 0.38135069608688354,
+    "val_acc": 0.8485335476094817
+   },
+   {
+    "epoch": 19,
+    "train_loss": 0.31724198749571136,
+    "val_loss": 0.3801991939544678,
+    "val_acc": 0.8461229409401366
+   },
+   {
+    "epoch": 20,
+    "train_loss": 0.31819098898858733,
+    "val_loss": 0.3742791414260864,
+    "val_acc": 0.8497388509441542
+   },
+   {
+    "epoch": 21,
+    "train_loss": 0.30665957792238757,
+    "val_loss": 0.3898507058620453,
+    "val_acc": 0.844917637605464
+   },
+   {
+    "epoch": 22,
+    "train_loss": 0.31022968590259553,
+    "val_loss": 0.3721165060997009,
+    "val_acc": 0.8485335476094817
+   },
+   {
+    "epoch": 23,
+    "train_loss": 0.30308265297701864,
+    "val_loss": 0.3761928081512451,
+    "val_acc": 0.8503415026114906
+   },
+   {
+    "epoch": 24,
+    "train_loss": 0.30165538426601524,
+    "val_loss": 0.3816164433956146,
+    "val_acc": 0.8531538770590599
+   },
+   {
+    "epoch": 25,
+    "train_loss": 0.29234237905704613,
+    "val_loss": 0.37033358216285706,
+    "val_acc": 0.8529529931699478
+   },
+   {
+    "epoch": 26,
+    "train_loss": 0.29947272737820946,
+    "val_loss": 0.3789176046848297,
+    "val_acc": 0.8483326637203696
+   },
+   {
+    "epoch": 27,
+    "train_loss": 0.2941360120520447,
+    "val_loss": 0.3731159269809723,
+    "val_acc": 0.8503415026114906
+   },
+   {
+    "epoch": 28,
+    "train_loss": 0.2941137526974534,
+    "val_loss": 0.3768644630908966,
+    "val_acc": 0.8497388509441542
+   },
+   {
+    "epoch": 29,
+    "train_loss": 0.28544871870315436,
+    "val_loss": 0.37711480259895325,
+    "val_acc": 0.8503415026114906
+   }
+  ],
+  "counts": {
+   "train": [
+    11391,
+    9874,
+    8919,
+    12131
+   ],
+   "val": [
+    1197,
+    1087,
+    1247,
+    1447
+   ],
+   "test": [
+    1422,
+    1227,
+    1438,
+    1780
+   ]
+  },
+  "fields": {
+   "train": [
+    "bd-2mass-j04013766p2849529",
+    "bd-2mass-j04430581-3202090",
+    "bd-2mass-j13243553p6358281",
+    "bd-2mass-j19555779p3215277",
+    "bd-2mass-j21265916p7617440",
+    "bd-ssspm-j1444-2019",
+    "ctrl-02",
+    "ctrl-04",
+    "ctrl-06",
+    "ctrl-07",
+    "ctrl-08",
+    "ctrl-09",
+    "ctrl-10",
+    "pm-eggr-467",
+    "pm-g-170-12",
+    "pm-g-176-40",
+    "pm-g-193-27",
+    "pm-g-249-28",
+    "pm-g-266-89",
+    "pm-g-32-7",
+    "pm-g-7-17",
+    "pm-l-127-97",
+    "pm-l-532-21",
+    "pm-lp-320-434",
+    "pm-lp-639-1",
+    "pm-ross-476",
+    "pm-wolf-125",
+    "var-dd-ser",
+    "var-fu-oct",
+    "var-v1840-ori",
+    "var-v2586-ori"
+   ],
+   "val": [
+    "bd-2mass-j00345684-0706013",
+    "bd-2massi-j1721039p334415",
+    "ctrl-01",
+    "pm-apmpm-j2330-4737",
+    "pm-lp-732-35",
+    "pm-lp-817-26",
+    "pm-wolf-1040",
+    "var-v957-per"
+   ],
+   "test": [
+    "bd-2mass-j13153094-2649513",
+    "bd-sips-j1936-5502",
+    "ctrl-03",
+    "ctrl-05",
+    "pm-bdp66-34a",
+    "pm-g-10-17",
+    "pm-g-63-45",
+    "pm-l-750-42",
+    "var-v2893-sgr"
+   ]
+  },
+  "split_rule": "By field id, seeded; per kind about 20% test and 20% validation (at least 3 control and 2 known-mover fields in test); the five challenge targets are never trained on."
+ },
+ "calibration": {
+  "method": "temperature scaling on the validation stamps",
+  "val_nll_before": 0.37033358216285706,
+  "val_nll_after": 0.3593405783176422,
+  "val_ece_before": 0.028190931554490054,
+  "val_ece_after": 0.012591299245806745
+ },
+ "null": {
+  "description": "Scores of real finder candidates in the validation fields (the uninjected sky, excluding candidates within 6 arcsec of catalogued fast movers or SIMBAD variable-type objects, and edge-flagged candidates, which are outside the test family too), each in its 8 orientations",
+  "n_candidates": 425,
+  "n_scores": 3400,
+  "min_p_value": 0.00029403116730373417
+ },
+ "metrics": {
+  "test_accuracy": 0.8373956025225839,
+  "test_n": 5867,
+  "test_confusion": [
+   [
+    1159,
+    39,
+    52,
+    172
+   ],
+   [
+    49,
+    1074,
+    30,
+    74
+   ],
+   [
+    6,
+    12,
+    1327,
+    93
+   ],
+   [
+    139,
+    73,
+    215,
+    1353
+   ]
+  ],
+  "test_confusion_rows": "true class (mover, variable, artifact, nothing); columns: predicted"
+ }
+}

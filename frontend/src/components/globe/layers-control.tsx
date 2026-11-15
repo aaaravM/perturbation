@@ -8,7 +8,6 @@ import { CheckIcon, Layers2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import { Term } from "@/components/ui/term";
 import type { GlobeView, SkyLayerToggles } from "@/components/globe/sky-globe";
 
 const ROWS: { id: Exclude<keyof SkyLayerToggles, "spherex">; label: string; note: string }[] = [
@@ -75,22 +74,30 @@ export function LayersControl({
           <h3 id="layers-map" className="sr-only">
             SPHEREx map
           </h3>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={layers.spherex}
-            onClick={() => onLayersChange({ ...layers, spherex: !layers.spherex })}
-            className="flex w-full items-center gap-3 rounded-[5px] px-2 py-2 text-left transition-colors hover:bg-white/[0.04]"
-            data-testid="layer-spherex"
-          >
+          {/* The switch covers the whole row (its ::after), so the row toggles anywhere; the
+              explanation sits above it and outside the button, so controls are never nested. */}
+          <div className="relative flex w-full items-center gap-3 rounded-[5px] px-2 py-2 transition-colors hover:bg-white/[0.04]">
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className={cn("text-ui", layers.spherex ? "text-fg" : "text-fg-dim")}>SPHEREx infrared map</span>
-              <span className="text-micro text-pretty text-fg-faint">
-                The whole sky in <Term k="falseColour" mark={false}>false colour</Term>, Data Release 1
+              <span id="layer-spherex-label" className={cn("text-ui", layers.spherex ? "text-fg" : "text-fg-dim")}>
+                SPHEREx infrared map
+              </span>
+              <span id="layer-spherex-note" className="text-micro text-pretty text-fg-faint">
+                The whole sky in false colour, Data Release 1
               </span>
             </span>
-            <Check on={layers.spherex} />
-          </button>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={layers.spherex}
+              aria-labelledby="layer-spherex-label"
+              aria-describedby="layer-spherex-note"
+              onClick={() => onLayersChange({ ...layers, spherex: !layers.spherex })}
+              className="rounded-[4px] outline-none after:absolute after:inset-0 after:rounded-[5px] after:content-[''] focus-visible:after:outline-2 focus-visible:after:outline-offset-0 focus-visible:after:outline-accent focus-visible:after:outline-solid"
+              data-testid="layer-spherex"
+            >
+              <Check on={layers.spherex} />
+            </button>
+          </div>
           {layers.spherex ? (
             <div className="flex flex-col gap-3 px-2">
               <div role="radiogroup" aria-label="Map colours" className="grid grid-cols-2 rounded-md border border-hair p-0.5">

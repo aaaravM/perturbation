@@ -1,0 +1,4 @@
+# Training data, checkpoints and run logs are rebuilt by the scripts; only code and small results are kept.
+data/
+runs/
+checkpoints/
