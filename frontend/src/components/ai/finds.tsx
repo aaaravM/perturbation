@@ -20,6 +20,7 @@ import {
   type Candidate,
   type Discoveries,
 } from "@/lib/discoveries";
+import { Skeleton, SkeletonRegion, SkeletonText } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { fieldRole } from "./field-split";
 import { FoundAgain } from "./found-again";
@@ -100,11 +101,85 @@ const count = (n: number) => n.toLocaleString("en-GB");
 
 export function Finds() {
   const load = useCandidates();
+  if (load.state === "loading") return <FindsSkeleton />;
   if (load.state !== "ok") return <Pending load={load} what="candidate list" />;
   if (load.data.candidates.length === 0) {
     return <p className="text-ui text-fg-faint">The survey has not listed any candidates yet.</p>;
   }
   return <FindsList data={load.data} />;
+}
+
+/** Lines of text as blocks: `phone` lines below 640 px, `wide` from there, where the column is wider. */
+function LinesSkeleton({ phone, wide, className, last }: { phone: number; wide: number; className: string; last?: string }) {
+  return (
+    <>
+      <SkeletonText lines={phone} last={last} className={cn(className, "sm:hidden")} />
+      <SkeletonText lines={wide} last={last} className={cn(className, "hidden sm:flex")} />
+    </>
+  );
+}
+
+/** While the candidate list loads: the lines above the finds and the first cards, as blocks in their places. */
+function FindsSkeleton() {
+  return (
+    <SkeletonRegion label="Loading the finds" className="flex flex-col gap-10">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <LinesSkeleton phone={5} wide={4} className="measure text-body" />
+          <LinesSkeleton phone={6} wide={4} className="measure text-meta" last="40%" />
+        </div>
+        <div className="measure flex flex-col gap-1.5">
+          <LinesSkeleton phone={7} wide={4} className="text-meta" last="70%" />
+          <LinesSkeleton phone={4} wide={2} className="text-meta" />
+          <LinesSkeleton phone={3} wide={2} className="text-meta" last="40%" />
+        </div>
+        <div aria-hidden className="-ml-2 flex h-9 items-center gap-1.5 self-start px-2 reduced:hidden">
+          <Skeleton className="size-3.5 rounded-[3px]" />
+          <Skeleton className="h-2.5 w-24 rounded-[3px]" />
+        </div>
+      </div>
+      <div>
+        <SkeletonText lines={1} className="w-[min(100%,16rem)] text-lead" />
+        <LinesSkeleton phone={5} wide={3} className="measure mt-1.5 text-meta" />
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <FindCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </SkeletonRegion>
+  );
+}
+
+/** One find's card as blocks: the pictures, the dates, the name, the two readings, the measurement and the two links. */
+function FindCardSkeleton() {
+  return (
+    <div aria-hidden className="flex w-full min-w-0 flex-col rounded-[18px] border border-hair bg-ink-2 p-3">
+      <Skeleton className="aspect-[2/1] w-full rounded-[12px] reduced:aspect-[3/1]" />
+      <SkeletonText lines={1} className="mt-1.5 w-1/3 text-micro" />
+      <div className="mt-3 flex flex-col gap-1 px-1">
+        <SkeletonText lines={1} className="w-4/5 text-ui" />
+        <SkeletonText lines={1} className="w-3/5 text-meta" />
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 px-1">
+        {[0, 1].map((i) => (
+          <div key={i} className="flex min-w-0 flex-col">
+            <SkeletonText lines={1} className="w-4/5 text-micro" />
+            <SkeletonText lines={1} className="mt-0.5 w-3/5 text-ui" />
+          </div>
+        ))}
+      </div>
+      <SkeletonText lines={2} className="mt-2 px-1 text-meta" />
+      <div className="mt-auto flex items-center gap-1 pt-3">
+        <span className="flex h-9 items-center px-2">
+          <Skeleton className="h-2.5 w-24 rounded-[3px]" />
+        </span>
+        <span className="ml-auto flex h-9 items-center px-2">
+          <Skeleton className="h-2.5 w-24 rounded-[3px]" />
+        </span>
+      </div>
+    </div>
+  );
 }
 
 const FIELD_KIND_WORDS: Record<string, [string, string]> = {

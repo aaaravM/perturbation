@@ -22,13 +22,20 @@ export function SmoothScroll() {
     lastPath.current = pathname;
     if (!enabled || reduce) return;
     const lenis = new Lenis({ autoRaf: true, duration: 1.05, anchors: true });
+    // <html> is h-full, so Lenis's own observer never sees the page grow: a page that arrives after
+    // its loading skeleton would keep the skeleton's scroll length. <body> grows with the page.
+    const grow = new ResizeObserver(() => lenis.resize());
+    grow.observe(document.body);
     if (newPage) {
       // ...unless the address names a section (/about#cite): then start there.
       const id = decodeURIComponent(window.location.hash.slice(1));
       const section = id ? document.getElementById(id) : null;
       lenis.scrollTo(section ?? 0, { immediate: true });
     }
-    return () => lenis.destroy();
+    return () => {
+      grow.disconnect();
+      lenis.destroy();
+    };
   }, [enabled, pathname, reduce]);
 
   return null;

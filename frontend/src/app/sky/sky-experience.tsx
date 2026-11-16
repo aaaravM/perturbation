@@ -10,7 +10,7 @@
 // side panel from tablets up and a bottom sheet on phones. The globe is told how much space the
 // interface covers and centres itself in the rest.
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { parseAsFloat, parseAsInteger, parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
@@ -46,10 +46,17 @@ import { StarStory } from "@/components/sky-panel/star-story";
 import { SpotStory } from "@/components/sky-panel/spot-story";
 import { SkyRail } from "@/components/sky-panel/sky-rail";
 import { SkyTourButton, SkyTourHost } from "@/components/tour/tour-host";
+import { GlobeDisc } from "@/components/sky-panel/sky-skeleton";
 
 const SkyGlobe = dynamic(() => import("@/components/globe/sky-globe"), {
   ssr: false,
   loading: () => <GlobeLoading />,
+});
+
+/** The space the interface leaves for the globe, for the disc that stands in while it loads. */
+const GlobeSpace = createContext<{ insets: Insets; isLarge: boolean }>({
+  insets: { top: 0, right: 0, bottom: 0, left: 0 },
+  isLarge: false,
 });
 
 const DEFAULT_LAYERS: SkyLayerToggles = {
@@ -226,6 +233,7 @@ export function SkyExperience() {
     if (open && panelLayout === "sheet") return { top: topSize.height ? topSize.height + 8 : 0, right: 0, bottom: panelSize.height, left: 0 };
     return { top: topSize.height ? topSize.height + 12 : 0, right, bottom: 56, left: 0 };
   }, [open, panelLayout, panelSize, isLarge, columnSize.width, topSize.height]);
+  const globeSpace = useMemo(() => ({ insets, isLarge }), [insets, isLarge]);
 
   // ------------------------------------------------------------------ selection
   const remember = (from: HTMLElement | null | undefined) => {
@@ -394,6 +402,7 @@ export function SkyExperience() {
           />
         </div>
       ) : (
+        <GlobeSpace.Provider value={globeSpace}>
         <SkyGlobe
           catalogue={catalogue}
           markers={MARKERS}
@@ -415,6 +424,7 @@ export function SkyExperience() {
           onUnavailable={onUnavailable}
           handleRef={globe}
         />
+        </GlobeSpace.Provider>
       )}
 
       <p id="sky-globe-help" className="sr-only">
@@ -653,10 +663,10 @@ function IconButton({ label, onClick, children }: { label: string; onClick: () =
   );
 }
 
+/** While the globe's scripts load: its dark disc where the sphere will be drawn, as in the page's skeleton. */
 function GlobeLoading() {
-  return (
-    <div className="absolute inset-0 grid place-items-center" aria-hidden>
-      <div className="size-[min(62vh,80vw)] animate-pulse rounded-full bg-white/[0.015]" />
-    </div>
-  );
+  const { insets, isLarge } = useContext(GlobeSpace);
+  // Before the column is measured, its width as the skeleton has it (20rem and the 40 px gap).
+  const left = insets.left || (isLarge ? 360 : 0);
+  return <GlobeDisc className="absolute" style={{ top: insets.top, right: insets.right, bottom: insets.bottom, left }} />;
 }

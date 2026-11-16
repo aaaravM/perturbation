@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { SkySkeleton } from "@/components/sky-panel/sky-skeleton";
 import { SkyExperience } from "./sky-experience";
 
 export const metadata: Metadata = {
@@ -15,8 +16,9 @@ export default function SkyPage() {
       data-lenis-prevent
       className="relative h-[calc(100dvh-var(--nav-h))] min-h-[600px] w-full overflow-hidden bg-ink"
     >
-      {/* nuqs reads the selection from the URL on the client, which needs a Suspense boundary. */}
-      <Suspense fallback={null}>
+      {/* nuqs reads the selection from the URL on the client, which needs a Suspense boundary.
+          Until the globe's scripts arrive, the page stands as blocks. */}
+      <Suspense fallback={<SkySkeleton />}>
         <SkyExperience />
       </Suspense>
     </section>

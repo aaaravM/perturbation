@@ -1,8 +1,8 @@
 // Lab mode: the research tool. /explore?ra=&dec=&fov=&target=&mode=&det=&frame=&layers=
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { LabSkeleton } from "@/components/lab/lab-skeleton";
 import { LabWorkspace } from "@/components/lab/lab-workspace";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "Lab",
@@ -16,19 +16,12 @@ export default function ExplorePage() {
       aria-label="Lab"
       className="relative h-[calc(100dvh-var(--nav-h))] min-h-[560px] w-full overflow-hidden bg-ink"
     >
-      {/* nuqs reads search params on the client, which needs a Suspense boundary. */}
-      <Suspense fallback={<LabFallback />}>
+      {/* nuqs reads search params on the client, which needs a Suspense boundary. Until the
+          workbench's scripts arrive, its panes stand as blocks. */}
+      <Suspense fallback={<LabSkeleton detect />}>
         <LabWorkspace />
       </Suspense>
     </section>
   );
 }
 
-function LabFallback() {
-  return (
-    <div className="absolute inset-0 flex flex-col justify-between p-4">
-      <Skeleton className="h-32 w-full max-w-[400px] bg-ink-3" />
-      <Skeleton className="mx-auto h-36 w-full max-w-[820px] bg-ink-3" />
-    </div>
-  );
-}
