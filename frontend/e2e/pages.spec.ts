@@ -37,6 +37,11 @@ async function revealAll(page: Page) {
       window.scrollTo(0, y);
       await new Promise((r) => setTimeout(r, 60));
     }
+    // A busy machine can let a quick pass skip a section: bring each one still hidden into view once.
+    for (const el of document.querySelectorAll('[data-reveal="hidden"]')) {
+      el.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 150));
+    }
     window.scrollTo(0, 0);
   });
   await expect(page.locator('[data-reveal="hidden"]')).toHaveCount(0);
@@ -196,12 +201,16 @@ test.describe("About", () => {
     const main = page.getByRole("main");
     await expect(main.getByRole("heading", { level: 2 })).toHaveText([
       "The project in plain words",
+      "The 30-second demo",
       "The challenge",
       "The team",
       "Data credits and licences",
       "How to cite the data",
       "Source and contact",
     ]);
+    const video = main.locator("#demo video");
+    await expect(video.locator("source")).toHaveAttribute("src", "/demo.mp4");
+    await expect(video.locator('track[kind="captions"]')).toHaveAttribute("src", "/demo.vtt");
     await expect(main).toContainText("Planet X and SPHEREx");
     await expect(main).toContainText("Ninth Vanguard");
     await expect(main).toContainText("doi:10.26131/IRSA678");

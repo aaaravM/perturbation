@@ -138,6 +138,24 @@ export default function AboutPage() {
           </ul>
         </AboutSection>
 
+        <AboutSection id="demo" title="The 30-second demo">
+          <p>
+            Team Ninth Vanguard shows the site in half a minute: the challenge, the Lab blinking Barnard’s Star, what the AI
+            sees, the 3D star map, and the find checker that could come next.
+          </p>
+          <video
+            controls
+            preload="metadata"
+            playsInline
+            poster="/demo-poster.webp"
+            aria-label="The 30-second Perturbation demo, with voice-over"
+            className="aspect-video w-full rounded-lg border border-hair bg-ink-2"
+          >
+            <source src="/demo.mp4" type="video/mp4" />
+            <track kind="captions" src="/demo.vtt" srcLang="en" label="English" />
+          </video>
+        </AboutSection>
+
         <AboutSection id="challenge" title="The challenge">
           <p>
             Perturbation is an entry to the NASA Space Apps Challenge 2026, for the challenge “Planet X and SPHEREx”. It asks
