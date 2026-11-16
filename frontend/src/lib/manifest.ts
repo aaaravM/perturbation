@@ -152,7 +152,7 @@ export interface FieldManifest {
   credits: string;
 }
 
-/** Base URL of the live backend (Hugging Face Space). Empty string = not configured. */
+/** Base URL of the live backend (the API's own Vercel project). Empty string = not configured. */
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 
 /** Static bundle for a curated target (ships with the site, works offline from IRSA). */

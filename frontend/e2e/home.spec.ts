@@ -3,7 +3,7 @@
 // when motion is reduced. Run with its own output folder, e.g.
 //   npx playwright test e2e/home.spec.ts --output=test-results/home
 import { expect, test, type Page } from "@playwright/test";
-import { watchPage } from "./helpers";
+import { DESKTOP_LAYOUT, hideDevOverlay, watchPage } from "./helpers";
 
 const BEATS = [
   "SPHEREx photographs the whole sky every six months.",
@@ -12,6 +12,18 @@ const BEATS = [
   "Subtract, and only change remains.",
   "Then measure it.",
 ];
+
+/**
+ * Opens / from /about by the top-bar link: a client-side visit, which renders the page without
+ * hydration. The glass cards' in-view observers once never started then, so they stayed hidden.
+ */
+async function arriveFromAbout(page: Page) {
+  await page.goto("/about");
+  await hideDevOverlay(page);
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Perturbation" }).click();
+  await expect(page).toHaveURL((url) => url.pathname === "/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Perturbation");
+}
 
 /** Scrolls to a fraction of the page height and lets the story settle. */
 async function scrollToFraction(page: Page, f: number) {
@@ -77,6 +89,26 @@ test.describe("wide screens", () => {
     }
   });
 
+  test("arriving from another page by the top-bar link, the two ways in still rise in", async ({ page, isMobile }) => {
+    test.skip(isMobile, DESKTOP_LAYOUT);
+    await arriveFromAbout(page);
+    // Down to the two ways in with the mouse wheel, as a visitor would.
+    const ways = page.locator("#two-ways-in");
+    await page.mouse.move(720, 450);
+    await expect
+      .poll(
+        async () => {
+          await page.mouse.wheel(0, 900);
+          return ways.evaluate((el) => el.getBoundingClientRect().top);
+        },
+        { timeout: 60_000, intervals: [250] },
+      )
+      .toBeLessThan(150);
+    const cards = ways.locator("article");
+    await expect(cards).toHaveCount(2);
+    for (const card of await cards.all()) await expect(card).toHaveCSS("opacity", "1");
+  });
+
   test("explained words: only a few, and never on headings", async ({ page }) => {
     await page.goto("/");
     const words = page.locator('[data-story="stage"] [data-term], #two-ways-in [data-term]');
@@ -106,6 +138,18 @@ test.describe("phones", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
     expect(log.consoleErrors).toEqual([]);
+  });
+
+  test("arriving from another page by the top-bar link, the results and the two ways in still show", async ({ page }) => {
+    await arriveFromAbout(page);
+    const results = page.locator('[data-story="stack"] li[data-glass-surface]');
+    await expect(results).toHaveCount(3);
+    const cards = page.locator("#two-ways-in article");
+    await expect(cards).toHaveCount(2);
+    for (const card of [...(await results.all()), ...(await cards.all())]) {
+      await card.scrollIntoViewIfNeeded();
+      await expect(card).toHaveCSS("opacity", "1");
+    }
   });
 });
 

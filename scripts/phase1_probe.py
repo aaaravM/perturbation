@@ -14,7 +14,8 @@ fit against the catalog -> forced photometry for every exposure, per-epoch spect
 the DR1 cube quick-look spectrum -> target-specific acceptance criteria.
 
 Everything is written to docs/phase1/<slug>/ (summary.json, blink_D<n>.gif, diff_D<n>.png, spectrum.png,
-lightcurve.png, motion.png, frames/), and docs/phase1/summary.json aggregates every target run so far.
+lightcurve.png, motion.png, frames/), and docs/phase1/summary.json aggregates every target run so far. The
+repository keeps the summaries and the figures that docs/data-findings.md shows.
 Downloads are cached under data/cache (re-runs are fast). Thresholds are fixed a priori in this file and in
 the project's validation criteria; they are never tuned to the data.
 """

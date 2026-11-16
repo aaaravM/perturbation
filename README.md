@@ -16,11 +16,10 @@ Made by team Ninth Vanguard for the NASA Space Apps Challenge 2026, challenge "P
   <img src="docs/images/sky-3d-barnards-star.webp" width="49%" alt="The Sky globe in 3D space, focused on Barnard's Star, with its distance from the Sun and its details panel">
 </p>
 <p>
-  <img src="docs/images/lab-barnards-star.webp" width="49%" alt="The Lab on Barnard's Star: the list of visits, the blink player and the measured motion next to Gaia DR3">
-  <img src="docs/images/discoveries.webp" width="49%" alt="Discoveries: the false-alarm control and two candidate cards with their blink and difference stamps">
+  <img src="docs/images/lab-barnards-star.webp" width="98%" alt="The Lab on Barnard's Star: the list of visits, the blink player and the measured motion next to Gaia DR3">
 </p>
 
-Top: the home page, and the Sky globe in 3D space focused on Barnard's Star. Bottom: the Lab on Barnard's Star, with its six visits and its motion measured against Gaia DR3, and the Discoveries list. Screenshots of the live site, 15 November 2026.
+Top: the home page, and the Sky globe in 3D space focused on Barnard's Star. Below: the Lab on Barnard's Star, with its six visits and its motion measured against Gaia DR3. Screenshots of the live site, 15 November 2026.
 
 ## What you can do
 

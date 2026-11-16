@@ -10,6 +10,7 @@ import { motion, useInView } from "motion/react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { cn } from "@/lib/utils";
 import { GLOBE_STILL, SKY_STAR_COUNT, SKY_TEXTURE, VISITS } from "./story-data";
+import { useOnScreen } from "./use-on-screen";
 
 const MotionGlass = motion.create(LiquidGlass);
 
@@ -92,12 +93,13 @@ function WayCard({
   cta: string;
   preview: React.ReactNode;
 }) {
-  const ref = React.useRef<HTMLElement>(null);
-  const seen = useInView(ref, { amount: 0.25, once: true });
+  // The card's element as state: a glass card's element arrives after its first commit (see use-on-screen).
+  const [node, setNode] = React.useState<HTMLElement | null>(null);
+  const seen = useOnScreen(node, { amount: 0.25, once: true, failOpen: animate });
   const shown = !animate || seen;
   return (
     <MotionGlass
-      ref={ref}
+      ref={setNode}
       as="article"
       variant="regular"
       radius={28}

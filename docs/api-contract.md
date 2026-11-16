@@ -1,13 +1,13 @@
 # API and data-bundle contract (v1)
 
-This is the shared contract between the backend (`backend/`, deployed to a Hugging Face Space) and the frontend (`frontend/`, deployed to Vercel). Both sides build against it in parallel. Change it only deliberately, and update both sides together.
+This is the shared contract between the backend (`backend/`, deployed to Vercel as its own project, section 2) and the frontend (`frontend/`, deployed to Vercel). Both sides build against it in parallel. Change it only deliberately, and update both sides together.
 
 ## 1. One shape for every field: the `FieldManifest`
 
 The backend precomputes manifests for the five challenge targets and ships them as static files, so the demo works even when IRSA or the backend is down. It returns manifests of the same shape for any other position.
 
 - **Static bundles:** `frontend/public/bundles/<slug>/manifest.json`, with images under `frontend/public/bundles/<slug>/frames/`.
-- **Live:** returned by the backend endpoints in section 2. Image URLs are absolute (`https://<space>/api/files/...`).
+- **Live:** returned by the backend endpoints in section 2. Every image is embedded as a `data:image/png;base64,...` URL, so nothing needs storage.
 
 ```jsonc
 {

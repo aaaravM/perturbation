@@ -11,7 +11,7 @@ backend down. Each target:
 
 1. Analysis: the Phase 1 probe (scripts/phase1_probe.py) runs unchanged on its cached 6 arcmin stamps, into
    data/tmp/bundles/<slug>/phase1. Its forced photometry, motion fits, spectra, light curves and acceptance
-   criteria (the validation criteria) give the manifest's motion, spectrum, lightcurve and checks, so the numbers
+   criteria give the manifest's motion, spectrum, lightcurve and checks, so the numbers
    are the Phase 1 numbers.
 2. Frames: a 10 arcmin north-up TAN grid centred on the target's barycentric position at the middle of the
    baseline. Stamps of every image are re-read around the grid centre, large enough to cover the grid for the

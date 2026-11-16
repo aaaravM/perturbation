@@ -5,10 +5,11 @@
 
 import * as React from "react";
 import NumberFlow from "@number-flow/react";
-import { motion, useInView } from "motion/react";
+import { motion } from "motion/react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Term } from "@/components/ui/term";
 import { RESULTS, type Result } from "./story-data";
+import { useOnScreen } from "./use-on-screen";
 
 const MotionGlass = motion.create(LiquidGlass);
 
@@ -38,15 +39,16 @@ export function ResultCards({ animate }: { animate: boolean }) {
 }
 
 function ResultCard({ result: r, index, animate }: { result: Result; index: number; animate: boolean }) {
-  const ref = React.useRef<HTMLElement>(null);
-  const inView = useInView(ref, { amount: 0.55 });
-  const near = useInView(ref, { amount: 0.2 });
+  // The card's element as state: a glass card's element arrives after its first commit (see use-on-screen).
+  const [node, setNode] = React.useState<HTMLElement | null>(null);
+  const inView = useOnScreen(node, { amount: 0.55, failOpen: animate });
+  const near = useOnScreen(node, { amount: 0.2, failOpen: animate });
   const value = !animate || inView ? r.value : 0;
   const shown = !animate || near;
   return (
     <MotionGlass
       as="li"
-      ref={ref}
+      ref={setNode}
       variant="regular"
       radius={24}
       className="flex min-h-[15.5rem] flex-col p-6"
