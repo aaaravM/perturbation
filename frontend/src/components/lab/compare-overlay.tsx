@@ -22,6 +22,15 @@ interface Rect {
 
 function useFootprint(session: AladinSession | null, grid: TanGrid | null, view: SkyView): Rect | null {
   const [rect, setRect] = useState<Rect | null>(null);
+  // The viewer can change size while the view stays put (a Lab pane shown or hidden).
+  const [size, setSize] = useState("");
+  useEffect(() => {
+    const host = session?.host;
+    if (!host || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => setSize(`${host.clientWidth}x${host.clientHeight}`));
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [session]);
   useEffect(() => {
     if (!session || !grid) return;
     const { aladin } = extra(session);
@@ -43,7 +52,7 @@ function useFootprint(session: AladinSession | null, grid: TanGrid | null, view:
       setRect({ left: cx - halfW, top: cy - halfH, width: 2 * halfW, height: 2 * halfH });
     });
     return () => cancelAnimationFrame(id);
-  }, [session, grid, view.ra, view.dec, view.fov]);
+  }, [session, grid, view.ra, view.dec, view.fov, size]);
   return session && grid ? rect : null;
 }
 

@@ -1,5 +1,5 @@
 "use client";
-// Small windows onto SPHEREx images for the Discoveries and Help pages.
+// Small windows onto SPHEREx images for the AI page's finds.
 // A source is either a candidate's stamp (one PNG strip of three 64 x 64 panels: earlier co-add,
 // later co-add, S/N difference; public/discoveries/README.md) or three frames from a prepared
 // challenge bundle, cropped around a point. Panels are drawn pixel for pixel, never smoothed.

@@ -41,7 +41,8 @@ const SECTIONS = [
 
 const APPEARANCE_KEYS = ["glass", "motion", "termMarks"] as const satisfies readonly PreferenceKey[];
 const SKY_KEYS = ["skyStarDetail", "skyStartIn", "skyConstellations", "skyInfraredMap"] as const satisfies readonly PreferenceKey[];
-const LAB_KEYS = ["labDetector", "labBlinkMs"] as const satisfies readonly PreferenceKey[];
+const LAB_LAYOUT_KEYS = ["labDataPane", "labBlinkPlayer", "labAnalysisPane"] as const satisfies readonly PreferenceKey[];
+const LAB_KEYS = ["labDetector", "labBlinkMs", ...LAB_LAYOUT_KEYS] as const satisfies readonly PreferenceKey[];
 const TOUR_KEYS = ["tourOffer"] as const satisfies readonly PreferenceKey[];
 
 const changed = (p: Preferences, keys: readonly PreferenceKey[]) => keys.some((k) => p[k] !== PREFERENCE_DEFAULTS[k]);
@@ -400,7 +401,51 @@ function LabRows({ prefs }: { prefs: Preferences }) {
       >
         <BlinkPreview ms={prefs.labBlinkMs} />
       </SettingRow>
+      <LabLayoutRow prefs={prefs} />
     </>
+  );
+}
+
+const LAB_PANE_NAMES: Record<(typeof LAB_LAYOUT_KEYS)[number], string> = {
+  labDataPane: "the data pane",
+  labBlinkPlayer: "the blink player",
+  labAnalysisPane: "the analysis pane",
+};
+
+function LabLayoutRow({ prefs }: { prefs: Preferences }) {
+  const flash = useFlash();
+  const hidden = LAB_LAYOUT_KEYS.filter((k) => !prefs[k]).map((k) => LAB_PANE_NAMES[k]);
+  const list = hidden.length > 1 ? `${hidden.slice(0, -1).join(", ")} and ${hidden[hidden.length - 1]}` : hidden[0];
+  return (
+    <SettingRow
+      label="Lab layout"
+      description={
+        <>
+          The data pane, the blink player and the analysis pane. On a wide screen, the buttons at the top right of the
+          Lab, or Ctrl B, Ctrl J and Ctrl Alt B, hide them to give the sky more room, and the Lab opens the same way
+          next time.
+          {hidden.length > 0 && (
+            <span className="mt-1 block text-fg" data-testid="lab-layout-hidden">
+              Hidden now: {list}.
+            </span>
+          )}
+        </>
+      }
+      control={
+        <button
+          type="button"
+          disabled={hidden.length === 0}
+          onClick={() => {
+            resetPreferences(LAB_LAYOUT_KEYS);
+            flash();
+          }}
+          className="inline-flex h-9 items-center rounded-[8px] border border-hair-strong px-3 text-meta text-fg-dim transition-colors hover:border-fg-faint hover:text-fg disabled:pointer-events-none disabled:opacity-40"
+          data-testid="reset-lab-layout"
+        >
+          Reset Lab layout
+        </button>
+      }
+    />
   );
 }
 

@@ -5,14 +5,24 @@
 // docked and the page never scrolls, so nothing slides away while you pan and zoom. Everything
 // that defines the view lives in the URL. On phones the panes become three tabs.
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+  type TransitionEvent as ReactTransitionEvent,
+} from "react";
 import { useQueryStates } from "nuqs";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CommandIcon, DownloadIcon, GlobeIcon, KeyboardIcon, LinkIcon, MousePointerClickIcon } from "lucide-react";
 import { AladinView, type AladinStatus, type SkyView } from "@/components/sky/aladin-view";
-import type { AladinSession } from "@/components/sky/aladin-session";
+import { emitCurrentView, type AladinSession } from "@/components/sky/aladin-session";
 import { extra } from "@/components/sky/aladin-extra";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -58,7 +68,8 @@ import { DataPane, siaExposureUrl, type LayerId, type LayerRow } from "@/compone
 import { ViewerToolbar, type Tool } from "@/components/lab/viewer-toolbar";
 import { StatusBar } from "@/components/lab/status-bar";
 import { Timeline, SPEED_MAX, SPEED_MIN, type BlinkStyle, type CompareMode } from "@/components/lab/timeline";
-import { getPreference, prefersReducedMotionNow, useEffectiveReducedMotion, usePreference } from "@/lib/preferences";
+import { getPreference, prefersReducedMotionNow, setPreference, useEffectiveReducedMotion, usePreference } from "@/lib/preferences";
+import { useActiveTour } from "@/lib/tour";
 import { CompareOverlay } from "@/components/lab/compare-overlay";
 import {
   AnalysisPane,
@@ -69,7 +80,7 @@ import {
   type Selection,
 } from "@/components/lab/analysis-pane";
 import { CommandPalette, ShortcutsDialog, type PaletteAction } from "@/components/lab/command-palette";
-import { ResizeHandle, ToolButton, usePaneSize } from "@/components/lab/workbench-ui";
+import { PaneToggle, ResizeHandle, ToolButton, usePaneSize } from "@/components/lab/workbench-ui";
 import { cn } from "@/lib/utils";
 import { LabTourButton, LabTourHost } from "@/components/tour/tour-host";
 
@@ -82,6 +93,35 @@ const DEFAULT_FIELD_ARCMIN = 10;
 /** A click this close (screen pixels) to a Gaia source selects it. */
 const PICK_PX = 14;
 const HINT_KEY = "pxh-lab-hint-seen";
+
+/** The panes the wide layout can hide, each remembered in a preference. */
+type LabPane = "data" | "player" | "analysis";
+const PANE_PREF = { data: "labDataPane", player: "labBlinkPlayer", analysis: "labAnalysisPane" } as const;
+const PANE_ID: Record<LabPane, string> = { data: "lab-data-pane", player: "lab-blink-player", analysis: "lab-analysis-pane" };
+/** A pane slides in or out over 200 ms; with reduced motion it goes at once. */
+const PANE_EASE = "ease-[cubic-bezier(0.16,1,0.3,1)] duration-200";
+/** How often to check that the panes have stopped sliding, should the end of a slide never come. */
+const SETTLE_CHECK_MS = 500;
+/** After this many checks (10 s), the sky's scale is settled whatever the panes are doing. */
+const SETTLE_CHECKS = 20;
+
+/** Whether a pane is still sliding in or out. */
+function panesSliding(): boolean {
+  return Object.values(PANE_ID).some((id) =>
+    document.getElementById(id)?.getAnimations?.().some((a) => a.playState === "running"),
+  );
+}
+
+/** The pane a key shows or hides: VS Code's Ctrl B, Ctrl J and Ctrl Alt B (Cmd on a Mac too). */
+function paneForKey(event: KeyboardEvent): LabPane | null {
+  if (event.shiftKey || !(event.ctrlKey || event.metaKey)) return null;
+  const key = event.key.toLowerCase();
+  // With Alt (Option on a Mac) the key can arrive as another character, so B also counts by position.
+  if (event.altKey) return key === "b" || event.code === "KeyB" ? "analysis" : null;
+  if (key === "b") return "data";
+  if (key === "j") return "player";
+  return null;
+}
 
 type Patch = { ra: number; dec: number; fovArcmin: number; nonce: number };
 
@@ -478,6 +518,137 @@ export function LabWorkspace() {
     if (!wide) setPhoneTab("viewer");
   }, [wide]);
 
+  // ------------------------------------------------------------------ pane layout (wide)
+  // The data pane, the blink player and the analysis pane can each be hidden (buttons at the right
+  // of the session bar, Ctrl B / Ctrl J / Ctrl Alt B as in VS Code, or the palette), and the sky
+  // takes their room. The choice is a preference, so the Lab opens the same way next time. While
+  // the Lab tour runs, the panes it shows are shown for the tour only: when it ends, however it
+  // ends, the visitor's own layout comes back. Phones keep their tabs.
+  const storedPanes: Record<LabPane, boolean> = {
+    data: usePreference("labDataPane"),
+    player: usePreference("labBlinkPlayer"),
+    analysis: usePreference("labAnalysisPane"),
+  };
+  const touring = useActiveTour() === "lab";
+  const [tourPanes, setTourPanes] = useState<Partial<Record<LabPane, boolean>> | null>(null);
+  // The tour is over: what it showed goes with it.
+  if (!touring && tourPanes) setTourPanes(null);
+  const panes: Record<LabPane, boolean> = {
+    data: !wide || (tourPanes?.data ?? storedPanes.data),
+    player: !wide || (tourPanes?.player ?? storedPanes.player),
+    analysis: !wide || (tourPanes?.analysis ?? storedPanes.analysis),
+  };
+  const setPanes = useCallback(
+    (next: Partial<Record<LabPane, boolean>>) => {
+      // Focus inside a pane that is going would be lost: the sky viewer takes it.
+      const active = document.activeElement;
+      const leaving = (Object.keys(next) as LabPane[]).some((p) => next[p] === false && document.getElementById(PANE_ID[p])?.contains(active));
+      if (leaving) document.querySelector<HTMLElement>("[data-testid=sky-viewer]")?.focus({ preventScroll: true });
+      if (touring) {
+        setTourPanes((t) => ({ ...t, ...next }));
+        return;
+      }
+      for (const p of Object.keys(next) as LabPane[]) setPreference(PANE_PREF[p], next[p] as boolean);
+    },
+    [touring],
+  );
+  const togglePane = (p: LabPane) => setPanes({ [p]: !panes[p] });
+  // Slide only after the first frame, so stored panes are simply hidden on arrival.
+  const [layoutLive, setLayoutLive] = useState(false);
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setLayoutLive(true));
+    return () => window.cancelAnimationFrame(id);
+  }, []);
+  const slide = layoutLive && !reduceMotion;
+
+  // While a pane comes or goes, the sky keeps its scale and centre: the viewer gains or loses
+  // width, and Aladin would otherwise keep the field of view across the width and zoom the image
+  // (cropping the field top and bottom). The blink and the catalogue stars show only up to 30′, so
+  // a view that showed them is never widened past that; the scale the visitor chose is kept for
+  // the way back, so hiding and showing the panes again returns the same view.
+  const layoutKey = `${panes.data}|${panes.player}|${panes.analysis}`;
+  const lastLayoutKey = useRef(layoutKey);
+  const viewerWidth = useRef(0);
+  type Scale = { degPerPx: number; blinkMax: boolean; blinkMin: boolean };
+  /** The scale to keep, from a change of panes until they have stopped sliding. */
+  const scaleLock = useRef<Scale | null>(null);
+  /** The scale behind the field of view last set here, while the visitor has not zoomed since. */
+  const lastScale = useRef<(Scale & { fov: number }) | null>(null);
+  const sessionRef = useRef(session);
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+  const keepScale = useCallback((width: number) => {
+    const lock = scaleLock.current;
+    const s = sessionRef.current;
+    if (!lock || !s || width <= 0) return;
+    let fov = lock.degPerPx * width;
+    if (lock.blinkMax) fov = Math.min(fov, BLINK_FOV_MAX_DEG);
+    if (lock.blinkMin) fov = Math.max(fov, BLINK_FOV_MIN_DEG);
+    if (Math.abs(fov - s.aladin.getFov()[0]) > 1e-9) {
+      s.aladin.setFoV(fov);
+      emitCurrentView(s);
+    }
+    lastScale.current = { degPerPx: lock.degPerPx, blinkMax: lock.blinkMax, blinkMin: lock.blinkMin, fov: s.aladin.getFov()[0] };
+  }, []);
+  /** Every slide is over (or there was none): the width as laid out now sets the final scale. */
+  const settleScale = useCallback(
+    (force = false) => {
+      const el = viewerRef.current;
+      if (!scaleLock.current || !el || (!force && panesSliding())) return;
+      keepScale(el.getBoundingClientRect().width);
+      scaleLock.current = null;
+    },
+    [keepScale, viewerRef],
+  );
+  useLayoutEffect(() => {
+    if (lastLayoutKey.current === layoutKey) return;
+    lastLayoutKey.current = layoutKey;
+    // The width before the change: the observer below has not seen the new one yet.
+    const s = sessionRef.current;
+    const w0 = viewerWidth.current;
+    const fov0 = s?.aladin.getFov()[0];
+    if (!s || !(w0 > 0) || !fov0 || !Number.isFinite(fov0)) {
+      scaleLock.current = null;
+      return;
+    }
+    // Still at the field of view set here last time: carry on with the scale behind it.
+    const last = lastScale.current;
+    const scale: Scale =
+      last && Math.abs(last.fov / fov0 - 1) < 1e-6
+        ? last
+        : { degPerPx: fov0 / w0, blinkMax: fov0 <= BLINK_FOV_MAX_DEG + 1e-6, blinkMin: fov0 >= BLINK_FOV_MIN_DEG - 1e-6 };
+    scaleLock.current = { degPerPx: scale.degPerPx, blinkMax: scale.blinkMax, blinkMin: scale.blinkMin };
+    // Measuring starts the slides; without one (reduced motion) the new width is laid out already.
+    keepScale(viewerRef.current?.getBoundingClientRect().width ?? 0);
+    settleScale();
+    // The end of the last slide settles the scale (onPaneSlid). Should that end never come (a slow
+    // device, a tab in the background), check now and then, and settle anyway after a while.
+    let checks = 0;
+    const id = window.setInterval(() => {
+      checks += 1;
+      settleScale(checks >= SETTLE_CHECKS);
+      if (!scaleLock.current) window.clearInterval(id);
+    }, SETTLE_CHECK_MS);
+    return () => window.clearInterval(id);
+  }, [layoutKey, keepScale, settleScale, viewerRef]);
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      // While the panes slide, the sky keeps its scale frame by frame.
+      if (scaleLock.current) keepScale(width);
+      viewerWidth.current = width;
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [keepScale, viewerRef, wide]);
+  /** A pane's own slide ended (not a transition of something inside it). */
+  const onPaneSlid = (event: ReactTransitionEvent<HTMLElement>) => {
+    if (event.target === event.currentTarget) settleScale();
+  };
+
   // Aladin's logo would show through the panes; Aladin Lite is credited in the provenance tab.
   useEffect(() => {
     const logo = session?.host.querySelector<HTMLElement>(".aladin-logo-container");
@@ -600,6 +771,8 @@ export function LabWorkspace() {
       setSelection({ kind: "position", ra: pos.ra, dec: pos.dec });
     }
     setTab("object");
+    // A click asks for details, so a hidden analysis pane comes back to show them.
+    if (!panes.analysis) setPanes({ analysis: true });
   };
 
   // ------------------------------------------------------------------ actions
@@ -753,6 +926,7 @@ export function LabWorkspace() {
     chooseTool,
     phoneTab,
     wide,
+    togglePane,
   });
   useEffect(() => {
     keyState.current = {
@@ -771,6 +945,7 @@ export function LabWorkspace() {
       chooseTool,
       phoneTab,
       wide,
+      togglePane,
     };
   });
   useEffect(() => {
@@ -795,6 +970,14 @@ export function LabWorkspace() {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setPaletteOpen((o) => !o);
+        return;
+      }
+      // Panes, with VS Code's keys. The browser's own use of them (bookmarks, downloads) gives way
+      // to the page; not while typing, and not on phones, which have tabs instead.
+      const pane = s.wide ? paneForKey(event) : null;
+      if (pane && !target?.closest("[role=dialog], [data-radix-popper-content-wrapper], input, textarea, select, [contenteditable=true]")) {
+        event.preventDefault();
+        s.togglePane(pane);
         return;
       }
       if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -880,6 +1063,15 @@ export function LabWorkspace() {
     { id: "view-field", group: "View", label: "Zoom to the field", shortcut: "F", disabled: !manifest, run: zoomToField },
     { id: "view-sky", group: "View", label: "Back to the all-sky map", run: showSky },
     { id: "shortcuts", group: "View", label: "Keyboard shortcuts", shortcut: "?", run: () => setShortcutsOpen(true) },
+    ...(wide
+      ? ([
+          { id: "pane-data", group: "Layout", label: `${panes.data ? "Hide" : "Show"} the data pane`, shortcut: "Ctrl B", run: () => togglePane("data") },
+          { id: "pane-player", group: "Layout", label: `${panes.player ? "Hide" : "Show"} the blink player`, shortcut: "Ctrl J", run: () => togglePane("player") },
+          { id: "pane-analysis", group: "Layout", label: `${panes.analysis ? "Hide" : "Show"} the analysis pane`, shortcut: "Ctrl Alt B", run: () => togglePane("analysis") },
+          { id: "panes-hide", group: "Layout", label: "Hide all panels", disabled: !panes.data && !panes.player && !panes.analysis, run: () => setPanes({ data: false, player: false, analysis: false }) },
+          { id: "panes-show", group: "Layout", label: "Show all panels", disabled: panes.data && panes.player && panes.analysis, run: () => setPanes({ data: true, player: true, analysis: true }) },
+        ] satisfies PaletteAction[])
+      : []),
     { id: "export-png", group: "Export", label: "PNG of the frame on screen", disabled: !currentFrame, run: exportFrame },
     { id: "export-spec", group: "Export", label: "Spectrum (CSV)", disabled: !manifest?.spectrum?.points.length, run: () => manifest && exportSpectrumCsv(manifest) },
     { id: "export-phot", group: "Export", label: "Photometry (CSV)", disabled: !manifest?.lightcurve?.epoch_photometry.length, run: () => manifest && exportPhotometryCsv(manifest) },
@@ -1143,42 +1335,55 @@ export function LabWorkspace() {
         fov={view.fov}
         measurement={measurement}
       />
-      <Timeline
-        field={field}
-        manifest={manifest}
-        mode={mode}
-        det={det}
-        frames={frames}
-        current={current}
-        playing={isPlaying}
-        speed={speed}
-        loopCount={loopCount}
-        loaded={layerStatus.loaded}
-        ready={layerStatus.ready}
-        failed={layerStatus.failed}
-        zoomedOut={!blinkVisible}
-        blinkStyle={blinkStyle}
-        compare={compareOn ? compare : "off"}
-        compareA={clamp(compareA, 0, Math.max(0, frames.length - 1))}
-        note={note && q.target === note.slug ? note.text : null}
-        onMode={setMode}
-        onDet={(d) => void setQ({ det: d })}
-        onTogglePlay={togglePlay}
-        onStep={step}
-        onSeek={seek}
-        onSpeed={setSpeed}
-        onBlinkStyle={setBlinkStyle}
-        onCompare={(c) => {
-          setCompare(c);
-          if (c === "off") return;
-          setPlaying(false);
-          // Start with the first frame against the last.
-          const a = clamp(compareA, 0, frames.length - 1);
-          if (current === a) setFrameIndex(a === frames.length - 1 ? 0 : frames.length - 1);
-        }}
-        onCompareA={setCompareA}
-        onZoomToField={zoomToField}
-      />
+      {/* The blink player folds away downwards when hidden; the status bar above it stays. */}
+      <div
+        id={PANE_ID.player}
+        className={cn("grid shrink-0", slide && `transition-[grid-template-rows,visibility] ${PANE_EASE}`, !panes.player && "invisible")}
+        style={{ gridTemplateRows: panes.player ? "1fr" : "0fr" }}
+        inert={!panes.player}
+        data-shown={panes.player}
+        data-testid="blink-player-pane"
+        onTransitionEnd={onPaneSlid}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <Timeline
+            field={field}
+            manifest={manifest}
+            mode={mode}
+            det={det}
+            frames={frames}
+            current={current}
+            playing={isPlaying}
+            speed={speed}
+            loopCount={loopCount}
+            loaded={layerStatus.loaded}
+            ready={layerStatus.ready}
+            failed={layerStatus.failed}
+            zoomedOut={!blinkVisible}
+            blinkStyle={blinkStyle}
+            compare={compareOn ? compare : "off"}
+            compareA={clamp(compareA, 0, Math.max(0, frames.length - 1))}
+            note={note && q.target === note.slug ? note.text : null}
+            onMode={setMode}
+            onDet={(d) => void setQ({ det: d })}
+            onTogglePlay={togglePlay}
+            onStep={step}
+            onSeek={seek}
+            onSpeed={setSpeed}
+            onBlinkStyle={setBlinkStyle}
+            onCompare={(c) => {
+              setCompare(c);
+              if (c === "off") return;
+              setPlaying(false);
+              // Start with the first frame against the last.
+              const a = clamp(compareA, 0, frames.length - 1);
+              if (current === a) setFrameIndex(a === frames.length - 1 ? 0 : frames.length - 1);
+            }}
+            onCompareA={setCompareA}
+            onZoomToField={zoomToField}
+          />
+        </div>
+      </div>
     </div>
   );
 
@@ -1186,7 +1391,8 @@ export function LabWorkspace() {
     <div className="flex h-9 shrink-0 items-center gap-3 border-b border-hair bg-ink-2 px-3" data-testid="session-bar">
       <p className="flex min-w-0 items-baseline gap-2 text-micro">
         <span className="shrink-0 font-medium text-fg">{featured?.name ?? (manifest ? "Field" : "Sky")}</span>
-        <span className="readout truncate text-fg-dim" data-testid="coordinate-readout" aria-label="View centre">
+        {/* On a wide screen the notes give way first, beside the layout buttons. */}
+        <span className="readout truncate text-fg-dim min-[900px]:shrink-0" data-testid="coordinate-readout" aria-label="View centre">
           {formatRaHms(view.ra, 1)} {formatDecDms(view.dec, 0)}
         </span>
         <span className="hidden truncate text-fg-faint md:inline" data-testid="session-notes">
@@ -1224,6 +1430,41 @@ export function LabWorkspace() {
           ]}
           irsa={irsaLink}
         />
+        {wide && (
+          <>
+            <span aria-hidden className="mx-1 h-4 w-px bg-hair" />
+            <PaneToggle
+              side="left"
+              label="Data pane"
+              shown={panes.data}
+              controls={PANE_ID.data}
+              shortcut="Ctrl B"
+              keyShortcuts="Control+B Meta+B"
+              onToggle={() => togglePane("data")}
+              testId="lab-toggle-data"
+            />
+            <PaneToggle
+              side="bottom"
+              label="Blink player"
+              shown={panes.player}
+              controls={PANE_ID.player}
+              shortcut="Ctrl J"
+              keyShortcuts="Control+J Meta+J"
+              onToggle={() => togglePane("player")}
+              testId="lab-toggle-player"
+            />
+            <PaneToggle
+              side="right"
+              label="Analysis pane"
+              shown={panes.analysis}
+              controls={PANE_ID.analysis}
+              shortcut="Ctrl Alt B"
+              keyShortcuts="Control+Alt+B Meta+Alt+B"
+              onToggle={() => togglePane("analysis")}
+              testId="lab-toggle-analysis"
+            />
+          </>
+        )}
       </div>
     </div>
   );
@@ -1234,13 +1475,32 @@ export function LabWorkspace() {
       {sessionBar}
       {wide ? (
         <div className="flex min-h-0 flex-1">
-          <aside aria-label="Data" className="flex min-h-0 shrink-0 flex-col bg-ink-2" style={{ width: leftW }}>
+          {/* A hidden side pane keeps its width and slides out past the edge, so nothing in it reflows. */}
+          <aside
+            id={PANE_ID.data}
+            aria-label="Data"
+            className={cn("flex min-h-0 shrink-0 flex-col bg-ink-2", slide && `transition-[margin,visibility] ${PANE_EASE}`, !panes.data && "invisible")}
+            style={{ width: leftW, marginLeft: panes.data ? undefined : -leftW }}
+            inert={!panes.data}
+            data-shown={panes.data}
+            onTransitionEnd={onPaneSlid}
+          >
             {dataPane}
           </aside>
-          <ResizeHandle label="Resize the data pane" value={leftW} min={236} max={420} onChange={setLeftW} side="left" />
+          {panes.data && <ResizeHandle label="Resize the data pane" value={leftW} min={236} max={420} onChange={setLeftW} side="left" />}
           {viewer}
-          <ResizeHandle label="Resize the analysis pane" value={rightW} min={320} max={560} onChange={setRightW} side="right" />
-          <aside aria-label="Analysis pane" className="flex min-h-0 shrink-0 flex-col bg-ink-2" style={{ width: rightW }}>
+          {panes.analysis && (
+            <ResizeHandle label="Resize the analysis pane" value={rightW} min={320} max={560} onChange={setRightW} side="right" />
+          )}
+          <aside
+            id={PANE_ID.analysis}
+            aria-label="Analysis pane"
+            className={cn("flex min-h-0 shrink-0 flex-col bg-ink-2", slide && `transition-[margin,visibility] ${PANE_EASE}`, !panes.analysis && "invisible")}
+            style={{ width: rightW, marginRight: panes.analysis ? undefined : -rightW }}
+            inert={!panes.analysis}
+            data-shown={panes.analysis}
+            onTransitionEnd={onPaneSlid}
+          >
             {analysisPane}
           </aside>
         </div>
@@ -1261,7 +1521,7 @@ export function LabWorkspace() {
         onCoordinates={(ra, dec) => onPlace({ name: "coordinates", ra, dec, kind: "coordinates", provenance: "Coordinates as typed (ICRS)." })}
         onSearch={paletteSearch}
       />
-      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} layout={wide} />
     </div>
   );
 }

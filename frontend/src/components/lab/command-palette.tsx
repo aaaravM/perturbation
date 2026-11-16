@@ -1,6 +1,6 @@
 "use client";
 // Ctrl/Cmd+K command palette (go to a target or coordinates, switch mode or detector, toggle
-// layers, tools, exports) and the keyboard-shortcuts sheet ("?").
+// layers, tools, panes, exports) and the keyboard-shortcuts sheet ("?").
 
 import { useState, type ReactNode } from "react";
 import { Command as CommandPrimitive } from "cmdk";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export interface PaletteAction {
   id: string;
-  group: "Go to" | "Blink" | "Detector" | "Layers" | "Tools" | "View" | "Export";
+  group: "Go to" | "Blink" | "Detector" | "Layers" | "Tools" | "View" | "Layout" | "Export";
   label: string;
   hint?: string;
   shortcut?: string;
@@ -152,10 +152,24 @@ export const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
   { keys: ["X"], label: "Crosshair", group: "View" },
   { keys: ["F"], label: "Zoom to the field", group: "View" },
   { keys: ["+", "−"], label: "Zoom in or out (sky focused)", group: "View" },
+  // VS Code's keys; Cmd on a Mac works as Ctrl, as for the palette.
+  { keys: ["Ctrl", "B"], label: "Show or hide the data pane", group: "Layout" },
+  { keys: ["Ctrl", "J"], label: "Show or hide the blink player", group: "Layout" },
+  { keys: ["Ctrl", "Alt", "B"], label: "Show or hide the analysis pane", group: "Layout" },
 ];
 
-export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const groups = [...new Set(SHORTCUTS.map((s) => s.group))];
+export function ShortcutsDialog({
+  open,
+  onOpenChange,
+  layout = true,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** List the keys that show and hide the panes, which only the wide layout has. */
+  layout?: boolean;
+}) {
+  const shortcuts = layout ? SHORTCUTS : SHORTCUTS.filter((s) => s.group !== "Layout");
+  const groups = [...new Set(shortcuts.map((s) => s.group))];
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border border-hair-strong bg-popover sm:max-w-xl" data-testid="shortcuts-dialog">
@@ -166,7 +180,7 @@ export function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenC
             <section key={g} className="flex flex-col gap-1.5">
               <h3 className="text-micro text-fg-faint">{g}</h3>
               <ul className="flex flex-col gap-1">
-                {SHORTCUTS.filter((s) => s.group === g).map((s) => (
+                {shortcuts.filter((s) => s.group === g).map((s) => (
                   <li key={s.label} className="flex items-center justify-between gap-3 text-meta text-fg-dim">
                     {s.label}
                     <span className="flex shrink-0 gap-1">

@@ -57,7 +57,7 @@ export function TwoWaysIn({ animate }: { animate: boolean }) {
 
         <p className="mt-10 text-body text-fg-dim">
           Or read about{" "}
-          <Link href="/discoveries" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-fg">
+          <Link href="/ai#finds" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-fg">
             what the search has found
           </Link>
           ,{" "}

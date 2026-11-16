@@ -5,9 +5,8 @@ import { watchPage } from "./helpers";
 const ROUTES = [
   { path: "/", heading: "Perturbation" },
   { path: "/explore", heading: "Lab: a workbench for SPHEREx images of any patch of sky" },
-  { path: "/discoveries", heading: "Candidate movers and variables" },
-  { path: "/help", heading: "Review candidates with us" },
   { path: "/planet-x", heading: "The first Planet X" },
+  { path: "/ai", heading: "What the AI does" },
   { path: "/how-it-works", heading: "How it works" },
   { path: "/about", heading: "About Perturbation" },
 ] as const;
@@ -29,6 +28,19 @@ for (const route of ROUTES) {
     await expect(page.locator("body")).not.toContainText(/Planet X Hunter/i, { useInnerText: true });
   });
 }
+
+test("the retired Discoveries and Help the search pages redirect to the AI page for good", async ({ page, request }) => {
+  for (const path of ["/discoveries", "/help"]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(308);
+    expect(new URL(res.headers()["location"] ?? "", "http://localhost").pathname, path).toBe("/ai");
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/ai$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("What the AI does");
+  }
+  // The list's data stays where the AI page and the Lab read it.
+  expect((await request.get("/discoveries/candidates.json")).status()).toBe(200);
+});
 
 test("the home page's title and the top bar name the site", async ({ page }) => {
   await page.goto("/");

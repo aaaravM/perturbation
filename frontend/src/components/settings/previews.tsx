@@ -83,7 +83,7 @@ export function GlassPreview() {
           <span className="flex shrink-0 items-center gap-4 text-ui text-(--fg-glass-dim)">
             <span className="text-fg">Sky</span>
             <span>Lab</span>
-            <span className="hidden sm:inline">Discoveries</span>
+            <span className="hidden sm:inline">Planet X</span>
           </span>
         </LiquidGlass>
         <motion.div

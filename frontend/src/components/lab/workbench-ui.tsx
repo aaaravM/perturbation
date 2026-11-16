@@ -4,9 +4,14 @@
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { PanelBottomIcon, PanelLeftIcon, PanelRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+/** The Lab's small square icon buttons: the tools, and the actions in the session bar. */
+const ICON_BUTTON =
+  "relative grid size-7 shrink-0 place-items-center rounded-[5px] text-fg-dim transition-colors duration-150 hover:bg-white/[0.06] hover:text-fg disabled:pointer-events-none disabled:opacity-35";
 
 export function ToolButton({
   label,
@@ -39,11 +44,7 @@ export function ToolButton({
           onClick={onClick}
           data-testid={testId}
           data-active={pressed ? "true" : undefined}
-          className={cn(
-            "relative grid size-7 shrink-0 place-items-center rounded-[5px] text-fg-dim transition-colors duration-150 hover:bg-white/[0.06] hover:text-fg disabled:pointer-events-none disabled:opacity-35",
-            pressed && "bg-white/[0.07] text-fg",
-            className,
-          )}
+          className={cn(ICON_BUTTON, pressed && "bg-white/[0.07] text-fg", className)}
         >
           {children}
           {pressed && <span aria-hidden className="absolute inset-x-1.5 -bottom-px h-px bg-accent" />}
@@ -52,6 +53,71 @@ export function ToolButton({
       <TooltipContent side="bottom">
         {label}
         {shortcut ? <Kbd className="ml-1.5">{shortcut}</Kbd> : null}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+export type PaneSide = "left" | "bottom" | "right";
+
+const PANE_ICON = { left: PanelLeftIcon, bottom: PanelBottomIcon, right: PanelRightIcon } as const;
+/** The pane's part of each icon, filled while the pane is shown. */
+const PANE_FILL: Record<PaneSide, string> = {
+  left: "M5 3h4v18H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
+  bottom: "M3 15h18v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+  right: "M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4z",
+};
+
+/**
+ * Shows or hides one pane, like the layout buttons at the top right of VS Code: the pane's part
+ * of the icon is filled while it is shown, and outlined while it is hidden. The name stays the
+ * same and aria-pressed says whether the pane is shown; the tooltip says what a click does.
+ */
+export function PaneToggle({
+  side,
+  label,
+  shown,
+  controls,
+  shortcut,
+  keyShortcuts,
+  onToggle,
+  testId,
+}: {
+  side: PaneSide;
+  /** The pane's name in sentence case, such as "Data pane". */
+  label: string;
+  shown: boolean;
+  /** Id of the pane. */
+  controls: string;
+  /** As shown in the tooltip, such as "Ctrl B". */
+  shortcut: string;
+  /** For aria-keyshortcuts, such as "Control+B Meta+B". */
+  keyShortcuts: string;
+  onToggle: () => void;
+  testId: string;
+}) {
+  const Icon = PANE_ICON[side];
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          aria-pressed={shown}
+          aria-controls={controls}
+          aria-keyshortcuts={keyShortcuts}
+          onClick={onToggle}
+          data-testid={testId}
+          className={ICON_BUTTON}
+        >
+          <Icon className="size-3.5" aria-hidden>
+            {shown && <path d={PANE_FILL[side]} fill="currentColor" stroke="none" />}
+          </Icon>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {shown ? "Hide" : "Show"} the {label.toLowerCase()}
+        <Kbd className="ml-1.5">{shortcut}</Kbd>
       </TooltipContent>
     </Tooltip>
   );

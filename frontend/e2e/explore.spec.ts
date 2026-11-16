@@ -123,8 +123,8 @@ test("the URL follows the view, and the view follows the URL", async () => {
 });
 
 test("leaving and coming back reuses the one Aladin instance", async () => {
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Discoveries" }).click();
-  await expect(page).toHaveURL(/\/discoveries$/);
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "AI", exact: true }).click();
+  await expect(page).toHaveURL(/\/ai$/);
   await expect(page.locator(".aladin-container")).toHaveCount(0);
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Lab" }).click();
   await expect(page).toHaveURL(/\/explore/);

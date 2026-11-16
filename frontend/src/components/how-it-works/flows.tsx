@@ -86,7 +86,7 @@ const SEARCH: Stage[] = [
   },
   {
     title: "Report",
-    text: "Candidates that pass are reported on the Discoveries page, with their scores.",
+    text: "The AI page lists the finds and whether each passed this test.",
     glyph: (
       <>
         {[7, 15, 23].map((y, i) => (

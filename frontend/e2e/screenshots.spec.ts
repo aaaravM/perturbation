@@ -13,8 +13,7 @@ const VIEWPORTS = [
 const ROUTES = [
   { name: "home", path: "/" },
   { name: "explore", path: "/explore" },
-  { name: "discoveries", path: "/discoveries" },
-  { name: "help", path: "/help" },
+  { name: "ai", path: "/ai" },
   { name: "how-it-works", path: "/how-it-works" },
   { name: "about", path: "/about" },
 ] as const;

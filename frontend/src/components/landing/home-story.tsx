@@ -135,7 +135,7 @@ function HeroCopy({ id, skip = true }: { id: string; skip?: boolean }) {
       <p className="mt-3 text-title text-balance text-fg">Watch the sky move.</p>
       <p className="measure mt-6 text-lead text-pretty text-fg-dim">
         This site lets anyone flip between NASA SPHEREx&rsquo;s infrared maps of the sky and catch stars, brown dwarfs and
-        asteroids in motion.
+        even Pluto in motion.
       </p>
       <div className="mt-9 flex flex-wrap items-center gap-3">
         <Button asChild size="lg" className="h-11 gap-2 rounded-md px-5">

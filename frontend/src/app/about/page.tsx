@@ -112,14 +112,14 @@ export default function AboutPage() {
           <p>
             There are two ways in. The Sky is a globe of the whole sky to spin and explore. The Lab is a workbench for any patch
             of sky, with every visit, the differences between them, spectra and the measurements behind them. An automatic
-            search looks for moving and changing stars and lists what it finds on the Discoveries page.
+            search looks for moving and changing stars, and the AI page shows what it has found.
           </p>
           <p>Every number on the site comes from real data, and says where it comes from.</p>
           <ul className="flex flex-col border-t border-hair">
             {[
               { href: "/sky", label: "Explore the Sky globe" },
               { href: "/explore", label: "Open the Lab" },
-              { href: "/discoveries", label: "See the discoveries" },
+              { href: "/ai#finds", label: "See what the search has found" },
               { href: "/how-it-works", label: "Read how it works" },
             ].map((l) => (
               <li key={l.href} className="border-b border-hair">

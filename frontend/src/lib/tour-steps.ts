@@ -302,8 +302,13 @@ const onBarnard = () => new URLSearchParams(window.location.search).get("target"
 export function labTour(opts: { reduced: boolean }): TourStep[] {
   const wide = window.innerWidth >= 900; // three panes; below, the panes are tabs
   const phone = window.innerWidth < 640;
+  // Wide: a pane the visitor hid comes back for the step that needs it (for the tour only).
+  const show = (p: "data" | "player" | "analysis"): TourAct[] =>
+    wide ? [{ kind: "click", target: `[data-testid=lab-toggle-${p}]`, if: (el) => el.getAttribute("aria-pressed") === "false" }] : [];
   const pane = (t: "data" | "viewer" | "analysis"): TourAct[] =>
-    wide ? [] : [{ kind: "click", target: `[data-testid=phone-tab-${t}]`, if: (el) => el.getAttribute("aria-selected") !== "true" }];
+    wide
+      ? show(t === "viewer" ? "player" : t)
+      : [{ kind: "click", target: `[data-testid=phone-tab-${t}]`, if: (el) => el.getAttribute("aria-selected") !== "true" }];
   const epochsMode: TourAct = { kind: "click", target: "[data-testid=mode-epochs]", if: (el) => el.getAttribute("aria-selected") !== "true" };
   const PLAY = "[data-testid=blink-play]";
   const playing = () => q(PLAY)?.dataset.playing === "true";
@@ -343,7 +348,7 @@ export function labTour(opts: { reduced: boolean }): TourStep[] {
         : "A workbench for SPHEREx images, here of the sky around Barnard's Star. The Data and Analysis tabs hold its visits, layers and measurements.",
       defs: [TOUR_DEFS.spherex],
       spot: spotOf(LAB_VIEWER),
-      setup: [...pane("viewer"), { kind: "until", test: labReady, timeout: 20000 }],
+      setup: [...pane("viewer"), ...show("data"), ...show("analysis"), { kind: "until", test: labReady, timeout: 20000 }],
     },
     {
       id: "field",
@@ -382,7 +387,7 @@ export function labTour(opts: { reduced: boolean }): TourStep[] {
       body: "Each row is one SPHEREx visit to this patch: its date, survey and how many exposures it took. Click a date to show that visit.",
       defs: [TOUR_DEFS.epoch],
       spot: spotOf("[data-testid=epoch-table]"),
-      setup: [...pane("data"), epochsMode],
+      setup: [...pane("data"), ...show("player"), epochsMode],
       actions: [{ kind: "click", target: "[data-testid=epoch-row][data-epoch='2'] td:nth-child(2) button", at: [0.4, 0.5] }],
     },
     {
@@ -449,9 +454,9 @@ export function labTour(opts: { reduced: boolean }): TourStep[] {
     {
       id: "share",
       title: "Share it, and go further",
-      body: "The address keeps the whole view, so a copied link opens exactly this. Discoveries lists what the search found, and in Help the search you can judge candidates yourself.",
+      body: "The address keeps the whole view, so a copied link opens exactly this. The AI page shows the candidates the search has found.",
       defs: [TOUR_DEFS.candidate],
-      spot: spotOf("[data-testid=copy-link]", "header a[href='/discoveries']", "header a[href='/help']"),
+      spot: spotOf("[data-testid=copy-link]", "header a[href='/ai']"),
       actions: [{ kind: "point", target: "[data-testid=copy-link]" }],
     },
   );

@@ -1,6 +1,6 @@
 "use client";
 // Top navigation: a Liquid Glass bar (components/ui/liquid-glass.tsx).
-// - Content pages (home, Discoveries, Help the search, How it works, About, Settings): the bar
+// - Content pages (home, Planet X, AI, How it works, About, Settings): the bar
 //   floats over the page, inset from the edges, and condenses a little once the page scrolls.
 // - Sky and Lab (/sky, /explore): it docks to the top edge at exactly --nav-h, as before, so the
 //   tools' layouts do not move.
@@ -192,7 +192,7 @@ export function SiteNav() {
                 {PAGE_LINKS.map((link) => {
                   const active = isActive(pathname, link.href);
                   return (
-                    <li key={link.href} className={cn("items-center", "wide" in link ? "hidden min-[840px]:flex" : "flex")}>
+                    <li key={link.href} className="flex items-center">
                       <Link
                         href={link.href}
                         aria-current={active ? "page" : undefined}

@@ -454,7 +454,7 @@ export default async function PlanetXPage() {
                   Epsilon Indi B
                 </Link>{" "}
                 move in the Lab, or see{" "}
-                <Link href="/discoveries" className={LINK}>
+                <Link href="/ai#finds" className={LINK}>
                   what the search has found
                 </Link>
                 .

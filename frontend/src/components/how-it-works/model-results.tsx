@@ -4,12 +4,13 @@
 // of the models the site actually uses. Anything missing says so instead of showing a number.
 
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { FactTable, ForScientists } from "./shell";
 import { RISE, delay } from "./motion-classes";
 import { Reveal } from "./reveal";
 
-interface MoverResults {
+export interface MoverResults {
   model?: { name?: string; trained_on?: string; metrics?: Record<string, number | undefined> };
   fdr?: { method?: string; alpha?: number };
   survey?: { n_fields?: number; area_deg2?: number; detectors?: string[] };
@@ -24,7 +25,7 @@ interface MoverResults {
   }[];
 }
 
-interface SpecResults {
+export interface SpecResults {
   model?: string;
   classes?: { key: string; name: string }[];
   test_accuracy?: number;
@@ -41,9 +42,9 @@ interface SpecResults {
   data?: string;
 }
 
-type Load<T> = { state: "loading" } | { state: "ok"; data: T } | { state: "missing" };
+export type Load<T> = { state: "loading" } | { state: "ok"; data: T } | { state: "missing" };
 
-function useJson<T>(url: string): Load<T> {
+export function useJson<T>(url: string): Load<T> {
   const [load, setLoad] = React.useState<Load<T>>({ state: "loading" });
   React.useEffect(() => {
     let alive = true;
@@ -58,13 +59,13 @@ function useJson<T>(url: string): Load<T> {
   return load;
 }
 
-const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
-const pct = (v: unknown) => (isNum(v) ? `${Math.round(v * 100)}%` : null);
-const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+export const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+export const pct = (v: unknown) => (isNum(v) ? `${Math.round(v * 100)}%` : null);
+export const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const plural = (name: string) => (name.endsWith("y") ? `${name.slice(0, -1)}ies` : `${name}s`);
-const fmt = (v: number, d = 0) => v.toLocaleString("en-GB", { maximumFractionDigits: d, minimumFractionDigits: d });
+export const fmt = (v: number, d = 0) => v.toLocaleString("en-GB", { maximumFractionDigits: d, minimumFractionDigits: d });
 
-const MEASURING = "Being measured";
+export const MEASURING = "Being measured";
 
 export function ModelResults() {
   const movers = useJson<MoverResults>("/discoveries/candidates.json");
@@ -73,6 +74,13 @@ export function ModelResults() {
     <div className="flex flex-col gap-12">
       <MoverBlock load={movers} />
       <SpecBlock load={spec} />
+      <p className="text-meta text-pretty text-fg-dim">
+        Both networks at work, on real candidates and live spectra:{" "}
+        <Link href="/ai" className="text-fg underline decoration-hair-strong underline-offset-4 transition-colors hover:decoration-accent">
+          what the AI does
+        </Link>
+        .
+      </p>
     </div>
   );
 }

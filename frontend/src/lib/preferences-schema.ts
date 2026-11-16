@@ -36,6 +36,10 @@ export interface Preferences {
   labBlinkMs: number;
   /** Offer the guided tour the first time the Sky globe or the Lab opens. */
   tourOffer: boolean;
+  /** Lab panes shown (wide layout): the data pane, the blink player and the analysis pane. */
+  labDataPane: boolean;
+  labBlinkPlayer: boolean;
+  labAnalysisPane: boolean;
 }
 
 export type PreferenceKey = keyof Preferences;
@@ -51,6 +55,9 @@ export const PREFERENCE_DEFAULTS: Readonly<Preferences> = Object.freeze({
   labDetector: "D6",
   labBlinkMs: 500,
   tourOffer: true,
+  labDataPane: true,
+  labBlinkPlayer: true,
+  labAnalysisPane: true,
 });
 
 /** Allowed values, for settings controls. */
@@ -84,6 +91,9 @@ const VALIDATORS: { [K in PreferenceKey]: (v: unknown) => v is Preferences[K] } 
   labBlinkMs: (v): v is number =>
     typeof v === "number" && Number.isFinite(v) && v >= LAB_BLINK_MS_RANGE.min && v <= LAB_BLINK_MS_RANGE.max,
   tourOffer: isBoolean,
+  labDataPane: isBoolean,
+  labBlinkPlayer: isBoolean,
+  labAnalysisPane: isBoolean,
 };
 
 export function isValidPreference<K extends PreferenceKey>(key: K, value: unknown): value is Preferences[K] {

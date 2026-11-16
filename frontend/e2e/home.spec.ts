@@ -55,7 +55,7 @@ test.describe("wide screens", () => {
     const ways = page.locator("#two-ways-in");
     await expect(ways.getByRole("link", { name: "Open the sky globe" })).toHaveAttribute("href", "/sky");
     await expect(ways.getByRole("link", { name: "Open the Lab" })).toHaveAttribute("href", "/explore?target=barnards-star");
-    await expect(ways.getByRole("link", { name: "what the search has found" })).toHaveAttribute("href", "/discoveries");
+    await expect(ways.getByRole("link", { name: "what the search has found" })).toHaveAttribute("href", "/ai#finds");
     await expect(ways.getByRole("link", { name: "how it works" })).toHaveAttribute("href", "/how-it-works");
 
     expect(log.consoleErrors, "no console errors").toEqual([]);

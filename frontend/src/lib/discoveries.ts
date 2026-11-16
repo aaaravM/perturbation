@@ -1,6 +1,6 @@
-// The Discoveries list (public/discoveries/candidates.json, schema in public/discoveries/README.md):
-// types, a defensive parser, and the small helpers both /discoveries and /help use. The pages load it
-// with components/discoveries/use-discoveries.ts.
+// The search's list of finds (public/discoveries/candidates.json, schema in public/discoveries/README.md):
+// types, a defensive parser, and the small helpers the AI page uses. It loads the list with
+// components/ai/results.tsx.
 //
 // The file is written by scripts/run_discovery.py and can be regenerated at any time, so nothing
 // here trusts it: an entry with a missing or impossible value is dropped (and counted), optional
