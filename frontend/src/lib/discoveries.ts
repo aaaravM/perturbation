@@ -401,9 +401,14 @@ export const CLASS_LABEL: Record<ClassName, string> = {
   nothing: "Nothing",
 };
 
+/** A catalogue name for display: without SIMBAD's "V* " (variable star) or "* " prefix, single-spaced. */
+export function displayName(name: string): string {
+  return name.replace(/^V?\*\s+/, "").replace(/\s+/g, " ");
+}
+
 /** The field's display name, or its id. */
 export function fieldName(data: Pick<Discoveries, "fields">, id: string): string {
-  return data.fields.find((f) => f.id === id)?.name ?? id;
+  return displayName(data.fields.find((f) => f.id === id)?.name ?? id);
 }
 
 /** How a brightness change reads: "1.3 times brighter" / "fainter by 0.32 mag". */

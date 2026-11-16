@@ -145,7 +145,7 @@ export default function AboutPage() {
             them, reading spectra, and testing it all on five known stars that move or vary.
           </p>
           <p>
-            The name recalls a century-old hunt for an unseen planet beyond Neptune, known as Planet X. Clyde Tombaugh found
+            About a century ago, astronomers hunted for an unseen planet beyond Neptune, known as Planet X. Clyde Tombaugh found
             Pluto in 1930 by blinking two photographs of the same stars, the idea this site uses with SPHEREx’s infrared maps.
             No new planet is claimed here: the site shows what the data can and cannot reveal.
           </p>

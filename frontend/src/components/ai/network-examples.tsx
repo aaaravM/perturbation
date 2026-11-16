@@ -327,7 +327,7 @@ function Example({ c, data, alpha }: { c: Candidate; data: Discoveries; alpha: n
             )}
           </Row>
           <Row label="Measured">
-            <span className="text-fg-dim">{measuredWords(c)}</span>
+            <span className="text-fg-dim">{measuredWords(c, true)}</span>
           </Row>
           {c.epochs && (
             <Row label="Compared">

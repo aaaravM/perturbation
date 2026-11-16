@@ -93,7 +93,6 @@ export default function AiPage() {
                 For each spot, the network gets a small stamp of pixels and says how much it looks like a mover, a change in
                 brightness, an imaging artifact or nothing at all.
               </p>
-              <p>Here are the same finds one at a time, with exactly what the network was shown and what it said.</p>
             </Prose>
             <NetworkExamples />
           </Section>

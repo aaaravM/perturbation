@@ -13,9 +13,9 @@ cp .env.example .env.local   # connects the site to the Perturbation API
 pnpm dev                     # http://localhost:3000
 ```
 
-Without `.env.local`, the five challenge targets, the Sky globe and Discoveries still work from the
-prepared data in `public/`; live fields, star lookups and quick-look spectra say the backend is not
-connected.
+Without `.env.local`, the five challenge targets, the Sky globe and the AI page's finds still work
+from the prepared data in `public/`; live fields, star lookups and quick-look spectra say the
+backend is not connected.
 
 ## Check it
 
@@ -32,8 +32,8 @@ npx playwright test --config playwright.cross.config.ts      # Safari's engine (
 
 | Folder | What lives there |
 |---|---|
-| `src/app/` | One folder per page: `/`, `/sky`, `/explore` (the Lab), `/discoveries`, `/help`, `/how-it-works`, `/about`, `/settings` |
-| `src/components/` | Components by area: `globe/` and `sky/` (the Sky globe), `lab/` (the Lab workbench), `panel/` and `sky-panel/` (object details), `landing/` (home story), `discoveries/`, `help/`, `how-it-works/`, `about/`, `settings/`, `site/` (top bar, footer), `ui/` (shared controls, Liquid Glass, explained words); `cult/`, `skiper/` and `watermelon-ui/` hold adapted third-party components |
+| `src/app/` | One folder per page: `/`, `/sky`, `/explore` (the Lab), `/planet-x`, `/ai`, `/how-it-works`, `/about`, `/settings` |
+| `src/components/` | Components by area: `globe/` and `sky/` (the Sky globe), `lab/` (the Lab workbench), `panel/` and `sky-panel/` (object details), `landing/` (home story), `planet-x/`, `ai/`, `how-it-works/`, `about/`, `settings/`, `site/` (top bar, footer), `ui/` (shared controls, Liquid Glass, explained words); `cult/`, `skiper/` and `watermelon-ui/` hold adapted third-party components |
 | `src/lib/` | Data access, URL state, settings, formatting |
-| `public/` | Prepared data: challenge-target bundles, star catalogue tiles, sky textures, the Discoveries list and model summaries |
+| `public/` | Prepared data: challenge-target bundles, star catalogue tiles, sky textures, the search's list of finds and model summaries |
 | `e2e/` | Playwright tests |

@@ -208,17 +208,18 @@ export function MoverFacts() {
           of stamps from the test fields get the right one of the four classes
         </Stat>
         <Stat i={1} value={pct(m.mover_completeness_shift_ge_1px_snr10)}>
-          of clear movers are found when they shift at least one pixel between visits
+          of clear movers are reported when they shift at least one pixel between visits
         </Stat>
         <Stat i={2} value={pct(m.mover_completeness_snr10)}>
-          of clear movers are found over all the speeds tested, slow ones included
+          of clear movers are reported over all the speeds tested, slow ones included
         </Stat>
         <Stat i={3} value={pct(m.variable_completeness_snr10)}>
-          of clear brightness changes are found
+          of clear brightness changes are reported
         </Stat>
       </Reveal>
       <p className="measure text-meta text-pretty text-fg-dim">
-        “Clear” means the source stands at least 10 times above the noise in each visit. These are fake sources planted in the
+        “Clear” means the source stands at least 10 times above the noise in each visit, and “reported” means it passes the
+        false-alarm check. These are fake sources planted in the
         real images of test fields the network never trained on, so the right answer is known.
       </p>
       <ForScientists>

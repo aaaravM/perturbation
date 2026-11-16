@@ -72,6 +72,11 @@ async function revealAll(page: Page) {
       window.scrollTo(0, y);
       await new Promise((r) => setTimeout(r, 60));
     }
+    // On a busy machine a quick pass can outrun the observers: bring anything still hidden into view, as a reader would.
+    for (const el of Array.from(document.querySelectorAll('[data-reveal="hidden"]'))) {
+      el.scrollIntoView({ block: "center" });
+      await new Promise((r) => setTimeout(r, 250));
+    }
     window.scrollTo(0, 0);
   });
   await expect(page.locator('[data-reveal="hidden"]')).toHaveCount(0);
@@ -177,7 +182,9 @@ test.describe("What the AI does", () => {
       // Plain words first, then the number.
       await expect(card.getByTestId("ai-find-sure")).toHaveText(`${sure(c.score)}, ${(c.score * 100).toFixed(0)}%`);
       await expect(card.getByTestId("ai-find-check")).toHaveText(c.q_value <= alpha ? "Passed" : "Not passed");
-      await expect(card).toContainText(c.match.status === "known" ? `Known: ${c.match.name ?? c.match.id}` : "New:");
+      // Catalogue names show without SIMBAD's "V* " prefix.
+      const known = `${c.match.name ?? c.match.id}`.replace(/^V?\*\s+/, "").replace(/\s+/g, " ");
+      await expect(card).toContainText(c.match.status === "known" ? `Known: ${known}` : "New:");
       await expect(card.getByTestId("ai-find-lab")).toHaveAttribute("href", c.lab_url);
       for (const img of await card.locator("img").all()) {
         await expect(img).toHaveAttribute("src", c.stamp!);

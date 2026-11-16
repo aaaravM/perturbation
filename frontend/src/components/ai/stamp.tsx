@@ -55,8 +55,10 @@ export function StampPanel({
         unoptimized
         loading="eager"
         draggable={false}
-        className={cn("absolute top-0 h-full max-w-none select-none", PIXELATED)}
-        style={{ width: "300%", left: `${-panel * 100}%` }}
+        // object-position picks the panel. The image box is rounded up to whole pixels (the box clips
+        // the extra), so the panel edges land on pixel edges and no column of a neighbour shows.
+        className={cn("absolute top-0 left-0 size-full max-w-none object-cover select-none", PIXELATED)}
+        style={{ width: "round(up, 100%, 1px)", height: "round(up, 100%, 1px)", objectPosition: `${panel * 50}% 0` }}
       />
     );
   } else {

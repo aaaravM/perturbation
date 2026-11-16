@@ -13,6 +13,7 @@ import {
   brightnessWords,
   byConfidence,
   compass,
+  displayName,
   fieldName,
   formatDay,
   percent,
@@ -36,12 +37,18 @@ export function motionWords(c: Candidate): string | null {
   return `${m.pm_arcsec_yr.toFixed(2)}${err}″ a year${dir}`;
 }
 
-/** What was measured, in a sentence: the motion, the brightness change, or that neither could be. */
-export function measuredWords(c: Candidate): string {
+/**
+ * What was measured, in a sentence: the motion, the brightness change, or that neither could be.
+ * In plain words a change under 3σ is "within the noise"; `withSigma` adds the σ figure for the network view.
+ */
+export function measuredWords(c: Candidate, withSigma = false): string {
   const motion = motionWords(c);
   if (motion) return `Moves ${motion}`;
   if (c.variability) {
-    return `${brightnessWords(c.variability)}${c.variability.sigma !== null ? `, at ${c.variability.sigma.toFixed(1)}σ` : ""}`;
+    const s = c.variability.sigma;
+    if (s === null) return brightnessWords(c.variability);
+    if (withSigma) return `${brightnessWords(c.variability)}, at ${s.toFixed(1)}σ`;
+    return `${brightnessWords(c.variability)}${s < 3 ? ", within the noise of the measurement" : ""}`;
   }
   return c.kind === "mover" ? "Its motion could not be measured" : "The size of the change could not be measured";
 }
@@ -212,8 +219,9 @@ function FindsList({ data }: { data: Discoveries }) {
         <Scope data={data} />
         <div className="measure flex flex-col gap-1.5 text-meta text-pretty text-fg-dim">
           <p>
-            <span className="text-fg">How sure the AI is</span> means the network’s own chance that the spot is a real change rather
-            than an artifact or nothing: very sure from 90%, fairly sure from 60%, unsure from 40%, doubtful below.
+            <span className="text-fg">How sure the AI is</span> comes from the network’s score for a real change rather than an artifact or
+            nothing: very sure from 90%, fairly sure from 60%, unsure from 40%, doubtful below. Ordinary spots in other fields can
+            score as high, so a high score alone does not make a find; only the false-alarm check decides what is reported.
           </p>
           <p>
             <span className="text-fg">The false-alarm check</span> asks whether the spot stands out from ordinary spots in other
@@ -318,7 +326,7 @@ function MatchLine({ c }: { c: Candidate }) {
   if (m.status === "known") {
     return (
       <p className="text-meta text-pretty text-fg-dim">
-        Known: <span className="text-fg">{m.name ?? m.id ?? "a catalogued source"}</span>
+        Known: <span className="text-fg">{displayName(m.name ?? m.id ?? "a catalogued source")}</span>
         {m.catalog && <> in {m.catalog}</>}
         {m.sep_arcsec !== null && <>, {m.sep_arcsec.toFixed(1)}″ away</>}
       </p>

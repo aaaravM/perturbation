@@ -21,7 +21,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CommandIcon, DownloadIcon, GlobeIcon, KeyboardIcon, LinkIcon, MousePointerClickIcon } from "lucide-react";
-import { AladinView, type AladinStatus, type SkyView } from "@/components/sky/aladin-view";
+import { AladinView, holdViewEchoes, type AladinStatus, type SkyView } from "@/components/sky/aladin-view";
 import { emitCurrentView, type AladinSession } from "@/components/sky/aladin-session";
 import { extra } from "@/components/sky/aladin-extra";
 import { Button } from "@/components/ui/button";
@@ -582,6 +582,7 @@ export function LabWorkspace() {
     const lock = scaleLock.current;
     const s = sessionRef.current;
     if (!lock || !s || width <= 0) return;
+    holdViewEchoes();
     let fov = lock.degPerPx * width;
     if (lock.blinkMax) fov = Math.min(fov, BLINK_FOV_MAX_DEG);
     if (lock.blinkMin) fov = Math.max(fov, BLINK_FOV_MIN_DEG);
@@ -1068,8 +1069,8 @@ export function LabWorkspace() {
           { id: "pane-data", group: "Layout", label: `${panes.data ? "Hide" : "Show"} the data pane`, shortcut: "Ctrl B", run: () => togglePane("data") },
           { id: "pane-player", group: "Layout", label: `${panes.player ? "Hide" : "Show"} the blink player`, shortcut: "Ctrl J", run: () => togglePane("player") },
           { id: "pane-analysis", group: "Layout", label: `${panes.analysis ? "Hide" : "Show"} the analysis pane`, shortcut: "Ctrl Alt B", run: () => togglePane("analysis") },
-          { id: "panes-hide", group: "Layout", label: "Hide all panels", disabled: !panes.data && !panes.player && !panes.analysis, run: () => setPanes({ data: false, player: false, analysis: false }) },
-          { id: "panes-show", group: "Layout", label: "Show all panels", disabled: panes.data && panes.player && panes.analysis, run: () => setPanes({ data: true, player: true, analysis: true }) },
+          { id: "panes-hide", group: "Layout", label: "Hide all panes", disabled: !panes.data && !panes.player && !panes.analysis, run: () => setPanes({ data: false, player: false, analysis: false }) },
+          { id: "panes-show", group: "Layout", label: "Show all panes", disabled: panes.data && panes.player && panes.analysis, run: () => setPanes({ data: true, player: true, analysis: true }) },
         ] satisfies PaletteAction[])
       : []),
     { id: "export-png", group: "Export", label: "PNG of the frame on screen", disabled: !currentFrame, run: exportFrame },

@@ -124,7 +124,9 @@ test("the three buttons hide and show each pane, and the sky takes the room at t
   await expectPane(page, "analysis", false);
   const bare = await settledView(page);
   expect(bare.w).toBeGreaterThan((page.viewportSize()?.width ?? 1440) - 2);
-  expect(Math.abs(bare.w / bare.fov / (start.w / start.fov) - 1)).toBeLessThan(0.02);
+  // The same scale, except that a view showing the blink is never widened past its 30′.
+  const keptFov = Math.min((start.fov / start.w) * bare.w, 30 / 60);
+  expect(Math.abs(bare.fov / keptFov - 1)).toBeLessThan(0.02);
   await expectSharp(page);
   await shot(page, "lab-layout-all-hidden-1440x900");
 
@@ -196,11 +198,11 @@ test("the palette shows and hides each pane, or all of them", async ({ page }) =
     await page.keyboard.press("Enter");
     await expect(page.getByTestId("command-palette")).toHaveCount(0);
   };
-  await run("Hide all panels");
+  await run("Hide all panes");
   for (const p of PANES) await expectPane(page, p, false);
   await run("Show the blink player");
   await expectPane(page, "player", true);
-  await run("Show all panels");
+  await run("Show all panes");
   for (const p of PANES) await expectPane(page, p, true);
   await run("Hide the analysis pane");
   await expectPane(page, "analysis", false);

@@ -5,7 +5,7 @@
 // by how much a target missed the false-alarm check.
 
 import { CheckIcon } from "lucide-react";
-import { formatQ, type Candidate, type Discoveries, type TargetCheck } from "@/lib/discoveries";
+import { type Candidate, type Discoveries, type TargetCheck } from "@/lib/discoveries";
 import { cn } from "@/lib/utils";
 import { BlinkPanels, StampPanel } from "./stamp";
 
@@ -50,11 +50,12 @@ function fromTarget(t: TargetCheck, alpha: number): FoundItem {
     };
   }
   const missedCheck = t.q_target > alpha + 1e-12;
-  const check = `the false-alarm check (q ${formatQ(t.q_target)}; ${alpha} or less passes)`;
+  // Within a fifth of the cut-off reads as "just missed"; the q-value itself is in the network view.
+  const missed = t.q_target <= alpha * 1.2 + 1e-12 ? "just missed" : "did not pass";
   const detail =
     t.expected && c.kind !== t.expected
-      ? `The change seen there${sep} looked more like ${kindWord(c.kind)}${missedCheck ? ` and did not pass ${check}` : ""}.`
-      : `A change was seen there${sep}, but it did not pass ${check}.`;
+      ? `The change seen there${sep}${sep ? "," : ""} looked more like ${kindWord(c.kind)}${missedCheck ? ` and ${missed} the false-alarm check` : ""}.`
+      : `A change was seen there${sep}, but it ${missed} the false-alarm check.`;
   return { key: `t-${t.field}`, name: t.name, outcome: "missed", verdict: "Not passed", detail, candidate: c };
 }
 

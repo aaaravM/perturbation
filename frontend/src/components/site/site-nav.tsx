@@ -18,6 +18,7 @@ import { MODE_LINKS, NAV_LINKS, PAGE_LINKS, SETTINGS_LINK } from "@/lib/site";
 import { useEffectiveReducedMotion } from "@/lib/preferences";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/site/logo-mark";
 import {
   Sheet,
   SheetClose,
@@ -178,8 +179,9 @@ export function SiteNav() {
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-4">
             <Link
               href="/"
-              className="-mx-1 inline-flex h-11 min-w-0 shrink items-center truncate rounded-sm px-1 text-ui font-medium tracking-[-0.01em] text-fg transition-colors duration-200 hover:text-fg-dim md:pointer-fine:h-8"
+              className="-mx-1 inline-flex h-11 min-w-0 shrink items-center gap-2 truncate rounded-sm px-1 text-ui font-medium tracking-[-0.01em] text-fg transition-colors duration-200 hover:text-fg-dim md:pointer-fine:h-8"
             >
+              <LogoMark />
               Perturbation
             </Link>
             <span aria-hidden className="hidden h-4 w-px bg-hair-strong sm:block" />
@@ -243,7 +245,10 @@ export function SiteNav() {
               </SheetTrigger>
               <SheetContent side="right" className="w-72 border-hair bg-ink-2">
                 <SheetHeader>
-                  <SheetTitle className="text-ui font-medium text-fg">Perturbation</SheetTitle>
+                  <SheetTitle className="flex items-center gap-2 text-ui font-medium text-fg">
+                    <LogoMark />
+                    Perturbation
+                  </SheetTitle>
                   <SheetDescription className="sr-only">Site navigation</SheetDescription>
                 </SheetHeader>
                 <ul className="flex flex-col px-4">

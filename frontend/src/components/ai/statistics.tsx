@@ -68,6 +68,10 @@ export function Statistics() {
             Lab. Reporting everything at q ≤ {alpha} keeps the expected share of false alarms in a field’s list at{" "}
             {Math.round(alpha * 100)}% or less.
           </Item>
+          <Item term="Which finds are listed">
+            Every change with q ≤ 0.2 in its field, except movers that turn out to be the leftover of a bright star that does not
+            move. Those at q ≤ {alpha} pass the false-alarm check; the rest are listed so you can judge them yourself.
+          </Item>
           <Item term="False alarms measured">
             {isNum(m.false_alarms_per_deg2_q05) ? (
               <span data-testid="ai-false-alarms">

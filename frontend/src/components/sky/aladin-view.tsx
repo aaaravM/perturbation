@@ -65,6 +65,18 @@ const TILE_FAILURE_GRACE_MS = 2500;
 const TILE_WATCHDOG_MS = 25000;
 /** Longer than the URL throttle (300 ms) plus a render. */
 const ECHO_WINDOW_MS = 2000;
+/** How long after the Lab resizes the sky any view sent since the last outside move is an echo. */
+const ECHO_HOLD_MS = 10000;
+let echoHoldUntil = 0;
+
+/**
+ * The Lab is resizing the sky at a kept scale: on a busy computer the URL can hand back a view
+ * from before or during the resize seconds later, which would undo the scale. Until ECHO_HOLD_MS
+ * after the last call, every view sent since the last outside move counts as an echo.
+ */
+export function holdViewEchoes() {
+  echoHoldUntil = performance.now() + ECHO_HOLD_MS;
+}
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -206,7 +218,7 @@ export function AladinView({
         const next = roundView(raw);
         const recent = recentRef.current;
         recent.push({ view: next, at: performance.now() });
-        if (recent.length > 64) recent.shift();
+        if (recent.length > 256) recent.shift();
         onViewChangeRef.current?.(next, dragging);
       },
       onTile: handleTile,
@@ -310,8 +322,9 @@ export function AladinView({
     const s = sessionRef.current;
     if (!s || !session) return;
     const now = performance.now();
+    const holding = now < echoHoldUntil;
     const echo = recentRef.current.some(
-      (e) => now - e.at < ECHO_WINDOW_MS && sameView(e.view, view),
+      (e) => (holding || now - e.at < ECHO_WINDOW_MS) && sameView(e.view, view),
     );
     if (echo) return;
     recentRef.current = [{ view, at: now }];

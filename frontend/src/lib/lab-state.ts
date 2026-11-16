@@ -49,7 +49,9 @@ export const DEFAULT_FIELD_DEG = 10 / 60;
 export const FOV_STEPS_DEG = [2, 3, 5, 8, 12, 20, 30, 45, 90, 180, 360, 900, 1800, 3600].map((m) => m / 60);
 
 export function nextFovStep(current: number, direction: 1 | -1): number {
-  const eps = 1e-6;
+  // The URL keeps four significant digits (roundFov), so 20′ comes back as 0.3333°, just under
+  // the step itself: compare with a relative margin, or "zoom out" would pick the same step again.
+  const eps = current * 1e-3;
   if (direction > 0) return FOV_STEPS_DEG.find((s) => s > current + eps) ?? FOV_STEPS_DEG.at(-1)!;
   return [...FOV_STEPS_DEG].reverse().find((s) => s < current - eps) ?? FOV_STEPS_DEG[0];
 }

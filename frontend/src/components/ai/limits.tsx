@@ -42,7 +42,7 @@ export function Limits() {
       text: (
         <>
           {pct(m.mover_completeness_snr10) && pct(m.mover_completeness_shift_ge_1px_snr10)
-            ? `Of clear movers, it finds ${pct(m.mover_completeness_snr10)} over all the speeds tested, against ${pct(m.mover_completeness_shift_ge_1px_snr10)} of those that shift at least a pixel. `
+            ? `Of clear movers, it reports ${pct(m.mover_completeness_snr10)} over all the speeds tested, against ${pct(m.mover_completeness_shift_ge_1px_snr10)} of those that shift at least a pixel. `
             : ""}
           A pixel is 6.15″ wide, so a star moving 1″ a year shifts a sixth of a pixel in a year and leaves almost nothing in the
           difference.
